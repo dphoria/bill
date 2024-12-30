@@ -1,10 +1,8 @@
 from bill.images import load_image
 from PIL import Image
-from pathlib import Path
+from .utils import TEST_DATA_DIR
 import os
 import pytest
-
-TEST_DATA_DIR = Path(__file__).parent / ".." / "bin"
 
 
 def create_image_file(width: int, height: int, image_file_path: os.PathLike):

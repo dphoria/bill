@@ -17,6 +17,7 @@ dev = [
     "pytest",
     "ruff",
     "black",
+    "pytest-env",
 ]
 [tool.pdm]
 distribution = false
