@@ -1,0 +1,25 @@
+[project]
+name = "bill"
+version = "0.1.0"
+description = "Default template for PDM package"
+authors = [
+    {name = "", email = ""},
+]
+dependencies = ["huggingface-hub", "pillow"]
+requires-python = "==3.12.*"
+readme = "README.md"
+license = {text = "MIT"}
+
+
+[project.optional-dependencies]
+dev = [
+    "ipykernel",
+    "pytest",
+    "ruff",
+    "black",
+]
+[tool.pdm]
+distribution = false
+
+[tool.pytest.ini_options]
+pythonpath = "src"
