@@ -5,7 +5,7 @@ description = "Default template for PDM package"
 authors = [
     {name = "", email = ""},
 ]
-dependencies = ["huggingface-hub", "pillow"]
+dependencies = ["huggingface-hub", "pillow", "pydantic"]
 requires-python = "==3.12.*"
 readme = "README.md"
 license = {text = "MIT"}
