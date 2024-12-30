@@ -162,5 +162,5 @@ cython_debug/
 #.idea/
 
 **/*.ipynb
-*.jpg
-*.png
+./*.jpg
+./*.png
