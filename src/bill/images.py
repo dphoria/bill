@@ -14,7 +14,7 @@ def get_image_data(image: Image) -> bytes:
 
 
 def compress(image: Image, max_data_size: int) -> Image:
-    image = image.convert("RGBA")
+    image = image.convert("RGB")
 
     image_data = get_image_data(image)
     log.debug(f"Image data size {len(image_data)}")
