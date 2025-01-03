@@ -1,4 +1,6 @@
-from bill.receipts import parse_item
+from bill.receipts import parse_item, get_items, Subtotal, get_lines, read_receipt
+from bill.images import load_image, get_image_data, compress
+from .utils import TEST_DATA_DIR
 import pytest
 
 # @pytest.fixture(scope="session")
@@ -8,10 +10,6 @@ import pytest
 #     description = read_receipt(image_data)
 #     description = list(description)
 #     return description
-
-# def test_receipt_description(receipt_description):
-#     num_expected_items = 16
-#     assert len(receipt_description) >= num_expected_items
 
 @pytest.fixture()
 def sample_receipt_description() -> list[str]:
@@ -37,3 +35,11 @@ Note: I use the a.m.d subscript for the list item number if there are more than 
 def test_parse_item(sample_receipt_description):
     assert parse_item(sample_receipt_description[0])
     assert not parse_item(sample_receipt_description[-1])
+    assert parse_item(sample_receipt_description[11]).count == 2
+
+@pytest.mark.parametrize("receipt_file_name", ["20241128_183627.jpg"])
+def test_receipt_items(receipt_file_name):
+    items = list(get_items(load_image(TEST_DATA_DIR / receipt_file_name)))
+    assert len(items) == 17
+    assert isinstance(items[-1], Subtotal)
+    assert items[-1].price == 321.0
