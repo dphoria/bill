@@ -6,15 +6,5 @@ services:
     stop_signal: SIGINT
     ports:
       - '8000:8000'
-    secrets:
-      - openai_token
-      - flask_secret
-    environment:
-      INFERENCE_API_TOKEN: /run/secrets/openai_token
-      FLASK_SECRET_KEY: /run/secrets/flask_secret
-
-secrets:
-  openai_token:
-    file: ./openai.token
-  flask_secret:
-    file: ./flask.secret
+    env_file:
+      - "bill.env"

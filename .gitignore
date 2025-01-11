@@ -164,6 +164,5 @@ cython_debug/
 **/*.ipynb
 *.jpg
 *.png
-export-tokens.sh
-flask.secret
-openai.token
+bill.env
+bin/export-tokens.sh
