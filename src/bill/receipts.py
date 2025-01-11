@@ -1,11 +1,8 @@
-from itertools import chain, takewhile
 import os
 import base64
-import re
 from typing import Iterable
 from openai import OpenAI
 from pydantic import BaseModel
-from typing import Optional
 from logging import getLogger
 
 log = getLogger(__file__)
@@ -22,8 +19,10 @@ class Item(BaseModel):
     def __str__(self):
         return f"{self.name} ({self.count}) : {self.price}"
 
+
 class Items(BaseModel):
     items: list[Item]
+
 
 def get_items(receipt_png_data: bytes) -> Iterable[Item]:
     client = OpenAI(api_key=INFERENCE_API_TOKEN)
@@ -31,10 +30,11 @@ def get_items(receipt_png_data: bytes) -> Iterable[Item]:
     image = base64.b64encode(receipt_png_data).decode("utf-8")
     image_url = f"data:image/png;base64,{image}"
 
-    messages=[
+    messages = [
         {
             "role": "developer",
-            "content": "You extract items from restaurant receipt images.",
+            "content": "You extract items from restaurant receipt images. "
+            "The sum of the item prices should equal the subtotal amount written on the receipt.",
         },
         {
             "role": "user",
@@ -47,13 +47,13 @@ def get_items(receipt_png_data: bytes) -> Iterable[Item]:
                     "type": "image_url",
                     "image_url": {
                         "url": image_url,
-                    }
+                    },
                 },
-            ]
-        }
+            ],
+        },
     ]
 
-    response_format=Items
+    response_format = Items
 
     response = client.beta.chat.completions.parse(
         model=INFERENCE_MODEL,
