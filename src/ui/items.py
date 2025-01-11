@@ -1,13 +1,14 @@
-from flask import render_template, session
-from app import app
+from flask import render_template, session, Blueprint
 from bill.receipts import get_items
-from constants import RECEIPT_IMAGE_DATA
-from base64 import urlsafe_b64decode
+from constants import Session
+from pathlib import Path
+
+items_page = Blueprint("items", __name__)
 
 
-@app.route("/items")
+@items_page.route("/items")
 def list_items():
-    image_data = session[RECEIPT_IMAGE_DATA]
-    image_data = urlsafe_b64decode(image_data)
+    image_file_path = session[Session.image_file_path]
+    image_data = Path(image_file_path).read_bytes()
     items = get_items(image_data)
-    return render_template("items.html", items=items)
+    return render_template("items.html", items=items.items)

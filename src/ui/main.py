@@ -14,10 +14,10 @@ def home():
     return render_template("index.html")
 
 
-def save_image(image_file):
+def save_image(image_file) -> str:
     image_file_path = Path(data_directory) / IMAGE_FILE_NAME
     image_file_path.write_bytes(load_image(image_file))
-    return image_file_path
+    return str(image_file_path)
 
 
 @app.route("/", methods=["POST"])
@@ -26,7 +26,7 @@ def read_receipt_image():
         image_file = request.files["file"]
         image_file_path = save_image(image_file)
         session[Session.image_file_path] = image_file_path
-        return redirect(url_for("list_items"))
+        return redirect(url_for("items.list_items"))
     except KeyError:
         flash("No file uploaded")
     except Exception as e:
