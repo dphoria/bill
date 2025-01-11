@@ -16,7 +16,7 @@ def read_items_file(items_file_path: os.PathLike) -> Items:
     return Items.model_validate_json(json.loads(Path(items_file_path).read_text()))
 
 
-def save_items(items: Items, session):
+def save_items_file(items: Items, session):
     with open(
         constants.session_item_path(session, constants.ITEMS_FILE), "w"
     ) as json_file:
@@ -55,7 +55,7 @@ def list_items():
     items = get_current_items(session)
     items = items or get_test_items()
     items = items or get_receipt_image_items(session)
-    save_items(items, session)
+    save_items_file(items, session)
 
     return render_template("items.html", items=items.items)
 
@@ -75,6 +75,19 @@ def add_item():
     else:
         items = get_current_items(session)
         items.items.append(new_item)
-        save_items(items, session)
+        save_items_file(items, session)
 
     return redirect(url_for("items.list_items"))
+
+
+@items_page.route("/items/next", methods=["POST"])
+def save_items():
+    table_data = request.form.get("table_data")
+    items_json = json.loads(table_data)
+    items_list = map(TypeAdapter(Item).validate_python, items_json)
+    items = Items(items=list(items_list))
+    save_items_file(items, session)
+
+    log.info(str(items))
+
+    return redirect(url_for("people.list_people"))

@@ -25,6 +25,10 @@ class Item(BaseModel):
 class Items(BaseModel):
     items: list[Item]
 
+    def __str__(self):
+        items = map(str, self.items)
+        return "\n".join(items)
+
     def get_sum(self):
         prices = map(lambda item: item.price, self.items)
         return sum(prices)
