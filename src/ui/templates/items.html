@@ -7,20 +7,28 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
   </head>
   <body>
-    <h1>Item List</h1>
-    <table border="1">
-        <tr>
-            <th>Name</th>
-            <th>Count</th>
-            <th>Price</th>
-        </tr>
-        {% for item in items %}
-        <tr>
-            <td>{{ item.name }}</td>
-            <td>{{ item.count }}</td>
-            <td>{{ item.price }}</td>
-        </tr>
-        {% endfor %}
-    </table>
+    <div class="container">
+      <table>
+          <tr>
+              <th>Name</th>
+              <th>Count</th>
+              <th>Price ($)</th>
+          </tr>
+          {% for item in items %}
+          <tr>
+              <td>{{ item.name }}</td>
+              <td><input type="number" value="{{ item.count }}" min="0" step="1"></td>
+              <td><input type="text" value="{{ item.price }}" pattern="^\d+(\.\d{1,2})?$" title="Please enter a valid price (e.g., 9.99)"></td>
+          </tr>
+          {% endfor %}
+      </table>
+
+      <form action="/items" method="post" style="margin-top: 20px;">
+          <input type="text" name="name" placeholder="Item Name" required>
+          <input type="number" name="count" value="1" min="1" step="1" placeholder="Count" required>
+          <input type="text" name="price" pattern="^\d+(\.\d{1,2})?$" title="Please enter a valid price (e.g., 9.99)" placeholder="Price ($)" required>
+          <input type="submit" value="Add Item">
+      </form>
+    </div>
   </body>
 </html>

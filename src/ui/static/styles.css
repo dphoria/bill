@@ -8,16 +8,19 @@ body {
   height: 100vh;
   background-color: #f5f5f5;
 }
+
 .container {
   background: white;
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
+
 form {
   display: flex;
   flex-direction: column;
 }
+
 input[type="file"],
 input[type="submit"] {
   margin-top: 10px;
@@ -25,12 +28,56 @@ input[type="submit"] {
   border-radius: 4px;
   border: 1px solid #ccc;
 }
+
 input[type="submit"] {
   background-color: #4CAF50;
   color: white;
   cursor: pointer;
   border: none;
 }
+
 input[type="submit"]:hover {
   background-color: #45a049;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+th, td {
+  padding: 8px 12px;
+  text-align: left;
+}
+
+input[type="number"],
+input[type="text"] {
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 600px) {
+  body {
+    padding: 10px;
+  }
+
+  table, th, td {
+    display: block;
+  }
+
+  th, td {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  tr {
+    margin-bottom: 15px;
+  }
+
+  input[type="number"],
+  input[type="text"] {
+    width: calc(100% - 16px);
+  }
 }
