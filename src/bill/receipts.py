@@ -1,6 +1,5 @@
 import os
 import base64
-from typing import Iterable
 from openai import OpenAI
 from pydantic import BaseModel
 from logging import getLogger
@@ -19,12 +18,19 @@ class Item(BaseModel):
     def __str__(self):
         return f"{self.name} ({self.count}) : {self.price}"
 
+    def __hash__(self):
+        return str(self).lower().__hash__()
+
 
 class Items(BaseModel):
     items: list[Item]
 
+    def get_sum(self):
+        prices = map(lambda item: item.price, self.items)
+        return sum(prices)
 
-def get_items(receipt_png_data: bytes) -> Iterable[Item]:
+
+def get_items(receipt_png_data: bytes) -> Items:
     client = OpenAI(api_key=INFERENCE_API_TOKEN)
 
     image = base64.b64encode(receipt_png_data).decode("utf-8")
@@ -61,4 +67,4 @@ def get_items(receipt_png_data: bytes) -> Iterable[Item]:
         response_format=response_format,
     )
 
-    yield from response.choices[0].message.parsed.items
+    return response.choices[0].message.parsed
