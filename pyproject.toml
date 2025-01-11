@@ -9,9 +9,9 @@ name = "bill"
 version = "0.1.0"
 description = "Default template for PDM package"
 authors = [
-    {name = "Sung Cho", email = "sung.w.cho@pm.me"},
+    {name = "Sung Cho", email = "sung.w.cho@protonmail.com"},
 ]
-dependencies = ["google-api-python-client", "google-auth-httplib2", "google-auth-oauthlib", "flask"]
+dependencies = []
 requires-python = "==3.12.*"
 readme = "README.md"
 license = {text = "MIT"}
@@ -19,7 +19,8 @@ license = {text = "MIT"}
 [project.optional-dependencies]
 dev = [
     "ipykernel",
-    "pytest",
+    "openai",
     "ruff",
     "black",
+    "pytest",
 ]
