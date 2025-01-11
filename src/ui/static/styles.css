@@ -110,3 +110,57 @@ input[type="text"] {
 .full-width-button:hover {
   background-color: #45a049;
 }
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #121212;
+    color: #ffffff;
+  }
+
+  .container {
+    background: #1e1e1e;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  }
+
+  input[type="file"],
+  input[type="submit"] {
+    border: 1px solid #555;
+  }
+
+  input[type="submit"] {
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+    border: none;
+  }
+
+  input[type="submit"]:hover {
+    background-color: #45a049;
+  }
+
+  table {
+    color: #ffffff;
+  }
+
+  th, td {
+    border-bottom: 1px solid #555;
+  }
+
+  .styled-button {
+    background-color: #4CAF50;
+    color: white;
+  }
+
+  .styled-button:hover {
+    background-color: #45a049;
+  }
+
+  .full-width-button {
+    background-color: #4CAF50;
+    color: white;
+  }
+
+  .full-width-button:hover {
+    background-color: #45a049;
+  }
+}
