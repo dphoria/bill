@@ -1,0 +1,2 @@
+#!/bin/bash
+export INFERENCE_API_TOKEN=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
