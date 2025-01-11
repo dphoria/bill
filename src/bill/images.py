@@ -31,4 +31,4 @@ def compress(image: Image, max_data_size: int) -> Image:
 
 
 def load_image(image_file_path: os.PathLike) -> bytes:
-    return get_image_data(compress(Image.open(image_file_path), 2 * 1024 * 1024))
+    return get_image_data(compress(Image.open(image_file_path), 1024 * 1024))
