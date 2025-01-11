@@ -1,1 +1,2 @@
-RECEIPT_IMAGE_DATA = "image_data"
+class Session:
+    image_file_path = "image_file_path"

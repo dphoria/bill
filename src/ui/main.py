@@ -1,8 +1,12 @@
 from flask import render_template, request, flash, url_for, redirect, session
 from app import app
 from bill.images import load_image
-from base64 import urlsafe_b64encode
-from constants import RECEIPT_IMAGE_DATA
+from constants import Session
+from pathlib import Path
+from tempfile import TemporaryDirectory
+
+data_directory = None
+IMAGE_FILE_NAME = "RECEIPT_IMAGE"
 
 
 @app.route("/", methods=["GET"])
@@ -10,13 +14,18 @@ def home():
     return render_template("index.html")
 
 
+def save_image(image_file):
+    image_file_path = Path(data_directory) / IMAGE_FILE_NAME
+    image_file_path.write_bytes(load_image(image_file))
+    return image_file_path
+
+
 @app.route("/", methods=["POST"])
 def read_receipt_image():
     try:
         image_file = request.files["file"]
-        image_data = load_image(image_file)
-        session[RECEIPT_IMAGE_DATA] = urlsafe_b64encode(image_data).decode()
-        # flash(f"{image_file.filename}: {len(image_data)}")
+        image_file_path = save_image(image_file)
+        session[Session.image_file_path] = image_file_path
         return redirect(url_for("list_items"))
     except KeyError:
         flash("No file uploaded")
@@ -26,4 +35,6 @@ def read_receipt_image():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8000)
+    with TemporaryDirectory() as dir:
+        data_directory = dir
+        app.run(host="0.0.0.0", port=8000)
