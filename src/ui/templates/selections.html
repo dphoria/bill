@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Selections</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  </head>
+  
+  <body>
+    <div class="container">
+      <button class="full-width-button">Next</button>
+
+      <select>
+        <option value="option1">Option 1</option>
+        <option value="option2">Option 2</option>
+        <option value="option3">Option 3</option>
+      </select>
+
+      <table>
+        <tr>
+            <th>Name</th>
+            <th>Count</th>
+            <th>Price ($)</th>
+        </tr>
+        {% for selection in selections %}
+        <tr class="{% if selection.selected %}highlight{% endif %}" onclick="toggleHighlight(this)">
+            <td>{{ selection.item.name }}</td>
+            <td>{{ selection.item.count }}</td>
+            <td>{{ selection.item.price }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+    
+    </div>
+  </body>
+
+  <script>
+    function toggleHighlight(row) {
+        row.classList.toggle('highlight');
+    }
+  </script>
+
+</html>
