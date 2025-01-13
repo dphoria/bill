@@ -19,12 +19,19 @@
               <th>Name</th>
               <th>Count</th>
               <th>Price ($)</th>
+              <th></th>
           </tr>
           {% for item in items %}
           <tr>
               <td>{{ item.name }}</td>
               <td><input type="number" value="{{ item.count }}" min="0" step="1"></td>
               <td><input type="text" value="{{ item.price }}" pattern="^\d+(\.\d{1,2})?$" title="Please enter a valid price (e.g., 9.99)"></td>
+              <td>
+                <form action="/items/split" method="post">
+                  <input type="hidden" name="index" value="{{ loop.index0 }}">
+                  <button type="submit">Split</button>
+                </form>
+              </td>
           </tr>
           {% endfor %}
       </table>
@@ -60,7 +67,6 @@
     document.querySelector('.full-width-button').addEventListener('click', function(event) {
       event.preventDefault();
       submitTableData();
-      // window.location.href = '/people'; // Redirect after form submission
     });
   </script>
   

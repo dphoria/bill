@@ -1,6 +1,5 @@
 import json
-import os
-import constants
+import session_data
 from flask import render_template, session, Blueprint, request, redirect, url_for
 from bill.receipts import get_items, Items, Item
 from pathlib import Path
@@ -12,13 +11,9 @@ log = getLogger(__file__)
 items_page = Blueprint("items", __name__)
 
 
-def read_items_file(items_file_path: os.PathLike) -> Items:
-    return Items.model_validate_json(json.loads(Path(items_file_path).read_text()))
-
-
 def save_items_file(items: Items, session):
     with open(
-        constants.session_item_path(session, constants.ITEMS_FILE), "w"
+        session_data.session_item_path(session, session_data.ITEMS_FILE), "w"
     ) as json_file:
         json.dump(items.model_dump_json(indent=4), json_file)
 
@@ -26,25 +21,23 @@ def save_items_file(items: Items, session):
 def get_test_items() -> Items | None:
     try:
         json_file = Path(__file__).parent / "test_items.json"
-        items = read_items_file(json_file)
+        items = session_data.read_items_file(json_file)
         return items if any(items.items) else None
     except Exception as e:
         log.debug(f"Error while reading {json_file}: {e}")
         return None
 
 
-def get_current_items(session) -> Items | None:
+def get_current_items(session: dict) -> Items | None:
     try:
-        return read_items_file(
-            constants.session_item_path(session, constants.ITEMS_FILE)
-        )
+        return session_data.get_receipt_items(session)
     except Exception as e:
         log.warning(f"current list of items is empty: {e}")
         return None
 
 
-def get_receipt_image_items(session) -> Items:
-    image_file_path = constants.session_item_path(session, constants.IMAGE_FILE)
+def get_receipt_image_items(session: dict) -> Items:
+    image_file_path = session_data.session_item_path(session, session_data.IMAGE_FILE)
     image_data = Path(image_file_path).read_bytes()
     items = get_items(image_data)
     return items
@@ -77,6 +70,16 @@ def add_item():
         items.items.append(new_item)
         save_items_file(items, session)
 
+    return redirect(url_for("items.list_items"))
+
+
+@items_page.route("/items/split", methods=["POST"])
+def split_item():
+    index = int(request.form["index"])
+    items = get_current_items(session)
+    items.split(index)
+
+    save_items_file(items, session)
     return redirect(url_for("items.list_items"))
 
 
