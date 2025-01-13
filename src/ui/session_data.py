@@ -1,5 +1,6 @@
 from pathlib import Path
 from bill.receipts import Items
+from bill.selections import ItemSelection, get_item_selections
 import os
 import json
 
@@ -24,13 +25,17 @@ def get_receipt_items(session: dict) -> Items:
 
 
 def get_people(session: dict) -> list[str]:
-    people = session.get(PEOPLE, "").split(",")
-    return people
+    people = session.get(PEOPLE, "").strip()
+    return people.split(",") if people else []
 
 
 def save_people(session: dict, people: list[str]):
     session[PEOPLE] = ",".join(sorted(set(people), key=str.lower))
 
 
-def get_selections(session: dict) -> dict:
-    return json.loads(session_item_path(session, SELECTIONS_FILE))
+def get_person_selections(session: dict, person: str) -> list[ItemSelection]:
+    items = get_receipt_items(session)
+    selections = json.loads(session_item_path(session, SELECTIONS_FILE).read_text())
+    person_selections = selections.get(person, [])
+    person_selected_items = get_item_selections(items, person_selections)
+    return person_selected_items

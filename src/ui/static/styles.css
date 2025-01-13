@@ -111,6 +111,11 @@ input[type="text"] {
   background-color: #45a049;
 }
 
+.highlight {
+    background-color: #45a049; /* or any color you prefer */
+}
+
+
 @media (prefers-color-scheme: dark) {
   body {
     background-color: #121212;
