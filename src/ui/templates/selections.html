@@ -28,9 +28,29 @@
       <tr class="{% if selection.selected %}highlight{% endif %}" onclick="toggleHighlight(this)">
         <td>{{ selection.item.name }}</td>
         <td>{{ selection.item.count }}</td>
-        <td>{{ selection.item.price }}</td>
+        <td id="price-{{ loop.index0 }}">{{ selection.item.price }}</td>
       </tr>
       {% endfor %}
+      <tr>
+        <td>Subtotal</td>
+        <td></td>
+        <td id="person-subtotal">0.0</td>
+      </tr>
+      <tr>
+        <td>Tax</td>
+        <td id="tax-percent">{{ tax_percent }}%</td>
+        <td id="person-tax">0.0</td>
+      </tr>
+      <tr>
+        <td>Tip</td>
+        <td id="tip-percent">{{ tip_percent }}%</td>
+        <td id="person-tip">0.0</td>
+      </tr>
+      <tr>
+        <td>Total</td>
+        <td></td>
+        <td id="person-total">0.0</td>
+      </tr>
     </table>
 
     <form id="person-form" action="/selections" method="post" style="margin-top: 20px;">
@@ -42,9 +62,51 @@
 </body>
 
 <script>
+  function updateSubtotal() {
+    var rows = document.querySelectorAll('table tr.highlight');
+    var subtotal = 0.0;
+
+    rows.forEach(function (row) {
+      var priceCell = row.querySelector("td[id^=price]");
+      subtotal += parseFloat(priceCell.textContent);
+    });
+
+    document.getElementById('person-subtotal').textContent = subtotal.toFixed(2);
+  }
+
+  function updateExtra(extra_percent_id, extra_value_id) {
+    const subtotal = parseFloat(document.getElementById('person-subtotal').textContent);
+    const extra_percent = parseFloat(document.getElementById(extra_percent_id).textContent);
+    const person_extra = subtotal * extra_percent * 0.01;
+    document.getElementById(extra_value_id).textContent = person_extra.toFixed(2);
+  }
+
+  function updateTax() {
+    updateExtra('tax-percent', 'person-tax');
+  }
+
+  function updateTip() {
+    updateExtra('tip-percent', 'person-tip');
+  }
+
+  function updateTotal() {
+    updateSubtotal();
+    updateTax();
+    updateTip();
+
+    const subtotal = parseFloat(document.getElementById('person-subtotal').textContent);
+    const tax = parseFloat(document.getElementById('person-tax').textContent);
+    const tip = parseFloat(document.getElementById('person-tip').textContent);
+    const total = subtotal + tax + tip;
+
+    document.getElementById('person-total').textContent = total.toFixed(2);
+  }
+
   function toggleHighlight(row) {
     row.classList.toggle('highlight');
+    updateTotal();
   }
+
   function saveSelections() {
     var rows = document.querySelectorAll('table tr');
     var highlightedIndexes = [];
@@ -61,8 +123,10 @@
     document.getElementById('selected-items').value = JSON.stringify(highlightedIndexes);
     document.getElementById('person-form').submit();
   }
+
   function selectPerson(personIndex) {
     document.getElementById("person-select").selectedIndex = personIndex;
+    updateTotal();
   }
 </script>
 

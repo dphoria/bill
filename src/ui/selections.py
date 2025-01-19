@@ -15,6 +15,8 @@ def list_selections(session, people, person_index):
         people=people,
         selections=selections,
         person_index=person_index,
+        tax_percent=session[session_data.TAX_PERCENT],
+        tip_percent=session[session_data.TIP_PERCENT],
     )
 
 
