@@ -1,68 +1,69 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Selections</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-  </head>
-  
-  <body onload="selectPerson({{ person_index }})">
-    <div class="container">
-      <button class="full-width-button">Next</button>
 
-      <select id="person-select", onchange="saveSelections()">
-        {% for name in people %}
-        <option value="{{ name }}">{{ name }}</option>
-        {% endfor %}
-      </select>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Selections</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
 
-      <table>
-        <tr>
-            <th>Name</th>
-            <th>Count</th>
-            <th>Price ($)</th>
-        </tr>
-        {% for selection in selections %}
-        <tr class="{% if selection.selected %}highlight{% endif %}" onclick="toggleHighlight(this)">
-            <td>{{ selection.item.name }}</td>
-            <td>{{ selection.item.count }}</td>
-            <td>{{ selection.item.price }}</td>
-        </tr>
-        {% endfor %}
-      </table>
+<body onload="selectPerson({{ person_index }})">
+  <div class="container">
+    <button class="full-width-button">Next</button>
 
-      <form id="person-form" action="/selections" method="post" style="margin-top: 20px;">
-        <input type="hidden" name="selected-person" id="selected-person">
-        <input type="hidden" name="selected-items" id="selected-items">
-      </form>
-    
-    </div>
-  </body>
+    <select id="person-select" , onchange="saveSelections()">
+      {% for name in people %}
+      <option value="{{ name }}">{{ name }}</option>
+      {% endfor %}
+    </select>
 
-  <script>
-    function toggleHighlight(row) {
-        row.classList.toggle('highlight');
-    }
-    function saveSelections() {
-      var rows = document.querySelectorAll('table tr');
-      var highlightedIndexes = [];
-      
-      // Loop through all rows
-      rows.forEach(function(row, index) {
-        if (row.classList.contains('highlight')) {
-          // excluding row 0 header
-          highlightedIndexes.push(index - 1);
-            }
-          });
-      
-      document.getElementById('selected-person').value = document.getElementById('person-select').value;
-      document.getElementById('selected-items').value = JSON.stringify(highlightedIndexes);
-      document.getElementById('person-form').submit();
-    }
-    function selectPerson(personIndex) {
-      document.getElementById("person-select").selectedIndex = personIndex;
-    }
-  </script>
+    <table>
+      <tr>
+        <th>Name</th>
+        <th>Count</th>
+        <th>Price ($)</th>
+      </tr>
+      {% for selection in selections %}
+      <tr class="{% if selection.selected %}highlight{% endif %}" onclick="toggleHighlight(this)">
+        <td>{{ selection.item.name }}</td>
+        <td>{{ selection.item.count }}</td>
+        <td>{{ selection.item.price }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+
+    <form id="person-form" action="/selections" method="post" style="margin-top: 20px;">
+      <input type="hidden" name="selected-person" id="selected-person">
+      <input type="hidden" name="selected-items" id="selected-items">
+    </form>
+
+  </div>
+</body>
+
+<script>
+  function toggleHighlight(row) {
+    row.classList.toggle('highlight');
+  }
+  function saveSelections() {
+    var rows = document.querySelectorAll('table tr');
+    var highlightedIndexes = [];
+
+    // Loop through all rows
+    rows.forEach(function (row, index) {
+      if (row.classList.contains('highlight')) {
+        // excluding row 0 header
+        highlightedIndexes.push(index - 1);
+      }
+    });
+
+    document.getElementById('selected-person').value = document.getElementById('person-select').value;
+    document.getElementById('selected-items').value = JSON.stringify(highlightedIndexes);
+    document.getElementById('person-form').submit();
+  }
+  function selectPerson(personIndex) {
+    document.getElementById("person-select").selectedIndex = personIndex;
+  }
+</script>
 
 </html>

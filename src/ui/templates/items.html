@@ -1,73 +1,76 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Items</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-  </head>
-  
-  <body>
-    <div class="container">
-      <button class="full-width-button">Next</button>
-      <form id="table-form" action="/items/next" method="post" style="display: none;">
-        <input type="hidden" name="table_data" id="table_data">
-      </form>
-      
-      <table>
-          <tr>
-              <th>Name</th>
-              <th>Count</th>
-              <th>Price ($)</th>
-              <th></th>
-          </tr>
-          {% for item in items %}
-          <tr>
-              <td>{{ item.name }}</td>
-              <td><input type="number" value="{{ item.count }}" min="0" step="1"></td>
-              <td><input type="text" value="{{ item.price }}" pattern="^\d+(\.\d{1,2})?$" title="Please enter a valid price (e.g., 9.99)"></td>
-              <td>
-                <form action="/items/split" method="post">
-                  <input type="hidden" name="index" value="{{ loop.index0 }}">
-                  <button type="submit">Split</button>
-                </form>
-              </td>
-          </tr>
-          {% endfor %}
-      </table>
 
-      <form action="/items" method="post" style="margin-top: 20px;">
-          <input type="text" name="name" placeholder="Item Name" required>
-          <input type="number" name="count" value="1" min="1" step="1" placeholder="Count" required>
-          <input type="text" name="price" pattern="^\d+(\.\d{1,2})?$" title="Please enter a valid price (e.g., 9.99)" placeholder="Price ($)" required>
-          <input type="submit" value="Add Item">
-      </form>
-    </div>
-  </body>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Items</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
 
-  <script>
-    function submitTableData() {
-      var tableData = [];
-      var tableRows = document.querySelectorAll('table tr');
-  
-      for (var i = 1; i < tableRows.length; i++) { // Start from 1 to skip the header row
-        var cells = tableRows[i].querySelectorAll('td');
-        var rowData = {
-          name: cells[0].innerText,
-          count: cells[1].querySelector('input').value,
-          price: cells[2].querySelector('input').value
-        };
-        tableData.push(rowData);
-      }
-  
-      document.getElementById('table_data').value = JSON.stringify(tableData);
-      document.getElementById('table-form').submit();
+<body>
+  <div class="container">
+    <button class="full-width-button">Next</button>
+    <form id="table-form" action="/items/next" method="post" style="display: none;">
+      <input type="hidden" name="table_data" id="table_data">
+    </form>
+
+    <table>
+      <tr>
+        <th>Name</th>
+        <th>Count</th>
+        <th>Price ($)</th>
+        <th></th>
+      </tr>
+      {% for item in items %}
+      <tr>
+        <td>{{ item.name }}</td>
+        <td><input type="number" value="{{ item.count }}" min="0" step="1"></td>
+        <td><input type="text" value="{{ item.price }}" pattern="^\d+(\.\d{1,2})?$"
+            title="Please enter a valid price (e.g., 9.99)"></td>
+        <td>
+          <form action="/items/split" method="post">
+            <input type="hidden" name="index" value="{{ loop.index0 }}">
+            <button type="submit">Split</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+
+    <form action="/items" method="post" style="margin-top: 20px;">
+      <input type="text" name="name" placeholder="Item Name" required>
+      <input type="number" name="count" value="1" min="1" step="1" placeholder="Count" required>
+      <input type="text" name="price" pattern="^\d+(\.\d{1,2})?$" title="Please enter a valid price (e.g., 9.99)"
+        placeholder="Price ($)" required>
+      <input type="submit" value="Add Item">
+    </form>
+  </div>
+</body>
+
+<script>
+  function submitTableData() {
+    var tableData = [];
+    var tableRows = document.querySelectorAll('table tr');
+
+    for (var i = 1; i < tableRows.length; i++) { // Start from 1 to skip the header row
+      var cells = tableRows[i].querySelectorAll('td');
+      var rowData = {
+        name: cells[0].innerText,
+        count: cells[1].querySelector('input').value,
+        price: cells[2].querySelector('input').value
+      };
+      tableData.push(rowData);
     }
-  
-    document.querySelector('.full-width-button').addEventListener('click', function(event) {
-      event.preventDefault();
-      submitTableData();
-    });
-  </script>
-  
+
+    document.getElementById('table_data').value = JSON.stringify(tableData);
+    document.getElementById('table-form').submit();
+  }
+
+  document.querySelector('.full-width-button').addEventListener('click', function (event) {
+    event.preventDefault();
+    submitTableData();
+  });
+</script>
+
 </html>

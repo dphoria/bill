@@ -1,29 +1,32 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>People</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-  </head>
-  <body>
-    <div class="container">
-      <button class="full-width-button" onclick="window.location.href='/selections'"
-        {% if people|length == 0 %} disabled {% endif %}>
-        Next
-      </button>
-      <table>
-          {% for person in people %}
-          <tr>
-              <td>{{ person }}</td>
-          </tr>
-          {% endfor %}
-      </table>
 
-      <form action="/people" method="post" style="margin-top: 20px;">
-          <input type="text" name="name" placeholder="Name" required>
-          <input type="submit" value="Add Person">
-      </form>
-    </div>
-  </body>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>People</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+  <div class="container">
+    <button class="full-width-button" onclick="window.location.href='/selections'" {% if people|length==0 %} disabled {%
+      endif %}>
+      Next
+    </button>
+    <table>
+      {% for person in people %}
+      <tr>
+        <td>{{ person }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+
+    <form action="/people" method="post" style="margin-top: 20px;">
+      <input type="text" name="name" placeholder="Name" required>
+      <input type="submit" value="Add Person">
+    </form>
+  </div>
+</body>
+
 </html>

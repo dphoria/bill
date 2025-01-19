@@ -46,7 +46,8 @@ table {
   margin-bottom: 20px;
 }
 
-th, td {
+th,
+td {
   padding: 8px 12px;
   text-align: left;
 }
@@ -63,11 +64,14 @@ input[type="text"] {
     padding: 10px;
   }
 
-  table, th, td {
+  table,
+  th,
+  td {
     display: block;
   }
 
-  th, td {
+  th,
+  td {
     width: 100%;
     box-sizing: border-box;
   }
@@ -83,16 +87,23 @@ input[type="text"] {
 }
 
 .styled-button {
-  background-color: #4CAF50; /* Same green background */
-  color: white; /* White text */
-  padding: 10px; /* Same padding */
-  border-radius: 4px; /* Same border radius */
-  border: none; /* No border */
-  cursor: pointer; /* Pointer cursor */
+  background-color: #4CAF50;
+  /* Same green background */
+  color: white;
+  /* White text */
+  padding: 10px;
+  /* Same padding */
+  border-radius: 4px;
+  /* Same border radius */
+  border: none;
+  /* No border */
+  cursor: pointer;
+  /* Pointer cursor */
 }
 
 .styled-button:hover {
-  background-color: #45a049; /* Darker green background on hover */
+  background-color: #45a049;
+  /* Darker green background on hover */
 }
 
 .full-width-button {
@@ -112,7 +123,8 @@ input[type="text"] {
 }
 
 .highlight {
-    background-color: #45a049; /* or any color you prefer */
+  background-color: #45a049;
+  /* or any color you prefer */
 }
 
 
@@ -147,7 +159,8 @@ input[type="text"] {
     color: #ffffff;
   }
 
-  th, td {
+  th,
+  td {
     border-bottom: 1px solid #555;
   }
 
