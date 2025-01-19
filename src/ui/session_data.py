@@ -11,6 +11,8 @@ ITEMS_FILE = "items_file"
 SELECTIONS_FILE = "selections_file"
 PEOPLE = "people"
 CURRENT_PERSON = "current_person"
+TAX_PERCENT = "tax_percent"
+TIP_PERCENT = "tip_percent"
 
 
 def session_item_path(session: dict, session_item_name: str) -> Path:

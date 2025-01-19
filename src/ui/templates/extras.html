@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Extras</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+  <div class="container">
+      
+    <form action="/extras" method="post" style="margin-top: 20px;">
+      <input class="full-width-button" type="submit" value="Next">
+
+      <table>
+        <tr>
+          <td>Tax (%)</td>
+          <td><input type="number" name="tax-percent" value="10.10" min="0" step="0.1"></td>
+        </tr>
+        <tr>
+          <td>Tip (%)</td>
+          <td><input type="number" name="tip-percent" value="20" min="0" step="0.1"></td>
+        </tr>
+      </table>
+  
+    </form>
+
+  </div>
+</body>
+
+</html>
