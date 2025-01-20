@@ -21,6 +21,8 @@ def save_image(image_file, session):
 
 @app.route("/", methods=["POST"])
 def read_receipt_image():
+    session.clear()
+
     try:
         image_file = request.files["file"]
         save_image(image_file, session)
