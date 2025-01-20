@@ -15,6 +15,16 @@ TAX_PERCENT = "tax_percent"
 TIP_PERCENT = "tip_percent"
 
 
+def start_new_receipt(session: dict):
+    del session[IMAGE_FILE]
+    del session[ITEMS_FILE]
+    del session[SELECTIONS_FILE]
+    del session[PEOPLE]
+    del session[CURRENT_PERSON]
+    del session[TAX_PERCENT]
+    del session[TIP_PERCENT]
+
+
 def session_item_path(session: dict, session_item_name: str) -> Path:
     return Path(session[DATA_DIRECTORY]) / session_item_name
 
