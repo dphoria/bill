@@ -1,6 +1,14 @@
 import json
 import session_data
-from flask import render_template, session, Blueprint, request, redirect, url_for
+from flask import (
+    render_template,
+    session,
+    Blueprint,
+    request,
+    redirect,
+    url_for,
+    jsonify,
+)
 from bill.receipts import get_items, Items, Item
 from pathlib import Path
 from logging import getLogger
@@ -81,6 +89,16 @@ def split_item():
 
     save_items_file(items, session)
     return redirect(url_for("items.list_items"))
+
+
+@items_page.route("/items/name/<index>", methods=["POST"])
+def rename_items(index: str):
+    index = int(index)
+    items = get_current_items(session)
+    items.items[index].name = request.get_json()["name"]
+
+    save_items_file(items, session)
+    return jsonify({"processed": "true"})
 
 
 @items_page.route("/items/next", methods=["POST"])

@@ -88,22 +88,15 @@ input[type="text"] {
 
 .styled-button {
   background-color: #4CAF50;
-  /* Same green background */
   color: white;
-  /* White text */
   padding: 10px;
-  /* Same padding */
   border-radius: 4px;
-  /* Same border radius */
   border: none;
-  /* No border */
   cursor: pointer;
-  /* Pointer cursor */
 }
 
 .styled-button:hover {
   background-color: #45a049;
-  /* Darker green background on hover */
 }
 
 .full-width-button {
@@ -124,9 +117,30 @@ input[type="text"] {
 
 .highlight {
   background-color: #45a049;
-  /* or any color you prefer */
 }
 
+.transparent-button {
+  background: none;
+  border: none;
+  color: black;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.styled-table-button {
+  background-color: #4CAF50; /* Same green background */
+  color: white; /* White text */
+  padding: 10px; /* Padding to fill the cell */
+  border-radius: 4px; /* Border radius to match the 'Next' button */
+  border: none; /* No border */
+  cursor: pointer; /* Pointer cursor */
+  width: 100%; /* Full width to fill the parent cell */
+  box-sizing: border-box; /* Ensure padding is included in the width */
+}
+
+.styled-table-button:hover {
+  background-color: #45a049; /* Darker green background on hover */
+}
 
 @media (prefers-color-scheme: dark) {
   body {
@@ -180,5 +194,9 @@ input[type="text"] {
 
   .full-width-button:hover {
     background-color: #45a049;
+  }
+
+  .transparent-button {
+    color: white;
   }
 }
