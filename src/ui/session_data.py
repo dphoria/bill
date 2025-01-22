@@ -16,13 +16,25 @@ TIP_PERCENT = "tip_percent"
 
 
 def start_new_receipt(session: dict):
-    del session[IMAGE_FILE]
-    del session[ITEMS_FILE]
-    del session[SELECTIONS_FILE]
-    del session[PEOPLE]
-    del session[CURRENT_PERSON]
-    del session[TAX_PERCENT]
-    del session[TIP_PERCENT]
+    for file in (IMAGE_FILE, ITEMS_FILE, SELECTIONS_FILE):
+        try:
+            os.remove(session_item_path(session, file))
+        except FileNotFoundError:
+            pass
+
+    for key in (
+        IMAGE_FILE,
+        ITEMS_FILE,
+        SELECTIONS_FILE,
+        PEOPLE,
+        CURRENT_PERSON,
+        TAX_PERCENT,
+        TIP_PERCENT,
+    ):
+        try:
+            del session[key]
+        except KeyError:
+            pass
 
 
 def session_item_path(session: dict, session_item_name: str) -> Path:
