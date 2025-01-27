@@ -1,4 +1,5 @@
-function updateSubtotal(table: HTMLTableElement): void {
+function updateSubtotal(): void {
+    const table = document.getElementById("receipt-table") as HTMLTableElement;
     let subtotal = 0;
 
     const itemPrices = table.querySelectorAll('td[id^="item-price-"]');
@@ -11,7 +12,8 @@ function updateSubtotal(table: HTMLTableElement): void {
     subtotalCell.textContent = subtotal.toFixed(2);
 }
 
-function updateExtra(table: HTMLTableElement, extra: string): void {
+function updateExtra(extra: string): void {
+    const table = document.getElementById("receipt-table") as HTMLTableElement;
     const extraPercentCell = table.querySelector(`td#${extra}-percent`) as HTMLTableCellElement;
     const extraPercent = parseFloat(extraPercentCell.textContent || "0");
     const subtotalCell = table.querySelector('td#subtotal') as HTMLTableCellElement;
@@ -20,11 +22,12 @@ function updateExtra(table: HTMLTableElement, extra: string): void {
     extraCell.textContent = extraAmount.toFixed(2);
 }
 
-function updateTotal(table: HTMLTableElement): void {
-    updateSubtotal(table);
-    updateExtra(table, "tax");
-    updateExtra(table, "tip");
-
+function updateTotal(): void {
+    updateSubtotal();
+    updateExtra("tax");
+    updateExtra("tip");
+    
+    const table = document.getElementById("receipt-table") as HTMLTableElement;
     const subtotalCell = table.querySelector('td#subtotal') as HTMLTableCellElement;
     const taxCell = table.querySelector(`td#tax`) as HTMLTableCellElement;
     const tipCell = table.querySelector(`td#tip`) as HTMLTableCellElement;
@@ -46,7 +49,7 @@ function addItem(name: string): void {
     const countCell = newRow.insertCell(1);
     const priceCell = newRow.insertCell(2);
 
-    nameCell.innerHTML = `<input type="button" id="item-name-${table.rows.length - 2}" value="${name}">`;
+    nameCell.innerHTML = `<button id="item-name-${table.rows.length - 2}">${name}</button>`;
 
     countCell.textContent = count.toString();
     countCell.classList.add("text-center");
@@ -55,9 +58,29 @@ function addItem(name: string): void {
     priceCell.textContent = price.toFixed(2);
     priceCell.classList.add("text-right");
 
-    updateTotal(table);
+    updateTotal();
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    updateTotal(document.getElementById("receipt-table") as HTMLTableElement);
+    updateTotal();
+
+    const addItemButton = document.getElementById("add-item-button") as HTMLButtonElement;
+    const addItemModal = document.getElementById("add-item-modal") as HTMLDivElement;
+    const addItemOkButton = document.getElementById("add-item-ok-button") as HTMLButtonElement;
+
+    addItemButton.addEventListener("click", () => {
+        addItemModal.classList.remove("hidden");
+    });
+
+    addItemOkButton.addEventListener("click", () => {
+        const itemNameInput = document.getElementById("item-name") as HTMLInputElement;
+        const itemName = itemNameInput.value.trim();
+        
+        if (itemName) {
+            addItem(itemName);
+        }
+        
+        addItemModal.classList.add("hidden");
+        itemNameInput.value = ""; // Clear the input field
+    });
 });
