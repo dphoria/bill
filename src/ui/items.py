@@ -4,15 +4,10 @@ from flask import (
     render_template,
     session,
     Blueprint,
-    request,
-    redirect,
-    url_for,
-    jsonify,
 )
-from bill.receipts import get_items, Items, Item
+from bill.receipts import get_items, Items
 from pathlib import Path
 from logging import getLogger
-from pydantic import TypeAdapter
 
 log = getLogger(__file__)
 
@@ -59,56 +54,3 @@ def list_items():
     save_items_file(items, session)
 
     return render_template("items.html", items=items.items)
-
-
-@items_page.route("/items", methods=["POST"])
-def add_item():
-    try:
-        new_item = TypeAdapter(Item).validate_python(
-            {
-                "name": request.form["name"],
-                "count": request.form["count"],
-                "price": request.form["price"],
-            }
-        )
-    except Exception as e:
-        log.error(str(e))
-    else:
-        items = get_current_items(session)
-        items.items.append(new_item)
-        save_items_file(items, session)
-
-    return redirect(url_for("items.list_items"))
-
-
-@items_page.route("/items/split", methods=["POST"])
-def split_item():
-    index = int(request.form["index"])
-    items = get_current_items(session)
-    items.split(index)
-
-    save_items_file(items, session)
-    return redirect(url_for("items.list_items"))
-
-
-@items_page.route("/items/name/<index>", methods=["POST"])
-def rename_items(index: str):
-    index = int(index)
-    items = get_current_items(session)
-    items.items[index].name = request.get_json()["name"]
-
-    save_items_file(items, session)
-    return jsonify({"processed": "true"})
-
-
-@items_page.route("/items/next", methods=["POST"])
-def save_items():
-    table_data = request.form.get("table_data")
-    items_json = json.loads(table_data)
-    items_list = map(TypeAdapter(Item).validate_python, items_json)
-    items = Items(items=list(items_list))
-    save_items_file(items, session)
-
-    log.info(str(items))
-
-    return redirect(url_for("people.list_people"))
