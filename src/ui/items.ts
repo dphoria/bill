@@ -43,6 +43,26 @@ function getNumItems(): number {
     return numItems;
 }
 
+function getNumPersons(): number {
+    const table = document.getElementById("receipt-table") as HTMLTableElement;
+    const headerRow = table.rows[0];
+    const numColumns = headerRow.querySelectorAll("td").length;
+    const numPersons = numColumns - 3;
+    return numPersons;
+}
+
+function addCheckBox(person: number, item: number) {
+    const checkbox = document.createElement("input");
+    checkbox.id = `person-${person}-check-${item}`;
+    checkbox.type = "checkbox";
+    checkbox.classList.add("inline-block");
+
+    const table = document.getElementById("receipt-table") as HTMLTableElement;
+    const checkCell = table.rows[item + 1].cells[person + 3];
+    checkCell.classList.add("justify-center", "items-center", "text-center");
+    checkCell.appendChild(checkbox);
+}
+
 function addItem(name: string): void {
     const table = document.getElementById("receipt-table") as HTMLTableElement;
     const numItems = getNumItems();
@@ -67,6 +87,12 @@ function addItem(name: string): void {
     priceCell.textContent = price.toFixed(2);
     priceCell.classList.add("text-right");
 
+    const numPersons = getNumPersons();
+    for (let person = 0; person < numPersons; person++) {
+        newRow.insertCell(-1);
+        addCheckBox(person, numItems);
+    }
+
     updateTotal();
 }
 
@@ -77,25 +103,19 @@ function addPerson(name: string): void {
     const numColumns = headerRow.querySelectorAll("td").length;
     const personIndex = numColumns - 3;
 
-    const nameCell = headerRow.insertCell(numColumns);
+    const nameCell = headerRow.insertCell(-1);
     nameCell.classList.add("text-center");
     nameCell.textContent = name;
 
     for (let index = 0; index < numItems; index++) {
-        const checkbox = document.createElement("input");
-        checkbox.id = `person-${personIndex}-check-${index}`;
-        checkbox.type = "checkbox";
-        checkbox.classList.add("inline-block");
-
         const checkCell = table.rows[index + 1].insertCell(-1);
-        checkCell.classList.add("justify-center", "items-center", "text-center");
-        checkCell.appendChild(checkbox);
+        addCheckBox(personIndex, index);
     }
 
     const extraTypes: string[] = ["subtotal", "tax", "tip", "total"];
     extraTypes.forEach((extraType, index) => {
         const rowIndex = index + numItems + 1;
-        const extraCell = table.rows[rowIndex].insertCell(numColumns);
+        const extraCell = table.rows[rowIndex].insertCell(-1);
         extraCell.classList.add("text-right");
         extraCell.id = `person-${personIndex}-${extraType}`;
         extraCell.textContent = "0.00";
