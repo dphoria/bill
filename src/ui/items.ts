@@ -200,6 +200,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     addPersonButton.addEventListener("click", () => {
         addPersonModal.classList.remove("hidden");
+        const nameInput = document.querySelector("input#person-name") as HTMLInputElement;
+        nameInput.focus();
     });
 
     addPersonOkButton.addEventListener("click", () => {
@@ -208,6 +210,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     addItemButton.addEventListener("click", () => {
         addItemModal.classList.remove("hidden");
+        const nameInput = document.querySelector("input#item-name") as HTMLInputElement;
+        nameInput.focus();
     });
 
     addItemOkButton.addEventListener("click", () => {
