@@ -125,8 +125,29 @@ function setItemFromInput(index: number): void {
     const row = table.rows[index + 1];
 
     (row.querySelector(`#item-name-${index}`) as HTMLButtonElement).textContent = nameInput.value;
-    (row.querySelector(`#item-count-${index}`) as HTMLButtonElement).textContent = countInput.value;
-    (row.querySelector(`#item-price-${index}`) as HTMLButtonElement).textContent = parseFloat(priceINput.value).toFixed(2);
+    (row.querySelector(`#item-count-${index}`) as HTMLTableCellElement).textContent = countInput.value;
+    (row.querySelector(`#item-price-${index}`) as HTMLTableCellElement).textContent = parseFloat(priceINput.value).toFixed(2);
+}
+
+function setItemClickHandler(index: number): void {
+    const editItemButton = document.querySelector(`button#item-name-${index}`) as HTMLButtonElement;
+    editItemButton.addEventListener("click", () => {
+        const itemIndex = document.querySelector("input#item-index") as HTMLInputElement;
+        itemIndex.value = index.toString();
+
+        const table = getReceiptTable();
+        const row = table.rows[index + 1];
+    
+        const itemNameButton = row.querySelector(`#item-name-${index}`) as HTMLButtonElement;
+        const itemCountCell = row.querySelector(`#item-count-${index}`) as HTMLTableCellElement;
+        const itemPriceCell = row.querySelector(`#item-price-${index}`) as HTMLTableCellElement;
+
+        (document.querySelector("input#item-name") as HTMLInputElement).value = itemNameButton.textContent || "";
+        (document.querySelector("input#item-count") as HTMLInputElement).value = itemCountCell.textContent || "1";
+        (document.querySelector("input#item-price") as HTMLInputElement).value = itemPriceCell.textContent || "0.00";
+
+        showModalWindow("item");
+    });
 }
 
 function addItem(name: string): void {
@@ -154,6 +175,7 @@ function addItem(name: string): void {
     }
 
     setItemFromInput(numItems);
+    setItemClickHandler(numItems);
     updateTotal();
 }
 
@@ -214,7 +236,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const addPersonOkButton = document.getElementById("add-person-ok-button") as HTMLButtonElement;
 
     const addItemButton = document.getElementById("add-item-button") as HTMLButtonElement;
-    const addItemModal = document.getElementById("add-item-modal") as HTMLDivElement;
     const addItemOkButton = document.getElementById("add-item-ok-button") as HTMLButtonElement;
 
     addPersonButton.addEventListener("click", () => {
@@ -227,15 +248,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
     addItemButton.addEventListener("click", () => {
         const itemIndex = document.querySelector("input#item-index") as HTMLInputElement;
-        itemIndex.textContent = "-1";
+        itemIndex.value = "-1";
         showModalWindow("item");
     });
 
     addItemOkButton.addEventListener("click", () => {
         const itemIndex = document.querySelector("input#item-index") as HTMLInputElement;
-        const isNewItem = itemIndex.textContent === "-1";
+        const isNewItem = itemIndex.value === "-1";
         if (isNewItem) {
             addToTable("item", addItem);
+        } else {
+            setItemFromInput(parseInt(itemIndex.value));
+            hideModalWindow("item");
+            updateTotal();
         }
     });
+
+    const numItems = getNumItems();
+    for (let item = 0; item < numItems; item++) {
+        setItemClickHandler(item);
+    }
 });
