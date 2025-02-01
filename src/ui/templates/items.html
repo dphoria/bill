@@ -1,101 +1,86 @@
 <!doctype html>
-<html lang="en">
+<html>
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>Items</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="{{ url_for('static', filename='output.css') }}" rel="stylesheet">
 </head>
 
-<body>
-  <div class="container">
-    <button class="full-width-button">Next</button>
-    <form id="table-form" action="/items/next" method="post" style="display: none;">
-      <input type="hidden" name="table_data" id="table_data">
-    </form>
+<body class="bg-white text-black dark:bg-black dark:text-white">
+  <table id="receipt-table" class="w-full border-collapse">
+    <tr class="py-1">
+      <td class="px-4">Item</td>
+      <td class="px-4">Count</td>
+      <td class="px-4">Price ($)</td>
+    </tr>
+    {% for item in items %}
+    <tr class="py-1">
+      <td><button id="item-name-{{ loop.index0 }}">{{ item.name }}</button></td>
+      <td id="item-count-{{ loop.index0 }}" class="text-center">{{ item.count }}</td>
+      <td id="item-price-{{ loop.index0 }}" class="text-right">{{ item.price }}</td>
+    </tr>
+    {% endfor %}
+    <tr class="py-1">
+      <td>Subtotal</td>
+      <td></td>
+      <td id="subtotal" class="text-right"></td>
+    </tr>
+    <tr class="py-1">
+      <td><button id="tax-button">Tax (%)</button></td>
+      <td id="tax-percent" class="text-right">10.35</td>
+      <td id="tax" class="text-right"></td>
+    </tr>
+    <tr class="py-1">
+      <td><button id="tip-button">Tip (%)</button></td>
+      <td id="tip-percent" class="text-right">20</td>
+      <td id="tip" class="text-right"></td>
+    </tr>
+    <tr class="py-1">
+      <td>Total</td>
+      <td></td>
+      <td id="total" class="text-right"></td>
+    </tr>
+  </table>
 
-    <table>
+  <button id="add-person-button" class="mt-4">Add Person</button>
+  <button id="add-item-button" class="mt-4">Add Item</button>
+
+  <div id="add-person-modal"
+    class="hidden fixed inset-0 flex items-center justify-center bg-black text-white dark:text-black dark:bg-white">
+    <label for="person-name" class="px-4">Name</label>
+    <input type="text" id="person-name" class="px-4">
+    <button id="add-person-ok-button" class="px-4">OK</button>
+  </div>
+
+  <div id="add-item-modal"
+    class="hidden fixed inset-0 flex items-center justify-center bg-black text-white dark:text-black dark:bg-white p-4">
+    <table class="w-full">
       <tr>
-        <th>Name</th>
-        <th></th>
-        <th>Count</th>
-        <th>Price ($)</th>
-        <th></th>
+        <td class="px-4 py-2"><label for="item-name">Name</label></td>
+        <td class="px-4 py-2"><input type="text" id="item-name" class="w-full text-black dark:text-white"></td>
       </tr>
-      {% for item in items %}
       <tr>
-        <td><input type="text" id="item-name-{{ loop.index0 }}" value="{{ item.name }}" readonly></td>
-        <td><input type="button" value="&#8942;" class="transparent-button" onclick="editName(this)"></td>
-        <td><input type="number" value="{{ item.count }}" min="0" step="1"></td>
-        <td><input type="text" id="item-price-{{ loop.index0 }}" value="{{ item.price }}" pattern="^\d+(\.\d{1,2})?$"
-            title="Please enter a valid price (e.g., 9.99)"></td>
-        <td>
-          <form action="/items/split" method="post">
-            <input type="hidden" name="index" value="{{ loop.index0 }}">
-            <button type="submit" class="styled-table-button">Split</button>
-          </form>
+        <td class="px-4 py-2"><label for="item-count">Count</label></td>
+        <td class="px-4 py-2"><input type="number" id="item-count"
+            class="w-full border border-gray-300 rounded-md text-black dark:text-white" value="1" min="1"></td>
+      </tr>
+      <tr>
+        <td class="px-4 py-2"><label for="item-price">Price</label></td>
+        <td class="px-4 py-2"><input type="number" id="item-price"
+            class="w-full border border-gray-300 rounded-md text-black dark:text-white" value="0.00"></td>
+      </tr>
+      <tr>
+        <td colspan="2" class="px-4 py-2 text-center">
+          <button id="add-item-ok-button" class="px-4 py-2 bg-blue-500 text-white rounded-md">OK</button>
         </td>
       </tr>
-      {% endfor %}
     </table>
 
-    <form action="/items" method="post" style="margin-top: 20px;">
-      <input type="text" name="name" placeholder="Item Name" required>
-      <input type="number" name="count" value="1" min="1" step="1" placeholder="Count" required>
-      <input type="text" name="price" pattern="^\d+(\.\d{1,2})?$" title="Please enter a valid price (e.g., 9.99)"
-        placeholder="Price ($)" required>
-      <input type="submit" value="Add Item">
-    </form>
+    <input type="hidden" id="item-index" value="-1">
   </div>
+
+  <script src="{{ url_for('static', filename='items.js') }}"></script>
 </body>
-
-<script>
-  function submitTableData() {
-    var tableData = [];
-    var tableRows = document.querySelectorAll('table tr');
-
-    for (var i = 1; i < tableRows.length; i++) { // Start from 1 to skip the header row
-      const itemRow = tableRows[i];
-      var rowData = {
-        name: itemRow.querySelector('input[type="text"][id^="item-name-"]').value,
-        count: itemRow.querySelector('input[type="number"]').value,
-        price: itemRow.querySelector('input[type="text"][id^="item-price-"]').value
-      };
-      tableData.push(rowData);
-    }
-
-    document.getElementById('table_data').value = JSON.stringify(tableData);
-    document.getElementById('table-form').submit();
-  }
-
-  document.querySelector('.full-width-button').addEventListener('click', function (event) {
-    event.preventDefault();
-    submitTableData();
-  });
-
-  function editName(button) {
-    const row = button.closest('tr');
-    var nameInput = row.querySelector('input[type="text"][id^="item-name-"]');
-
-    if (nameInput.hasAttribute('readonly')) {
-      nameInput.removeAttribute('readonly');
-      button.value = "✓";
-    } else {
-      const itemName = nameInput.value;
-      const itemIdParts = nameInput.id.split('-');
-      const itemIndex = itemIdParts[itemIdParts.length - 1];
-      const url = '/items/name/' + itemIndex;
-
-      var request = new XMLHttpRequest();
-      request.open('POST', url, true);
-      request.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-      request.send(JSON.stringify({ name: itemName }));
-
-      nameInput.setAttribute('readonly', true);
-      button.value = "⋮";
-    }
-  }
-</script>
 
 </html>
