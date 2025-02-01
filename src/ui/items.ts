@@ -116,13 +116,23 @@ function addCheckBox(person: number, item: number) {
     checkCell.appendChild(checkbox);
 }
 
+function setItemFromInput(index: number): void {
+    const nameInput = document.querySelector("input#item-name") as HTMLInputElement;
+    const countInput = document.querySelector("input#item-count") as HTMLInputElement;
+    const priceINput = document.querySelector("input#item-price") as HTMLInputElement;
+
+    const table = getReceiptTable();
+    const row = table.rows[index + 1];
+
+    (row.querySelector(`#item-name-${index}`) as HTMLButtonElement).textContent = nameInput.value;
+    (row.querySelector(`#item-count-${index}`) as HTMLButtonElement).textContent = countInput.value;
+    (row.querySelector(`#item-price-${index}`) as HTMLButtonElement).textContent = parseFloat(priceINput.value).toFixed(2);
+}
+
 function addItem(name: string): void {
     const table = getReceiptTable();
     const numItems = getNumItems();
     const newRowIndex = numItems + 1;
-
-    const count = 1;
-    const price = 0.00;
 
     const newRow = table.insertRow(newRowIndex);
     newRow.classList.add("py-1");
@@ -131,13 +141,10 @@ function addItem(name: string): void {
     const countCell = newRow.insertCell(1);
     const priceCell = newRow.insertCell(2);
 
-    nameCell.innerHTML = `<button id="item-name-${numItems}">${name}</button>`;
-
-    countCell.textContent = count.toString();
+    nameCell.innerHTML = `<button id="item-name-${numItems}"></button>`;
+    countCell.id = `item-count-${numItems}`;
     countCell.classList.add("text-center");
-
     priceCell.id = `item-price-${numItems}`;
-    priceCell.textContent = price.toFixed(2);
     priceCell.classList.add("text-right");
 
     const numPersons = getNumPersons();
@@ -146,6 +153,7 @@ function addItem(name: string): void {
         addCheckBox(person, numItems);
     }
 
+    setItemFromInput(numItems);
     updateTotal();
 }
 
@@ -174,6 +182,20 @@ function addPerson(name: string): void {
     });
 }
 
+function showModalWindow(itemType: string): void {
+    const modalWindow = document.getElementById(`add-${itemType}-modal`) as HTMLDivElement;
+    modalWindow.classList.remove("hidden");
+    const nameInput = document.querySelector(`input#${itemType}-name`) as HTMLInputElement;
+    nameInput.focus();
+}
+
+function hideModalWindow(itemType: string): void {
+    const modalWindow = document.getElementById(`add-${itemType}-modal`) as HTMLDivElement;
+    modalWindow.classList.add("hidden");
+    const nameInput = document.querySelector(`input#${itemType}-name`) as HTMLInputElement;
+    nameInput.value = "";
+}
+
 function addToTable(itemType: string, doAdd: (name: string) => void): void {
     const nameInput = document.getElementById(`${itemType}-name`) as HTMLInputElement;
     const name = nameInput.value.trim();
@@ -182,16 +204,13 @@ function addToTable(itemType: string, doAdd: (name: string) => void): void {
         doAdd(name);
     }
 
-    const addModal = document.getElementById(`add-${itemType}-modal`) as HTMLDivElement;
-    addModal.classList.add("hidden");
-    nameInput.value = "";
+    hideModalWindow(itemType);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
     updateTotal();
 
     const addPersonButton = document.getElementById("add-person-button") as HTMLButtonElement;
-    const addPersonModal = document.getElementById("add-person-modal") as HTMLDivElement;
     const addPersonOkButton = document.getElementById("add-person-ok-button") as HTMLButtonElement;
 
     const addItemButton = document.getElementById("add-item-button") as HTMLButtonElement;
@@ -199,9 +218,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const addItemOkButton = document.getElementById("add-item-ok-button") as HTMLButtonElement;
 
     addPersonButton.addEventListener("click", () => {
-        addPersonModal.classList.remove("hidden");
-        const nameInput = document.querySelector("input#person-name") as HTMLInputElement;
-        nameInput.focus();
+        showModalWindow("person");
     });
 
     addPersonOkButton.addEventListener("click", () => {
@@ -209,12 +226,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     addItemButton.addEventListener("click", () => {
-        addItemModal.classList.remove("hidden");
-        const nameInput = document.querySelector("input#item-name") as HTMLInputElement;
-        nameInput.focus();
+        const itemIndex = document.querySelector("input#item-index") as HTMLInputElement;
+        itemIndex.textContent = "-1";
+        showModalWindow("item");
     });
 
     addItemOkButton.addEventListener("click", () => {
-        addToTable("item", addItem);
+        const itemIndex = document.querySelector("input#item-index") as HTMLInputElement;
+        const isNewItem = itemIndex.textContent === "-1";
+        if (isNewItem) {
+            addToTable("item", addItem);
+        }
     });
 });

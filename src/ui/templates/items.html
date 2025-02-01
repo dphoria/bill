@@ -17,7 +17,7 @@
     {% for item in items %}
     <tr class="py-1">
       <td><button id="item-name-{{ loop.index0 }}">{{ item.name }}</button></td>
-      <td class="text-center">{{ item.count }}</td>
+      <td id="item-count-{{ loop.index0 }}" class="text-center">{{ item.count }}</td>
       <td id="item-price-{{ loop.index0 }}" class="text-right">{{ item.price }}</td>
     </tr>
     {% endfor %}
@@ -54,10 +54,30 @@
   </div>
 
   <div id="add-item-modal"
-    class="hidden fixed inset-0 flex items-center justify-center bg-black text-white dark:text-black dark:bg-white">
-    <label for="item-name" class="px-4">Name</label>
-    <input type="text" id="item-name" class="px-4">
-    <button id="add-item-ok-button" class="px-4">OK</button>
+    class="hidden fixed inset-0 flex items-center justify-center bg-black text-white dark:text-black dark:bg-white p-4">
+    <table class="w-full">
+      <tr>
+        <td class="px-4 py-2"><label for="item-name">Name</label></td>
+        <td class="px-4 py-2"><input type="text" id="item-name" class="w-full text-black dark:text-white"></td>
+      </tr>
+      <tr>
+        <td class="px-4 py-2"><label for="item-count">Count</label></td>
+        <td class="px-4 py-2"><input type="number" id="item-count"
+            class="w-full border border-gray-300 rounded-md text-black dark:text-white" value="1" min="1"></td>
+      </tr>
+      <tr>
+        <td class="px-4 py-2"><label for="item-price">Price</label></td>
+        <td class="px-4 py-2"><input type="number" id="item-price"
+            class="w-full border border-gray-300 rounded-md text-black dark:text-white" value="0.00"></td>
+      </tr>
+      <tr>
+        <td colspan="2" class="px-4 py-2 text-center">
+          <button id="add-item-ok-button" class="px-4 py-2 bg-blue-500 text-white rounded-md">OK</button>
+        </td>
+      </tr>
+    </table>
+
+    <input type="hidden" id="item-index" value="-1">
   </div>
 
   <script src="{{ url_for('static', filename='items.js') }}"></script>
