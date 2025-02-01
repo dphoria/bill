@@ -108,7 +108,7 @@ function addCheckBox(person: number, item: number) {
     checkbox.type = "checkbox";
     checkbox.classList.add("inline-block");
 
-    checkbox.addEventListener('change', () => updatePersonTotal(person));
+    checkbox.addEventListener('change', updateTotal);
 
     const table = getReceiptTable();
     const checkCell = table.rows[item + 1].cells[person + 3];
