@@ -1,5 +1,9 @@
+function getReceiptTable(): HTMLTableElement {
+    return document.getElementById("receipt-table") as HTMLTableElement;
+}
+
 function updateSubtotal(): void {
-    const table = document.getElementById("receipt-table") as HTMLTableElement;
+    const table = getReceiptTable();
     let subtotal = 0;
 
     const itemPrices = table.querySelectorAll('td[id^="item-price-"]');
@@ -12,14 +16,56 @@ function updateSubtotal(): void {
     subtotalCell.textContent = subtotal.toFixed(2);
 }
 
-function updateExtra(extra: string): void {
-    const table = document.getElementById("receipt-table") as HTMLTableElement;
+function getExtraScaler(extra: string): number {
+    const table = getReceiptTable();
     const extraPercentCell = table.querySelector(`td#${extra}-percent`) as HTMLTableCellElement;
     const extraPercent = parseFloat(extraPercentCell.textContent || "0");
+    return extraPercent * 0.01;
+}
+
+function updateExtra(extra: string): void {
+    const table = getReceiptTable();
     const subtotalCell = table.querySelector('td#subtotal') as HTMLTableCellElement;
-    const extraAmount = parseFloat(subtotalCell.textContent || "0") * extraPercent * 0.01;
+    const extraAmount = parseFloat(subtotalCell.textContent || "0") * getExtraScaler(extra);
     const extraCell = table.querySelector(`td#${extra}`) as HTMLTableCellElement;
     extraCell.textContent = extraAmount.toFixed(2);
+}
+
+function getNumPersosnForItem(item: number): number {
+    const table = getReceiptTable();
+    const row = table.rows[item + 1];
+    const checkboxes = row.querySelectorAll('input[type="checkbox"]');
+    const checkedCheckboxes = Array.from(checkboxes).filter(checkbox => (checkbox as HTMLInputElement).checked);
+    return checkedCheckboxes.length;
+}
+
+function updatePersonTotal(person: number): void {
+    const table = getReceiptTable();
+    let subtotal = 0;
+
+    const itemPrices = table.querySelectorAll('td[id^="item-price-"]');
+    itemPrices.forEach((itemPriceCell, itemIndex) => {
+        const checkbox = table.querySelector(`input#person-${person}-check-${itemIndex}`) as HTMLInputElement;
+        if (checkbox.checked) {
+            const itemPrice = parseFloat(itemPriceCell.textContent || "0");
+            subtotal += itemPrice / getNumPersosnForItem(itemIndex);
+        }
+    });
+
+    const subtotalCell = table.querySelector(`td#person-${person}-subtotal`) as HTMLTableCellElement;
+    subtotalCell.textContent = subtotal.toFixed(2);
+    let total = subtotal;
+
+    const extraTypes: string[] = ["tax", "tip"];
+    extraTypes.forEach((extraType) => {
+        const extraAmount = subtotal * getExtraScaler(extraType);
+        total += extraAmount;
+        const extraCell = table.querySelector(`td#person-${person}-${extraType}`) as HTMLTableCellElement;
+        extraCell.textContent = extraAmount.toFixed(2);
+    });
+
+    const totalCell = table.querySelector(`td#person-${person}-total`) as HTMLTableCellElement;
+    totalCell.textContent = total.toFixed(2);
 }
 
 function updateTotal(): void {
@@ -27,7 +73,7 @@ function updateTotal(): void {
     updateExtra("tax");
     updateExtra("tip");
 
-    const table = document.getElementById("receipt-table") as HTMLTableElement;
+    const table = getReceiptTable();
     const subtotalCell = table.querySelector('td#subtotal') as HTMLTableCellElement;
     const taxCell = table.querySelector(`td#tax`) as HTMLTableCellElement;
     const tipCell = table.querySelector(`td#tip`) as HTMLTableCellElement;
@@ -35,16 +81,21 @@ function updateTotal(): void {
 
     const totalCell = table.querySelector('td#total') as HTMLTableCellElement;
     totalCell.textContent = total.toFixed(2);
+
+    const numPersons = getNumPersons();
+    for (let person = 0; person < numPersons; person++) {
+        updatePersonTotal(person);
+    }
 }
 
 function getNumItems(): number {
-    const table = document.getElementById("receipt-table") as HTMLTableElement;
+    const table = getReceiptTable();
     const numItems = table.querySelectorAll('button[id^="item-name-"]').length;
     return numItems;
 }
 
 function getNumPersons(): number {
-    const table = document.getElementById("receipt-table") as HTMLTableElement;
+    const table = getReceiptTable();
     const headerRow = table.rows[0];
     const numColumns = headerRow.querySelectorAll("td").length;
     const numPersons = numColumns - 3;
@@ -57,14 +108,16 @@ function addCheckBox(person: number, item: number) {
     checkbox.type = "checkbox";
     checkbox.classList.add("inline-block");
 
-    const table = document.getElementById("receipt-table") as HTMLTableElement;
+    checkbox.addEventListener('change', () => updatePersonTotal(person));
+
+    const table = getReceiptTable();
     const checkCell = table.rows[item + 1].cells[person + 3];
     checkCell.classList.add("justify-center", "items-center", "text-center");
     checkCell.appendChild(checkbox);
 }
 
 function addItem(name: string): void {
-    const table = document.getElementById("receipt-table") as HTMLTableElement;
+    const table = getReceiptTable();
     const numItems = getNumItems();
     const newRowIndex = numItems + 1;
 
@@ -97,11 +150,10 @@ function addItem(name: string): void {
 }
 
 function addPerson(name: string): void {
-    const table = document.getElementById("receipt-table") as HTMLTableElement;
+    const table = getReceiptTable();
     const headerRow = table.rows[0];
     const numItems = getNumItems();
-    const numColumns = headerRow.querySelectorAll("td").length;
-    const personIndex = numColumns - 3;
+    const personIndex = getNumPersons();
 
     const nameCell = headerRow.insertCell(-1);
     nameCell.classList.add("text-center");
