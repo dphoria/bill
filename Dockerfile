@@ -23,7 +23,7 @@ FROM python:$PYTHON_BASE
 COPY --from=builder /bill/.venv/ /bill/.venv/
 COPY src/ /bill/src
 RUN rm /bill/src/ui/test_items.json*
-COPY test_items.json /bill/src/ui/
+# COPY test_items.json /bill/src/ui/
 
 ENV PATH="/bill/.venv/bin:$PATH"
 ENV PYTHONPATH="/bill/src:$PYTHONPATH"
