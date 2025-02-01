@@ -9,49 +9,52 @@
 
 <body class="bg-white text-black dark:bg-black dark:text-white">
   <table id="receipt-table" class="w-full border-collapse">
-    <thead>
-      <tr>
-        <th class="px-4 py-2">Item</th>
-        <th class="px-4 py-2">Count</th>
-        <th class="px-4 py-2">Price ($)</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for item in items %}
-      <tr>
-        <td><button id="item-name-{{ loop.index0 }}">{{ item.name }}</button></td>
-        <td class="text-center">{{ item.count }}</td>
-        <td id="item-price-{{ loop.index0 }}" class="text-right">{{ item.price }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-    <tfoot>
-      <tr>
-        <td>Subtotal</td>
-        <td></td>
-        <td id="subtotal" class="text-right"></td>
-      </tr>
-      <tr>
-        <td><button id="tax-button">Tax (%)</button></td>
-        <td id="tax-percent" class="text-right">10.35</td>
-        <td id="tax" class="text-right"></td>
-      </tr>
-      <tr>
-        <td><button id="tip-button">Tip (%)</button></td>
-        <td id="tip-percent" class="text-right">20</td>
-        <td id="tip" class="text-right"></td>
-      </tr>
-      <tr>
-        <td>Total</td>
-        <td></td>
-        <td id="total" class="text-right"></td>
-      </tr>
-    </tfoot>
+    <tr class="py-1">
+      <td class="px-4">Item</td>
+      <td class="px-4">Count</td>
+      <td class="px-4">Price ($)</td>
+    </tr>
+    {% for item in items %}
+    <tr class="py-1">
+      <td><button id="item-name-{{ loop.index0 }}">{{ item.name }}</button></td>
+      <td class="text-center">{{ item.count }}</td>
+      <td id="item-price-{{ loop.index0 }}" class="text-right">{{ item.price }}</td>
+    </tr>
+    {% endfor %}
+    <tr class="py-1">
+      <td>Subtotal</td>
+      <td></td>
+      <td id="subtotal" class="text-right"></td>
+    </tr>
+    <tr class="py-1">
+      <td><button id="tax-button">Tax (%)</button></td>
+      <td id="tax-percent" class="text-right">10.35</td>
+      <td id="tax" class="text-right"></td>
+    </tr>
+    <tr class="py-1">
+      <td><button id="tip-button">Tip (%)</button></td>
+      <td id="tip-percent" class="text-right">20</td>
+      <td id="tip" class="text-right"></td>
+    </tr>
+    <tr class="py-1">
+      <td>Total</td>
+      <td></td>
+      <td id="total" class="text-right"></td>
+    </tr>
   </table>
 
+  <button id="add-person-button" class="mt-4">Add Person</button>
   <button id="add-item-button" class="mt-4">Add Item</button>
 
-  <div id="add-item-modal" class="hidden fixed inset-0 flex items-center justify-center bg-gray opacity-50 text-black dark:text-white">
+  <div id="add-person-modal"
+    class="hidden fixed inset-0 flex items-center justify-center bg-gray opacity-50 text-black dark:text-white">
+    <label for="person-name" class="px-4">Name</label>
+    <input type="text" id="person-name" class="text-black bg-white px-4">
+    <button id="add-person-ok-button" class="px-4">OK</button>
+  </div>
+
+  <div id="add-item-modal"
+    class="hidden fixed inset-0 flex items-center justify-center bg-gray opacity-50 text-black dark:text-white">
     <label for="item-name" class="px-4">Name</label>
     <input type="text" id="item-name" class="text-black bg-white px-4">
     <button id="add-item-ok-button" class="px-4">OK</button>
