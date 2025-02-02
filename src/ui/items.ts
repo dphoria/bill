@@ -156,13 +156,14 @@ function addItem(name: string): void {
     const newRowIndex = numItems + 1;
 
     const newRow = table.insertRow(newRowIndex);
-    newRow.classList.add("py-1");
+    newRow.classList.add("py-1", "hover:bg-gray-100", "dark:hover:bg-gray-700", "border-y");
 
     const nameCell = newRow.insertCell(0);
     const countCell = newRow.insertCell(1);
     const priceCell = newRow.insertCell(2);
 
     nameCell.innerHTML = `<button id="item-name-${numItems}"></button>`;
+    nameCell.classList.add("sticky-column");
     countCell.id = `item-count-${numItems}`;
     countCell.classList.add("text-center");
     priceCell.id = `item-price-${numItems}`;
@@ -198,7 +199,7 @@ function addPerson(name: string): void {
     extraTypes.forEach((extraType, index) => {
         const rowIndex = index + numItems + 1;
         const extraCell = table.rows[rowIndex].insertCell(-1);
-        extraCell.classList.add("text-right");
+        extraCell.classList.add("text-right", "px-1", "border-x");
         extraCell.id = `person-${personIndex}-${extraType}`;
         extraCell.textContent = "0.00";
     });
