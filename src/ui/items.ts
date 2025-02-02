@@ -156,7 +156,7 @@ function addItem(name: string): void {
     const newRowIndex = numItems + 1;
 
     const newRow = table.insertRow(newRowIndex);
-    newRow.classList.add("py-1");
+    newRow.classList.add("py-1", "hover:bg-gray-100", "dark:hover:bg-gray-700", "border-y");
 
     const nameCell = newRow.insertCell(0);
     const countCell = newRow.insertCell(1);
