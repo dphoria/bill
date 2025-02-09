@@ -8,23 +8,23 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='output.css') }}">
 </head>
 
-<body class="bg-white text-black dark:bg-gray-950 dark:text-white">
-  <div class="container">
+<body class="bg-charcoal text-sky flex justify-center h-screen text-center">
+  <div class="flex flex-col items-center space-y-4 border-collapse">
     <h1>Receipt Image</h1>
-    <form method="post" enctype="multipart/form-data">
-      <input type="file" name="file" id="file">
-      <input type="submit" value="Upload">
+    <form method="post" enctype="multipart/form-data" class="flex flex-col items-center space-y-4 border-collapse">
+      <input type="file" name="file" id="file" class="block w-full file:rounded-full file:border-0 file:bg-rust">
+      <input type="submit" value="Upload" class="block w-full border p-4 rounded-md">
     </form>
     {% with messages = get_flashed_messages() %}
     {% if messages %}
-    <ul>
+    <ul class="w-full mx-auto">
       {% for message in messages %}
       <li>{{ message }}</li>
       {% endfor %}
     </ul>
     {% endif %}
     {% endwith %}
-  </div>
+    </div>
 </body>
 
 </html>

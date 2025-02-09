@@ -1,1 +1,7 @@
 @import "tailwindcss";
+
+@theme {
+    --color-charcoal: #2A3132;
+    --color-rust: #763626;
+    --color-sky: #90AFC5;
+}
