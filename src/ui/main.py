@@ -3,6 +3,7 @@ from app import app
 from bill.images import load_image
 import session_data
 from tempfile import TemporaryDirectory
+import click
 
 
 _data_directory = None
@@ -35,7 +36,13 @@ def read_receipt_image():
     return redirect(url_for("home"))
 
 
+@click.command()
+@click.option("--debug", default=False, is_flag=True)
+def run_server(debug: bool):
+    app.run(host="0.0.0.0", port=8000, debug=debug)
+
+
 if __name__ == "__main__":
     with TemporaryDirectory() as dir:
         _data_directory = str(dir)
-        app.run(host="0.0.0.0", port=8000)
+        run_server()
