@@ -106,6 +106,11 @@ function setItemFromInput(index) {
     row.querySelector(`#item-count-${index}`).textContent = countInput.value;
     row.querySelector(`#item-price-${index}`).textContent = parseFloat(priceINput.value).toFixed(2);
 }
+function setItemForInput(name, count, price) {
+    document.querySelector("input#item-name").value = name || "";
+    document.querySelector("input#item-count").value = count || "1";
+    document.querySelector("input#item-price").value = price || "0.00";
+}
 function setItemClickHandler(index) {
     const editItemButton = document.querySelector(`button#item-name-${index}`);
     editItemButton.addEventListener("click", () => {
@@ -116,9 +121,7 @@ function setItemClickHandler(index) {
         const itemNameButton = row.querySelector(`#item-name-${index}`);
         const itemCountCell = row.querySelector(`#item-count-${index}`);
         const itemPriceCell = row.querySelector(`#item-price-${index}`);
-        document.querySelector("input#item-name").value = itemNameButton.textContent || "";
-        document.querySelector("input#item-count").value = itemCountCell.textContent || "1";
-        document.querySelector("input#item-price").value = itemPriceCell.textContent || "0.00";
+        setItemForInput(itemNameButton.textContent, itemCountCell.textContent, itemPriceCell.textContent);
         showModalWindow("item");
     });
 }
@@ -127,7 +130,7 @@ function addItem(name) {
     const numItems = getNumItems();
     const newRowIndex = numItems + 1;
     const newRow = table.insertRow(newRowIndex);
-    newRow.classList.add("py-1", "hover:bg-gray-100", "dark:hover:bg-gray-700", "border-y");
+    newRow.classList.add("py-1", "py-1", "border-y", "border-rust");
     const nameCell = newRow.insertCell(0);
     const countCell = newRow.insertCell(1);
     const priceCell = newRow.insertCell(2);
@@ -202,6 +205,7 @@ document.addEventListener("DOMContentLoaded", () => {
     addItemButton.addEventListener("click", () => {
         const itemIndex = document.querySelector("input#item-index");
         itemIndex.value = "-1";
+        setItemForInput(null, null, null);
         showModalWindow("item");
     });
     addItemOkButton.addEventListener("click", () => {

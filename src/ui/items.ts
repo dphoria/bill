@@ -129,6 +129,12 @@ function setItemFromInput(index: number): void {
     (row.querySelector(`#item-price-${index}`) as HTMLTableCellElement).textContent = parseFloat(priceINput.value).toFixed(2);
 }
 
+function setItemForInput(name: string | null, count: string | null, price: string | null): void {
+    (document.querySelector("input#item-name") as HTMLInputElement).value = name || "";
+    (document.querySelector("input#item-count") as HTMLInputElement).value = count || "1";
+    (document.querySelector("input#item-price") as HTMLInputElement).value = price || "0.00";
+}
+
 function setItemClickHandler(index: number): void {
     const editItemButton = document.querySelector(`button#item-name-${index}`) as HTMLButtonElement;
     editItemButton.addEventListener("click", () => {
@@ -141,10 +147,7 @@ function setItemClickHandler(index: number): void {
         const itemNameButton = row.querySelector(`#item-name-${index}`) as HTMLButtonElement;
         const itemCountCell = row.querySelector(`#item-count-${index}`) as HTMLTableCellElement;
         const itemPriceCell = row.querySelector(`#item-price-${index}`) as HTMLTableCellElement;
-
-        (document.querySelector("input#item-name") as HTMLInputElement).value = itemNameButton.textContent || "";
-        (document.querySelector("input#item-count") as HTMLInputElement).value = itemCountCell.textContent || "1";
-        (document.querySelector("input#item-price") as HTMLInputElement).value = itemPriceCell.textContent || "0.00";
+        setItemForInput(itemNameButton.textContent, itemCountCell.textContent, itemPriceCell.textContent);
 
         showModalWindow("item");
     });
@@ -156,7 +159,7 @@ function addItem(name: string): void {
     const newRowIndex = numItems + 1;
 
     const newRow = table.insertRow(newRowIndex);
-    newRow.classList.add("py-1", "hover:bg-gray-100", "dark:hover:bg-gray-700", "border-y");
+    newRow.classList.add("py-1", "py-1", "border-y", "border-rust");
 
     const nameCell = newRow.insertCell(0);
     const countCell = newRow.insertCell(1);
@@ -250,6 +253,7 @@ document.addEventListener("DOMContentLoaded", () => {
     addItemButton.addEventListener("click", () => {
         const itemIndex = document.querySelector("input#item-index") as HTMLInputElement;
         itemIndex.value = "-1";
+        setItemForInput(null, null, null);
         showModalWindow("item");
     });
 
