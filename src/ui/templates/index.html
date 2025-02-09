@@ -12,8 +12,8 @@
   <div class="flex flex-col items-center space-y-4 border-collapse">
     <h1>Receipt Image</h1>
     <form method="post" enctype="multipart/form-data" class="flex flex-col items-center space-y-4 border-collapse">
-      <input type="file" name="file" id="file" class="block w-full file:rounded-full file:border-0 file:bg-rust">
-      <input type="submit" value="Upload" class="block w-full border p-4 rounded-md">
+      <input type="file" name="file" id="file" class="block w-full file:rounded-md file:border-0 file:bg-rust file:p-1">
+      <input type="submit" value="Upload" class="block w-full border p-4 rounded-md text-rust bg-sky">
     </form>
     {% with messages = get_flashed_messages() %}
     {% if messages %}
