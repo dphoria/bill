@@ -377,6 +377,9 @@
     --default-mono-font-variation-settings: var(
       --font-mono--font-variation-settings
     );
+    --color-charcoal: #2A3132;
+    --color-rust: #763626;
+    --color-sky: #90AFC5;
   }
 }
 @layer base {
@@ -557,6 +560,9 @@
   .m-4 {
     margin: calc(var(--spacing) * 4);
   }
+  .mx-auto {
+    margin-inline: auto;
+  }
   .block {
     display: block;
   }
@@ -577,6 +583,12 @@
   }
   .table {
     display: table;
+  }
+  .h-full {
+    height: 100%;
+  }
+  .h-screen {
+    height: 100vh;
   }
   .w-full {
     width: 100%;
@@ -631,11 +643,29 @@
     border-block-style: var(--tw-border-style);
     border-block-width: 1px;
   }
+  .border-black {
+    border-color: var(--color-black);
+  }
+  .border-charcoal {
+    border-color: var(--color-charcoal);
+  }
   .border-gray-900 {
     border-color: var(--color-gray-900);
   }
+  .border-rust {
+    border-color: var(--color-rust);
+  }
+  .bg-charcoal {
+    background-color: var(--color-charcoal);
+  }
   .bg-gray-100 {
     background-color: var(--color-gray-100);
+  }
+  .bg-gray-800 {
+    background-color: var(--color-gray-800);
+  }
+  .bg-sky {
+    background-color: var(--color-sky);
   }
   .bg-slate-500 {
     background-color: var(--color-slate-500);
@@ -667,11 +697,23 @@
   .text-center {
     text-align: center;
   }
+  .text-left {
+    text-align: left;
+  }
   .text-right {
     text-align: right;
   }
   .text-black {
     color: var(--color-black);
+  }
+  .text-blue-300 {
+    color: var(--color-blue-300);
+  }
+  .text-rust {
+    color: var(--color-rust);
+  }
+  .text-sky {
+    color: var(--color-sky);
   }
   .underline {
     text-decoration-line: underline;
@@ -682,6 +724,27 @@
   }
   .filter {
     filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,);
+  }
+  .file\:rounded-full {
+    &::file-selector-button {
+      border-radius: calc(infinity * 1px);
+    }
+  }
+  .file\:border-0 {
+    &::file-selector-button {
+      border-style: var(--tw-border-style);
+      border-width: 0px;
+    }
+  }
+  .file\:bg-rose-800 {
+    &::file-selector-button {
+      background-color: var(--color-rose-800);
+    }
+  }
+  .file\:bg-rust {
+    &::file-selector-button {
+      background-color: var(--color-rust);
+    }
   }
   .hover\:bg-gray-100 {
     &:hover {
