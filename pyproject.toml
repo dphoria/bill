@@ -23,4 +23,5 @@ dev = [
     "black",
     "pytest",
     "pre-commit",
+    "pytest-dotenv",
 ]

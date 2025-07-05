@@ -98,7 +98,7 @@ function getNumPersons(): number {
     const table = getReceiptTable();
     const headerRow = table.rows[0];
     const numColumns = headerRow.querySelectorAll("td").length;
-    const numPersons = numColumns - 3;
+    const numPersons = numColumns - 2;
     return numPersons;
 }
 
@@ -111,27 +111,24 @@ function addCheckBox(person: number, item: number) {
     checkbox.addEventListener('change', updateTotal);
 
     const table = getReceiptTable();
-    const checkCell = table.rows[item + 1].cells[person + 3];
+    const checkCell = table.rows[item + 1].cells[person + 2];
     checkCell.classList.add("justify-center", "items-center", "text-center");
     checkCell.appendChild(checkbox);
 }
 
 function setItemFromInput(index: number): void {
     const nameInput = document.querySelector("input#item-name") as HTMLInputElement;
-    const countInput = document.querySelector("input#item-count") as HTMLInputElement;
-    const priceINput = document.querySelector("input#item-price") as HTMLInputElement;
+    const priceInput = document.querySelector("input#item-price") as HTMLInputElement;
 
     const table = getReceiptTable();
     const row = table.rows[index + 1];
 
     (row.querySelector(`#item-name-${index}`) as HTMLButtonElement).textContent = nameInput.value;
-    (row.querySelector(`#item-count-${index}`) as HTMLTableCellElement).textContent = countInput.value;
-    (row.querySelector(`#item-price-${index}`) as HTMLTableCellElement).textContent = parseFloat(priceINput.value).toFixed(2);
+    (row.querySelector(`#item-price-${index}`) as HTMLTableCellElement).textContent = parseFloat(priceInput.value).toFixed(2);
 }
 
-function setItemForInput(name: string | null, count: string | null, price: string | null): void {
+function setItemForInput(name: string | null, price: string | null): void {
     (document.querySelector("input#item-name") as HTMLInputElement).value = name || "";
-    (document.querySelector("input#item-count") as HTMLInputElement).value = count || "1";
     (document.querySelector("input#item-price") as HTMLInputElement).value = price || "0.00";
 }
 
@@ -145,9 +142,8 @@ function setItemClickHandler(index: number): void {
         const row = table.rows[index + 1];
     
         const itemNameButton = row.querySelector(`#item-name-${index}`) as HTMLButtonElement;
-        const itemCountCell = row.querySelector(`#item-count-${index}`) as HTMLTableCellElement;
         const itemPriceCell = row.querySelector(`#item-price-${index}`) as HTMLTableCellElement;
-        setItemForInput(itemNameButton.textContent, itemCountCell.textContent, itemPriceCell.textContent);
+        setItemForInput(itemNameButton.textContent, itemPriceCell.textContent);
 
         showModalWindow("item");
     });
@@ -162,13 +158,10 @@ function addItem(name: string): void {
     newRow.classList.add("py-1", "py-1", "border-y", "border-rust");
 
     const nameCell = newRow.insertCell(0);
-    const countCell = newRow.insertCell(1);
-    const priceCell = newRow.insertCell(2);
+    const priceCell = newRow.insertCell(1);
 
     nameCell.innerHTML = `<button id="item-name-${numItems}"></button>`;
     nameCell.classList.add("sticky-column");
-    countCell.id = `item-count-${numItems}`;
-    countCell.classList.add("text-center");
     priceCell.id = `item-price-${numItems}`;
     priceCell.classList.add("text-right");
 
@@ -253,7 +246,7 @@ document.addEventListener("DOMContentLoaded", () => {
     addItemButton.addEventListener("click", () => {
         const itemIndex = document.querySelector("input#item-index") as HTMLInputElement;
         itemIndex.value = "-1";
-        setItemForInput(null, null, null);
+        setItemForInput(null, null);
         showModalWindow("item");
     });
 

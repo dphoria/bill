@@ -82,7 +82,7 @@ function getNumPersons() {
     const table = getReceiptTable();
     const headerRow = table.rows[0];
     const numColumns = headerRow.querySelectorAll("td").length;
-    const numPersons = numColumns - 3;
+    const numPersons = numColumns - 2;
     return numPersons;
 }
 function addCheckBox(person, item) {
@@ -92,23 +92,20 @@ function addCheckBox(person, item) {
     checkbox.classList.add("inline-block");
     checkbox.addEventListener('change', updateTotal);
     const table = getReceiptTable();
-    const checkCell = table.rows[item + 1].cells[person + 3];
+    const checkCell = table.rows[item + 1].cells[person + 2];
     checkCell.classList.add("justify-center", "items-center", "text-center");
     checkCell.appendChild(checkbox);
 }
 function setItemFromInput(index) {
     const nameInput = document.querySelector("input#item-name");
-    const countInput = document.querySelector("input#item-count");
-    const priceINput = document.querySelector("input#item-price");
+    const priceInput = document.querySelector("input#item-price");
     const table = getReceiptTable();
     const row = table.rows[index + 1];
     row.querySelector(`#item-name-${index}`).textContent = nameInput.value;
-    row.querySelector(`#item-count-${index}`).textContent = countInput.value;
-    row.querySelector(`#item-price-${index}`).textContent = parseFloat(priceINput.value).toFixed(2);
+    row.querySelector(`#item-price-${index}`).textContent = parseFloat(priceInput.value).toFixed(2);
 }
-function setItemForInput(name, count, price) {
+function setItemForInput(name, price) {
     document.querySelector("input#item-name").value = name || "";
-    document.querySelector("input#item-count").value = count || "1";
     document.querySelector("input#item-price").value = price || "0.00";
 }
 function setItemClickHandler(index) {
@@ -119,9 +116,8 @@ function setItemClickHandler(index) {
         const table = getReceiptTable();
         const row = table.rows[index + 1];
         const itemNameButton = row.querySelector(`#item-name-${index}`);
-        const itemCountCell = row.querySelector(`#item-count-${index}`);
         const itemPriceCell = row.querySelector(`#item-price-${index}`);
-        setItemForInput(itemNameButton.textContent, itemCountCell.textContent, itemPriceCell.textContent);
+        setItemForInput(itemNameButton.textContent, itemPriceCell.textContent);
         showModalWindow("item");
     });
 }
@@ -132,12 +128,9 @@ function addItem(name) {
     const newRow = table.insertRow(newRowIndex);
     newRow.classList.add("py-1", "py-1", "border-y", "border-rust");
     const nameCell = newRow.insertCell(0);
-    const countCell = newRow.insertCell(1);
-    const priceCell = newRow.insertCell(2);
+    const priceCell = newRow.insertCell(1);
     nameCell.innerHTML = `<button id="item-name-${numItems}"></button>`;
     nameCell.classList.add("sticky-column");
-    countCell.id = `item-count-${numItems}`;
-    countCell.classList.add("text-center");
     priceCell.id = `item-price-${numItems}`;
     priceCell.classList.add("text-right");
     const numPersons = getNumPersons();
@@ -205,7 +198,7 @@ document.addEventListener("DOMContentLoaded", () => {
     addItemButton.addEventListener("click", () => {
         const itemIndex = document.querySelector("input#item-index");
         itemIndex.value = "-1";
-        setItemForInput(null, null, null);
+        setItemForInput(null, null);
         showModalWindow("item");
     });
     addItemOkButton.addEventListener("click", () => {

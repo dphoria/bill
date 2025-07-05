@@ -31,10 +31,6 @@
       <input type="text" id="item-name" class="px-4">
     </div>
     <div class="flex flex-row items-center space-x-4">
-      <label for="item-count" class="px-4 text-left">Count</label>
-      <input type="number" id="item-count" value="1" min="1" class="px-4 text-right justify-right">
-    </div>
-    <div class="flex flex-row items-center space-x-4">
       <label for="item-price" class="px-4 text-left">Price</label>
       <input type="number" id="item-price" value="0.00" class="px-4 text-right justify-right">
     </div>
@@ -47,19 +43,16 @@
   <table id="receipt-table" class="w-full border-collapse">
     <tr class="py-8">
       <td class="px-4 sticky-column">Item</td>
-      <td class="px-4">Count</td>
       <td class="px-4">Price ($)</td>
     </tr>
     {% for item in items %}
     <tr class="py-1 border-y border-rust">
       <td class="sticky-column"><button id="item-name-{{ loop.index0 }}">{{ item.name }}</button></td>
-      <td id="item-count-{{ loop.index0 }}" class="text-center">{{ item.count }}</td>
       <td id="item-price-{{ loop.index0 }}" class="text-right">{{ item.price }}</td>
     </tr>
     {% endfor %}
     <tr class="py-1">
       <td class="sticky-column">Subtotal</td>
-      <td></td>
       <td id="subtotal" class="text-right pr-1"></td>
     </tr>
     <tr class="py-1">
@@ -74,7 +67,6 @@
     </tr>
     <tr class="py-1">
       <td class="sticky-column">Total</td>
-      <td></td>
       <td id="total" class="text-right pr-1"></td>
     </tr>
   </table>

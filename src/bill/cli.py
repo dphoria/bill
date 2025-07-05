@@ -15,9 +15,8 @@ def write_csv(image, csv):
         writer = DictWriter(csv_file, fieldnames=field_names, extrasaction="ignore")
 
         for item in items.items:
-            all_item_price = item.count * item.price
-            writer.writerow({"name": item.name, "price": all_item_price})
-            click.echo(f"{item.name}, {all_item_price}")
+            writer.writerow({"name": item.name, "price": item.price})
+            click.echo(f"{item.name}, {item.price}")
 
         csv_file.write("\n")
 
