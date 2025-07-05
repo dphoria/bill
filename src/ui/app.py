@@ -1,7 +1,9 @@
 from flask import Flask
 from items import items_page
+from persons import persons_page
 import os
 
 app = Flask(__name__)
 app.secret_key = os.environ["FLASK_SECRET_KEY"]
 app.register_blueprint(items_page)
+app.register_blueprint(persons_page)

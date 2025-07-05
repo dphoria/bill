@@ -27,7 +27,7 @@ def read_receipt_image():
     try:
         image_file = request.files["file"]
         save_image(image_file, session)
-        return redirect(url_for("items.list_items"))
+        return redirect(url_for("persons.list_persons"))
     except KeyError:
         flash("No file uploaded")
     except Exception as e:
