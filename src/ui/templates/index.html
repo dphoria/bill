@@ -4,27 +4,52 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>Receipt</title>
+  <title>Receipt Scanner</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='output.css') }}">
 </head>
 
-<body class="bg-charcoal text-sky flex justify-center h-screen text-center">
-  <div class="flex flex-col items-center space-y-4 border-collapse">
-    <h1>Receipt Image</h1>
-    <form method="post" enctype="multipart/form-data" class="flex flex-col items-center space-y-4 border-collapse">
-      <input type="file" name="file" id="file" class="block w-full file:rounded-md file:border-0 file:bg-rust file:p-1">
-      <input type="submit" value="Upload" class="block w-full border p-4 rounded-md text-rust bg-sky">
-    </form>
-    {% with messages = get_flashed_messages() %}
-    {% if messages %}
-    <ul class="w-full mx-auto">
-      {% for message in messages %}
-      <li>{{ message }}</li>
-      {% endfor %}
-    </ul>
-    {% endif %}
-    {% endwith %}
+<body class="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-blue-600/20 flex flex-col items-center justify-center text-slate-100">
+  <div class="w-full max-w-xl mx-auto p-6">
+    <div class="flex items-center mb-8">
+      <div class="bg-blue-600 rounded-lg p-2 mr-3">
+        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2a2 2 0 012-2h2a2 2 0 012 2v2m-6 4h6a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+      </div>
+      <div>
+        <h1 class="text-2xl font-bold">Receipt Scanner</h1>
+        <p class="text-sm text-slate-400">Smart receipt processing</p>
+      </div>
     </div>
+    <div class="bg-slate-900/80 rounded-xl shadow-lg p-8 flex flex-col items-center">
+      <form method="post" enctype="multipart/form-data" class="w-full flex flex-col items-center">
+        <label for="file" class="file-upload-area w-full flex flex-col items-center justify-center border-2 border-dashed border-slate-700 rounded-xl py-12 mb-6 cursor-pointer transition-colors hover:border-blue-500 hover:bg-slate-800/50">
+          <svg class="w-12 h-12 text-blue-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5-5m0 0l5 5m-5-5v12" />
+          </svg>
+          <span class="font-semibold">Drop your receipt here</span>
+          <span class="text-blue-400 underline cursor-pointer">or browse files</span>
+          <span class="text-xs text-slate-400 mt-2">Supports JPG, PNG, and PDF files</span>
+          <input type="file" name="file" id="file" class="hidden">
+        </label>
+        <button type="submit" class="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg shadow transition-colors flex items-center justify-center">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5-5m0 0l5 5m-5-5v12" />
+          </svg>
+          Process Receipt
+        </button>
+      </form>
+      {% with messages = get_flashed_messages() %}
+      {% if messages %}
+      <ul class="w-full mx-auto mt-4">
+        {% for message in messages %}
+        <li class="text-red-400">{{ message }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+      {% endwith %}
+    </div>
+  </div>
 </body>
 
 </html>
