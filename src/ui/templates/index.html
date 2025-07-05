@@ -32,6 +32,7 @@
           <span class="text-xs text-slate-400 mt-2">Supports JPG, PNG, and PDF files</span>
           <input type="file" name="file" id="file" class="hidden">
         </label>
+        <div id="file-indicator" class="text-green-400 text-sm mb-2"></div>
         <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg shadow transition-colors">
           <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5-5m0 0l5 5m-5-5v12" />
@@ -50,6 +51,7 @@
       {% endwith %}
     </div>
   </div>
+  <script src="{{ url_for('static', filename='index.js') }}"></script>
 </body>
 
 </html>
