@@ -188,15 +188,19 @@ def prepare_split():
         if not persons:
             return jsonify({"error": "No persons found"}), 404
 
-        # Create array of all item indices [0, 1, 2, ...]
-        all_item_indices = list(range(item_count))
+        # Check if ALL persons have empty items lists
+        all_persons_empty = all(len(person.items) == 0 for person in persons)
 
-        # Update each person to have all items
-        for person in persons:
-            person.items = all_item_indices
+        if all_persons_empty:
+            # Create array of all item indices [0, 1, 2, ...]
+            all_item_indices = list(range(item_count))
 
-        # Save updated persons
-        save_persons_file(persons, session)
+            # Update each person to have all items
+            for person in persons:
+                person.items = all_item_indices
+
+            # Save updated persons
+            save_persons_file(persons, session)
 
         return (
             jsonify(
@@ -204,6 +208,7 @@ def prepare_split():
                     "success": True,
                     "item_count": item_count,
                     "person_count": len(persons),
+                    "all_persons_empty": all_persons_empty,
                 }
             ),
             200,
