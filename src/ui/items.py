@@ -10,7 +10,7 @@ from flask import (
 from bill.receipts import get_items, Items, Item
 from pathlib import Path
 from logging import getLogger
-from .persons import get_current_persons, save_persons_file
+from persons import get_current_persons, save_persons_file
 
 log = getLogger(__file__)
 
