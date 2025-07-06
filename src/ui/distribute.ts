@@ -252,12 +252,11 @@ async function handleBack(): Promise<void> {
     window.location.href = '/items';
 }
 
-// Handle done button (placeholder for now)
+// Handle done button - navigate to extras page
 async function handleDone(): Promise<void> {
     // Save current distribution before proceeding
     await saveCurrentDistribution();
-    // TODO: Handle done button functionality
-    console.log('Done button clicked');
+    window.location.href = '/extras';
 }
 
 

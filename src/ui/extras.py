@@ -1,0 +1,109 @@
+import json
+import session_data
+from flask import (
+    render_template,
+    session,
+    Blueprint,
+    request,
+    jsonify,
+)
+from bill.receipts import Items, Item
+from pathlib import Path
+from logging import getLogger
+
+log = getLogger(__file__)
+
+extras_page = Blueprint("extras", __name__)
+
+
+def save_extras_file(extras: Items, session):
+    with open(
+        session_data.session_item_path(session, session_data.EXTRAS_FILE), "w"
+    ) as json_file:
+        json.dump(extras.model_dump_json(indent=4), json_file)
+
+
+def get_default_extras() -> Items:
+    """Return default extras: Service charge and Tax"""
+    default_extras = [
+        Item(name="Service charge", price=0.0),
+        Item(name="Tax", price=0.0),
+    ]
+    return Items(items=default_extras)
+
+
+def get_current_extras(session: dict) -> Items | None:
+    try:
+        extras_file = session_data.session_item_path(session, session_data.EXTRAS_FILE)
+        if Path(extras_file).exists():
+            return session_data.read_items_file(extras_file)
+        else:
+            # Return default extras if no file exists
+            return get_default_extras()
+    except Exception as e:
+        log.warning(f"current list of extras is empty: {e}")
+        return get_default_extras()
+
+
+@extras_page.route("/extras", methods=["GET"])
+def list_extras():
+    extras = get_current_extras(session)
+    save_extras_file(extras, session)
+
+    return render_template("extras.html", extras=extras.items)
+
+
+@extras_page.route("/add_extra", methods=["POST"])
+def add_extra():
+    try:
+        data = request.get_json()
+        name = data.get("name")
+        price = data.get("price")
+
+        # Get current extras
+        extras = get_current_extras(session)
+
+        # Create new extra
+        new_extra = Item(name=name, price=price)
+        extras.items.append(new_extra)
+
+        # Save updated extras
+        save_extras_file(extras, session)
+
+        return jsonify({"success": True}), 200
+
+    except Exception as e:
+        log.error(f"Error adding extra: {e}")
+        return jsonify({"error": "Internal server error"}), 500
+
+
+@extras_page.route("/update_extra", methods=["POST"])
+def update_extra():
+    try:
+        data = request.get_json()
+        extra_index = data.get("extra_index")
+        name = data.get("name")
+        price = data.get("price")
+
+        if extra_index is None or name is None or price is None:
+            return jsonify({"error": "Missing required fields"}), 400
+
+        # Get current extras
+        extras = get_current_extras(session)
+
+        # Validate extra index
+        if extra_index < 0 or extra_index >= len(extras.items):
+            return jsonify({"error": "Invalid extra index"}), 400
+
+        # Update the extra
+        extras.items[extra_index].name = name
+        extras.items[extra_index].price = price
+
+        # Save updated extras
+        save_extras_file(extras, session)
+
+        return jsonify({"success": True}), 200
+
+    except Exception as e:
+        log.error(f"Error updating extra: {e}")
+        return jsonify({"error": "Internal server error"}), 500
