@@ -168,5 +168,4 @@ bill.env
 bin/export-tokens.sh
 **/node_modules/
 src/ui/test_items.json
-src/ui/static/index.js
-src/ui/static/items.js
+src/ui/static/*.js
