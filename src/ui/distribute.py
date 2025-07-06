@@ -188,13 +188,15 @@ def save_distribution():
         if not all(pid in valid_person_ids for pid in person_ids):
             return jsonify({"error": "Invalid person IDs"}), 400
 
-        # Update each person's items list to include this item index
+        # First, remove this item index from ALL persons' items lists
+        for person in persons:
+            if item_index in person.items:
+                person.items.remove(item_index)
+
+        # Then, add this item index to ONLY the selected persons' items lists
         for person_id in person_ids:
             person = persons[person_id]
-
-            # Add item index to person's items if not already present
-            if item_index not in person.items:
-                person.items.append(item_index)
+            person.items.append(item_index)
 
         # Save updated persons using persons.py method
         save_persons_file(persons, session)

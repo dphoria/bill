@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     prevItemButton.addEventListener('click', handlePrevItem);
     nextItemButton.addEventListener('click', handleNextItem);
     backButton.addEventListener('click', handleBack);
-    distributeButton.addEventListener('click', handleDistribute);
+    distributeButton.addEventListener('click', handleDone);
     
     // Initialize item data from template (includes item data)
     initializeItemData();
@@ -246,21 +246,21 @@ async function saveCurrentDistribution(): Promise<void> {
 }
 
 // Handle back button (Items)
-function handleBack(): void {
+async function handleBack(): Promise<void> {
+    // Save current distribution before navigating
+    await saveCurrentDistribution();
     window.location.href = '/items';
 }
 
 // Handle done button (placeholder for now)
-function handleDone(): void {
+async function handleDone(): Promise<void> {
+    // Save current distribution before proceeding
+    await saveCurrentDistribution();
     // TODO: Handle done button functionality
     console.log('Done button clicked');
 }
 
-// Handle distribute button (now Done button)
-async function handleDistribute(): Promise<void> {
-    // For now, just call the done handler
-    handleDone();
-}
+
 
 // Get item index from URL parameters
 function getItemIndexFromUrl(): number {
