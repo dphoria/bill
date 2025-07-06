@@ -15,21 +15,18 @@ const distributionResults = document.getElementById('distribution-results') as H
 const resultsList = document.getElementById('results-list') as HTMLDivElement;
 
 // Initialize the page
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     // Setup event listeners
     prevItemButton.addEventListener('click', handlePrevItem);
     nextItemButton.addEventListener('click', handleNextItem);
     backButton.addEventListener('click', handleBack);
     distributeButton.addEventListener('click', handleDistribute);
     
-    // Initialize item data from template
+    // Initialize item data from template (includes item data)
     initializeItemData();
     
-    // Setup person selection handlers
+    // Setup person selection handlers (item data is now available)
     setupPersonSelectionHandlers();
-    
-    // Get current item from URL parameters or session
-    getCurrentItem();
     
     // Handle Escape key to go back
     document.addEventListener('keydown', (e) => {
@@ -41,29 +38,48 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Setup person selection handlers
 function setupPersonSelectionHandlers(): void {
-    const personElements = document.querySelectorAll('[data-person-id]');
+    // Clear any existing selections
+    selectedPersons = [];
+    
+    const personElements = document.querySelectorAll('.person-box');
     personElements.forEach((element) => {
-        const checkbox = element.querySelector('input[type="checkbox"]') as HTMLInputElement;
         const personId = parseInt(element.getAttribute('data-person-id') || '0');
+        const isSelected = element.getAttribute('data-selected') === 'true';
         
-        // Handle checkbox change
-        checkbox.addEventListener('change', () => {
-            if (checkbox.checked) {
-                selectedPersons.push(personId);
-            } else {
+        // Initialize selectedPersons based on data-selected attribute
+        if (isSelected) {
+            selectedPersons.push(personId);
+            element.classList.add('bg-green-600/30', 'border-green-400', 'border-2', 'ring-4', 'ring-green-400/40', 'shadow-lg');
+        }
+        
+        // Add click event listener to the person box
+        element.addEventListener('click', (e) => {
+            console.log('Person box clicked:', personId); // Debug log
+            
+            const isCurrentlySelected = selectedPersons.includes(personId);
+            console.log('Currently selected:', isCurrentlySelected); // Debug log
+            
+            if (isCurrentlySelected) {
+                // Remove from selection
                 selectedPersons = selectedPersons.filter(id => id !== personId);
+                element.classList.remove('bg-green-600/30', 'border-green-400', 'border-2', 'ring-4', 'ring-green-400/40', 'shadow-lg');
+                element.setAttribute('data-selected', 'false');
+                console.log('Removed from selection'); // Debug log
+            } else {
+                // Add to selection
+                selectedPersons.push(personId);
+                element.classList.add('bg-green-600/30', 'border-green-400', 'border-2', 'ring-4', 'ring-green-400/40', 'shadow-lg');
+                element.setAttribute('data-selected', 'true');
+                console.log('Added to selection'); // Debug log
             }
+            
+            console.log('Selected persons:', selectedPersons); // Debug log
             updateDistributeButton();
         });
-        
-        // Handle click on the person row (toggle checkbox)
-        element.addEventListener('click', (e) => {
-            if (e.target !== checkbox) {
-                checkbox.checked = !checkbox.checked;
-                checkbox.dispatchEvent(new Event('change'));
-            }
-        });
     });
+    
+    // Update the UI after initializing selectedPersons
+    updateDistributeButton();
 }
 
 // Initialize item data from template variables
@@ -71,6 +87,8 @@ function initializeItemData(): void {
     // Get item count and current index from template variables
     const itemCountElement = document.getElementById('item-count') as HTMLMetaElement;
     const itemIndexElement = document.getElementById('item-index') as HTMLMetaElement;
+    const itemNameElement = document.getElementById('item-name') as HTMLMetaElement;
+    const itemPriceElement = document.getElementById('item-price') as HTMLMetaElement;
     
     if (itemCountElement) {
         totalItemCount = parseInt(itemCountElement.content || '0');
@@ -78,6 +96,19 @@ function initializeItemData(): void {
     
     if (itemIndexElement) {
         currentItemIndex = parseInt(itemIndexElement.content || '0');
+    }
+    
+    // Get current item data from template
+    if (itemNameElement && itemPriceElement) {
+        const itemName = itemNameElement.content || '';
+        const itemPrice = parseFloat(itemPriceElement.content || '0');
+        
+        if (itemName && itemPrice > 0) {
+            currentItem = {
+                name: itemName,
+                price: itemPrice
+            };
+        }
     }
     
     // Update navigation buttons
