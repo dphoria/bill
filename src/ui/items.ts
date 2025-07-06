@@ -1,6 +1,7 @@
 // State management
 let currentEditIndex: number = -1;
 let isAddMode: boolean = false;
+let isSubmitting: boolean = false; // Prevent double submissions
 
 // DOM elements
 const itemsListView = document.getElementById('items-list-view') as HTMLDivElement;
@@ -24,6 +25,7 @@ function showItemsList(): void {
     editItemView.classList.add('hidden');
     currentEditIndex = -1;
     isAddMode = false;
+    isSubmitting = false; // Reset submission state
 }
 
 // Show the edit item view for editing
@@ -112,6 +114,12 @@ async function handleSplit(): Promise<void> {
 
 // Save button - update the current item or add new item
 async function handleSave(): Promise<void> {
+    // Prevent double submissions
+    if (isSubmitting) {
+        console.log('Already submitting, ignoring duplicate request');
+        return;
+    }
+    
     const name = editItemName.value.trim();
     const price = parseFloat(editItemPrice.value);
     
@@ -120,11 +128,18 @@ async function handleSave(): Promise<void> {
         return;
     }
     
+    // Set submitting state and disable save button
+    isSubmitting = true;
+    saveButton.disabled = true;
+    saveButton.textContent = isAddMode ? 'Adding...' : 'Saving...';
+    
     try {
         const endpoint = isAddMode ? '/add_item' : '/update_item';
         const body = isAddMode 
             ? { name: name, price: price }
             : { item_index: currentEditIndex, name: name, price: price };
+        
+        console.log(`Submitting to ${endpoint}:`, body);
         
         const response = await fetch(endpoint, {
             method: 'POST',
@@ -134,14 +149,24 @@ async function handleSave(): Promise<void> {
             body: JSON.stringify(body)
         });
         
+        console.log(`Response status: ${response.status}`);
+        
         if (response.ok) {
+            console.log('Success, reloading page...');
             // Reload the page to show updated items
             window.location.reload();
         } else {
             console.error(`Failed to ${isAddMode ? 'add' : 'update'} item`);
+            alert(`Failed to ${isAddMode ? 'add' : 'update'} item. Please try again.`);
         }
     } catch (error) {
         console.error(`Error ${isAddMode ? 'adding' : 'updating'} item:`, error);
+        alert(`Error ${isAddMode ? 'adding' : 'updating'} item. Please try again.`);
+    } finally {
+        // Reset submitting state
+        isSubmitting = false;
+        saveButton.disabled = false;
+        saveButton.textContent = 'Save';
     }
 }
 
