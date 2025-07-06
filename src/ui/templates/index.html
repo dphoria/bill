@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>Receipt Scanner</title>
+  <title>Split Bill</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='output.css') }}">
 </head>
 
@@ -17,8 +17,7 @@
         </svg>
       </div>
       <div class="inline-block align-middle">
-        <h1 class="text-2xl font-bold">Receipt Scanner</h1>
-        <p class="text-sm text-slate-400">Smart receipt processing</p>
+        <h1 class="text-2xl font-bold">Split Bill</h1>
       </div>
     </div>
     <div class="w-full max-w-md mx-auto bg-slate-900/80 rounded-xl shadow-lg p-8">
@@ -29,7 +28,7 @@
           </svg>
           <span class="font-semibold">Drop your receipt here</span>
           <span class="text-blue-400 underline cursor-pointer">or browse files</span>
-          <span class="text-xs text-slate-400 mt-2">Supports JPG, PNG, and PDF files</span>
+          <span class="text-xs text-slate-400 mt-2">Supports images</span>
           <input type="file" name="file" id="file" class="hidden">
         </label>
         <div id="file-indicator" class="text-green-400 text-sm mb-2"></div>
@@ -37,7 +36,7 @@
           <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5-5m0 0l5 5m-5-5v12" />
           </svg>
-          Process Receipt
+          Upload
         </button>
       </form>
       {% with messages = get_flashed_messages() %}
