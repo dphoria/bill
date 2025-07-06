@@ -10,6 +10,7 @@ from flask import (
 from bill.receipts import get_items, Items, Item
 from pathlib import Path
 from logging import getLogger
+from .persons import get_current_persons, save_persons_file
 
 log = getLogger(__file__)
 
@@ -56,6 +57,16 @@ def list_items():
     save_items_file(items, session)
 
     return render_template("items.html", items=items.items)
+
+
+@items_page.route("/get_persons", methods=["GET"])
+def get_persons():
+    try:
+        persons = get_current_persons(session)
+        return jsonify([person.model_dump() for person in persons]), 200
+    except Exception as e:
+        log.error(f"Error getting persons: {e}")
+        return jsonify({"error": "Internal server error"}), 500
 
 
 @items_page.route("/add_item", methods=["POST"])
@@ -157,4 +168,47 @@ def split_item():
 
     except Exception as e:
         log.error(f"Error splitting item: {e}")
+        return jsonify({"error": "Internal server error"}), 500
+
+
+@items_page.route("/prepare_split", methods=["POST"])
+def prepare_split():
+    try:
+        # Get current items
+        items = get_current_items(session)
+        if not items:
+            return jsonify({"error": "No items found"}), 404
+
+        item_count = len(items.items)
+        if item_count == 0:
+            return jsonify({"error": "No items to distribute"}), 400
+
+        # Get current persons
+        persons = get_current_persons(session)
+        if not persons:
+            return jsonify({"error": "No persons found"}), 404
+
+        # Create array of all item indices [0, 1, 2, ...]
+        all_item_indices = list(range(item_count))
+
+        # Update each person to have all items
+        for person in persons:
+            person.items = all_item_indices
+
+        # Save updated persons
+        save_persons_file(persons, session)
+
+        return (
+            jsonify(
+                {
+                    "success": True,
+                    "item_count": item_count,
+                    "person_count": len(persons),
+                }
+            ),
+            200,
+        )
+
+    except Exception as e:
+        log.error(f"Error preparing for split: {e}")
         return jsonify({"error": "Internal server error"}), 500

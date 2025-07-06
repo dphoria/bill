@@ -13,6 +13,8 @@ const cancelButton = document.getElementById('cancel-button') as HTMLButtonEleme
 const splitButton = document.getElementById('split-button') as HTMLButtonElement;
 const saveButton = document.getElementById('save-button') as HTMLButtonElement;
 const addItemButton = document.getElementById('add-item-button') as HTMLButtonElement;
+const personsButton = document.getElementById('persons-button') as HTMLButtonElement;
+const splitButtonNav = document.getElementById('split-button-nav') as HTMLButtonElement;
 const editTitle = document.getElementById('edit-title') as HTMLHeadingElement;
 const editSubtitle = document.getElementById('edit-subtitle') as HTMLParagraphElement;
 
@@ -143,6 +145,37 @@ async function handleSave(): Promise<void> {
     }
 }
 
+// Navigation functions
+async function navigateToPersons(): Promise<void> {
+    window.location.href = '/persons';
+}
+
+async function navigateToSplit(): Promise<void> {
+    try {
+        // Call backend to prepare split (set all persons to have all items)
+        const response = await fetch('/prepare_split', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        if (response.ok) {
+            const result = await response.json();
+            console.log(`Prepared split: ${result.person_count} persons, ${result.item_count} items`);
+            // Navigate to distribute page
+            window.location.href = '/distribute';
+        } else {
+            const error = await response.json();
+            alert(error.error || 'Failed to prepare split');
+        }
+        
+    } catch (error) {
+        console.error('Error preparing for split:', error);
+        alert('Error preparing for split. Please try again.');
+    }
+}
+
 // Initialize the page
 document.addEventListener('DOMContentLoaded', () => {
     // Setup event listeners
@@ -150,6 +183,8 @@ document.addEventListener('DOMContentLoaded', () => {
     splitButton.addEventListener('click', handleSplit);
     saveButton.addEventListener('click', handleSave);
     addItemButton.addEventListener('click', showAddItem);
+    personsButton.addEventListener('click', navigateToPersons);
+    splitButtonNav.addEventListener('click', navigateToSplit);
     
     // Setup item click handlers
     setupItemClickHandlers();
