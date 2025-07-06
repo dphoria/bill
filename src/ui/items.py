@@ -7,7 +7,7 @@ from flask import (
     request,
     jsonify,
 )
-from bill.receipts import get_items, Items
+from bill.receipts import get_items, Items, Item
 from pathlib import Path
 from logging import getLogger
 
@@ -56,6 +56,33 @@ def list_items():
     save_items_file(items, session)
 
     return render_template("items.html", items=items.items)
+
+
+@items_page.route("/add_item", methods=["POST"])
+def add_item():
+    try:
+        data = request.get_json()
+        name = data.get("name")
+        price = data.get("price")
+
+        # Get current items
+        items = get_current_items(session)
+        if not items:
+            # Create new items list if none exists
+            items = Items(items=[])
+
+        # Create new item
+        new_item = Item(name=name, price=price)
+        items.items.append(new_item)
+
+        # Save updated items
+        save_items_file(items, session)
+
+        return jsonify({"success": True}), 200
+
+    except Exception as e:
+        log.error(f"Error adding item: {e}")
+        return jsonify({"error": "Internal server error"}), 500
 
 
 @items_page.route("/update_item", methods=["POST"])
@@ -114,8 +141,6 @@ def split_item():
         original_item = items.items[item_index]
 
         # Create two new items with half the price each
-        from bill.receipts import Item
-
         item1 = Item(name=f"{original_item.name} (1/2)", price=original_item.price / 2)
         item2 = Item(name=f"{original_item.name} (2/2)", price=original_item.price / 2)
 
