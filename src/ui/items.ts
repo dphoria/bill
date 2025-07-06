@@ -1,269 +1,153 @@
-function getReceiptTable(): HTMLTableElement {
-    return document.getElementById("receipt-table") as HTMLTableElement;
+// State management
+let currentEditIndex: number = -1;
+
+// DOM elements
+const itemsListView = document.getElementById('items-list-view') as HTMLDivElement;
+const editItemView = document.getElementById('edit-item-view') as HTMLDivElement;
+const editItemForm = document.getElementById('edit-item-form') as HTMLFormElement;
+const editItemIndex = document.getElementById('edit-item-index') as HTMLInputElement;
+const editItemName = document.getElementById('edit-item-name') as HTMLInputElement;
+const editItemPrice = document.getElementById('edit-item-price') as HTMLInputElement;
+const cancelButton = document.getElementById('cancel-button') as HTMLButtonElement;
+const splitButton = document.getElementById('split-button') as HTMLButtonElement;
+const saveButton = document.getElementById('save-button') as HTMLButtonElement;
+
+// Show the items list view
+function showItemsList(): void {
+    itemsListView.classList.remove('hidden');
+    editItemView.classList.add('hidden');
 }
 
-function updateSubtotal(): void {
-    const table = getReceiptTable();
-    let subtotal = 0;
-
-    const itemPrices = table.querySelectorAll('td[id^="item-price-"]');
-    itemPrices.forEach((item) => {
-        const value = parseFloat(item.textContent || "0");
-        subtotal += value;
-    });
-
-    const subtotalCell = table.querySelector('td#subtotal') as HTMLTableCellElement;
-    subtotalCell.textContent = subtotal.toFixed(2);
-}
-
-function getExtraScaler(extra: string): number {
-    const table = getReceiptTable();
-    const extraPercentCell = table.querySelector(`td#${extra}-percent`) as HTMLTableCellElement;
-    const extraPercent = parseFloat(extraPercentCell.textContent || "0");
-    return extraPercent * 0.01;
-}
-
-function updateExtra(extra: string): void {
-    const table = getReceiptTable();
-    const subtotalCell = table.querySelector('td#subtotal') as HTMLTableCellElement;
-    const extraAmount = parseFloat(subtotalCell.textContent || "0") * getExtraScaler(extra);
-    const extraCell = table.querySelector(`td#${extra}`) as HTMLTableCellElement;
-    extraCell.textContent = extraAmount.toFixed(2);
-}
-
-function getNumPersosnForItem(item: number): number {
-    const table = getReceiptTable();
-    const row = table.rows[item + 1];
-    const checkboxes = row.querySelectorAll('input[type="checkbox"]');
-    const checkedCheckboxes = Array.from(checkboxes).filter(checkbox => (checkbox as HTMLInputElement).checked);
-    return checkedCheckboxes.length;
-}
-
-function updatePersonTotal(person: number): void {
-    const table = getReceiptTable();
-    let subtotal = 0;
-
-    const itemPrices = table.querySelectorAll('td[id^="item-price-"]');
-    itemPrices.forEach((itemPriceCell, itemIndex) => {
-        const checkbox = table.querySelector(`input#person-${person}-check-${itemIndex}`) as HTMLInputElement;
-        if (checkbox.checked) {
-            const itemPrice = parseFloat(itemPriceCell.textContent || "0");
-            subtotal += itemPrice / getNumPersosnForItem(itemIndex);
-        }
-    });
-
-    const subtotalCell = table.querySelector(`td#person-${person}-subtotal`) as HTMLTableCellElement;
-    subtotalCell.textContent = subtotal.toFixed(2);
-    let total = subtotal;
-
-    const extraTypes: string[] = ["tax", "tip"];
-    extraTypes.forEach((extraType) => {
-        const extraAmount = subtotal * getExtraScaler(extraType);
-        total += extraAmount;
-        const extraCell = table.querySelector(`td#person-${person}-${extraType}`) as HTMLTableCellElement;
-        extraCell.textContent = extraAmount.toFixed(2);
-    });
-
-    const totalCell = table.querySelector(`td#person-${person}-total`) as HTMLTableCellElement;
-    totalCell.textContent = total.toFixed(2);
-}
-
-function updateTotal(): void {
-    updateSubtotal();
-    updateExtra("tax");
-    updateExtra("tip");
-
-    const table = getReceiptTable();
-    const subtotalCell = table.querySelector('td#subtotal') as HTMLTableCellElement;
-    const taxCell = table.querySelector(`td#tax`) as HTMLTableCellElement;
-    const tipCell = table.querySelector(`td#tip`) as HTMLTableCellElement;
-    const total = parseFloat(subtotalCell.textContent || "0") + parseFloat(taxCell.textContent || "0") + parseFloat(tipCell.textContent || "0");
-
-    const totalCell = table.querySelector('td#total') as HTMLTableCellElement;
-    totalCell.textContent = total.toFixed(2);
-
-    const numPersons = getNumPersons();
-    for (let person = 0; person < numPersons; person++) {
-        updatePersonTotal(person);
-    }
-}
-
-function getNumItems(): number {
-    const table = getReceiptTable();
-    const numItems = table.querySelectorAll('button[id^="item-name-"]').length;
-    return numItems;
-}
-
-function getNumPersons(): number {
-    const table = getReceiptTable();
-    const headerRow = table.rows[0];
-    const numColumns = headerRow.querySelectorAll("td").length;
-    const numPersons = numColumns - 2;
-    return numPersons;
-}
-
-function addCheckBox(person: number, item: number) {
-    const checkbox = document.createElement("input");
-    checkbox.id = `person-${person}-check-${item}`;
-    checkbox.type = "checkbox";
-    checkbox.classList.add("inline-block");
-
-    checkbox.addEventListener('change', updateTotal);
-
-    const table = getReceiptTable();
-    const checkCell = table.rows[item + 1].cells[person + 2];
-    checkCell.classList.add("justify-center", "items-center", "text-center");
-    checkCell.appendChild(checkbox);
-}
-
-function setItemFromInput(index: number): void {
-    const nameInput = document.querySelector("input#item-name") as HTMLInputElement;
-    const priceInput = document.querySelector("input#item-price") as HTMLInputElement;
-
-    const table = getReceiptTable();
-    const row = table.rows[index + 1];
-
-    (row.querySelector(`#item-name-${index}`) as HTMLButtonElement).textContent = nameInput.value;
-    (row.querySelector(`#item-price-${index}`) as HTMLTableCellElement).textContent = parseFloat(priceInput.value).toFixed(2);
-}
-
-function setItemForInput(name: string | null, price: string | null): void {
-    (document.querySelector("input#item-name") as HTMLInputElement).value = name || "";
-    (document.querySelector("input#item-price") as HTMLInputElement).value = price || "0.00";
-}
-
-function setItemClickHandler(index: number): void {
-    const editItemButton = document.querySelector(`button#item-name-${index}`) as HTMLButtonElement;
-    editItemButton.addEventListener("click", () => {
-        const itemIndex = document.querySelector("input#item-index") as HTMLInputElement;
-        itemIndex.value = index.toString();
-
-        const table = getReceiptTable();
-        const row = table.rows[index + 1];
+// Show the edit item view
+function showEditItem(index: number, name: string, price: number): void {
+    currentEditIndex = index;
+    editItemIndex.value = index.toString();
+    editItemName.value = name;
+    editItemPrice.value = price.toFixed(2);
     
-        const itemNameButton = row.querySelector(`#item-name-${index}`) as HTMLButtonElement;
-        const itemPriceCell = row.querySelector(`#item-price-${index}`) as HTMLTableCellElement;
-        setItemForInput(itemNameButton.textContent, itemPriceCell.textContent);
+    itemsListView.classList.add('hidden');
+    editItemView.classList.remove('hidden');
+    
+    // Focus on the name input
+    editItemName.focus();
+}
 
-        showModalWindow("item");
+// Handle item click to enter edit mode
+function setupItemClickHandlers(): void {
+    const itemElements = document.querySelectorAll('[data-item-index]');
+    itemElements.forEach((element) => {
+        element.addEventListener('click', () => {
+            const index = parseInt(element.getAttribute('data-item-index') || '0');
+            const name = element.getAttribute('data-item-name') || '';
+            const price = parseFloat(element.getAttribute('data-item-price') || '0');
+            showEditItem(index, name, price);
+        });
     });
 }
 
-function addItem(name: string): void {
-    const table = getReceiptTable();
-    const numItems = getNumItems();
-    const newRowIndex = numItems + 1;
-
-    const newRow = table.insertRow(newRowIndex);
-    newRow.classList.add("py-1", "py-1", "border-y", "border-rust");
-
-    const nameCell = newRow.insertCell(0);
-    const priceCell = newRow.insertCell(1);
-
-    nameCell.innerHTML = `<button id="item-name-${numItems}"></button>`;
-    nameCell.classList.add("sticky-column");
-    priceCell.id = `item-price-${numItems}`;
-    priceCell.classList.add("text-right");
-
-    const numPersons = getNumPersons();
-    for (let person = 0; person < numPersons; person++) {
-        newRow.insertCell(-1);
-        addCheckBox(person, numItems);
-    }
-
-    setItemFromInput(numItems);
-    setItemClickHandler(numItems);
-    updateTotal();
+// Cancel button - return to list view
+function handleCancel(): void {
+    showItemsList();
+    currentEditIndex = -1;
 }
 
-function addPerson(name: string): void {
-    const table = getReceiptTable();
-    const headerRow = table.rows[0];
-    const numItems = getNumItems();
-    const personIndex = getNumPersons();
-
-    const nameCell = headerRow.insertCell(-1);
-    nameCell.classList.add("text-center");
-    nameCell.textContent = name;
-
-    for (let index = 0; index < numItems; index++) {
-        const checkCell = table.rows[index + 1].insertCell(-1);
-        addCheckBox(personIndex, index);
-    }
-
-    const extraTypes: string[] = ["subtotal", "tax", "tip", "total"];
-    extraTypes.forEach((extraType, index) => {
-        const rowIndex = index + numItems + 1;
-        const extraCell = table.rows[rowIndex].insertCell(-1);
-        extraCell.classList.add("text-right", "px-1", "border-x");
-        extraCell.id = `person-${personIndex}-${extraType}`;
-        extraCell.textContent = "0.00";
-    });
-}
-
-function showModalWindow(itemType: string): void {
-    const modalWindow = document.getElementById(`add-${itemType}-modal`) as HTMLDivElement;
-    modalWindow.classList.remove("hidden");
-    const nameInput = document.querySelector(`input#${itemType}-name`) as HTMLInputElement;
-    nameInput.focus();
-}
-
-function hideModalWindow(itemType: string): void {
-    const modalWindow = document.getElementById(`add-${itemType}-modal`) as HTMLDivElement;
-    modalWindow.classList.add("hidden");
-    const nameInput = document.querySelector(`input#${itemType}-name`) as HTMLInputElement;
-    nameInput.value = "";
-}
-
-function addToTable(itemType: string, doAdd: (name: string) => void): void {
-    const nameInput = document.getElementById(`${itemType}-name`) as HTMLInputElement;
-    const name = nameInput.value.trim();
-
-    if (name) {
-        doAdd(name);
-    }
-
-    hideModalWindow(itemType);
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-    updateTotal();
-
-    const addPersonButton = document.getElementById("add-person-button") as HTMLButtonElement;
-    const addPersonOkButton = document.getElementById("add-person-ok-button") as HTMLButtonElement;
-
-    const addItemButton = document.getElementById("add-item-button") as HTMLButtonElement;
-    const addItemOkButton = document.getElementById("add-item-ok-button") as HTMLButtonElement;
-
-    addPersonButton.addEventListener("click", () => {
-        showModalWindow("person");
-    });
-
-    addPersonOkButton.addEventListener("click", () => {
-        addToTable("person", addPerson);
-    });
-
-    addItemButton.addEventListener("click", () => {
-        const itemIndex = document.querySelector("input#item-index") as HTMLInputElement;
-        itemIndex.value = "-1";
-        setItemForInput(null, null);
-        showModalWindow("item");
-    });
-
-    addItemOkButton.addEventListener("click", () => {
-        const itemIndex = document.querySelector("input#item-index") as HTMLInputElement;
-        const isNewItem = itemIndex.value === "-1";
-        if (isNewItem) {
-            addToTable("item", addItem);
+// Split button - split the current item
+async function handleSplit(): Promise<void> {
+    if (currentEditIndex === -1) return;
+    
+    try {
+        const response = await fetch('/split_item', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                item_index: currentEditIndex
+            })
+        });
+        
+        if (response.ok) {
+            // Reload the page to show updated items
+            window.location.reload();
         } else {
-            setItemFromInput(parseInt(itemIndex.value));
-            hideModalWindow("item");
-            updateTotal();
+            console.error('Failed to split item');
+        }
+    } catch (error) {
+        console.error('Error splitting item:', error);
+    }
+}
+
+// Save button - update the current item
+async function handleSave(): Promise<void> {
+    if (currentEditIndex === -1) return;
+    
+    const name = editItemName.value.trim();
+    const price = parseFloat(editItemPrice.value);
+    
+    if (!name || isNaN(price) || price < 0) {
+        alert('Please enter a valid name and price');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/update_item', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                item_index: currentEditIndex,
+                name: name,
+                price: price
+            })
+        });
+        
+        if (response.ok) {
+            // Reload the page to show updated items
+            window.location.reload();
+        } else {
+            console.error('Failed to update item');
+        }
+    } catch (error) {
+        console.error('Error updating item:', error);
+    }
+}
+
+// Initialize the page
+document.addEventListener('DOMContentLoaded', () => {
+    // Setup event listeners
+    cancelButton.addEventListener('click', handleCancel);
+    splitButton.addEventListener('click', handleSplit);
+    saveButton.addEventListener('click', handleSave);
+    
+    // Setup item click handlers
+    setupItemClickHandlers();
+    
+    // Handle form submission (for the save button)
+    editItemForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        handleSave();
+    });
+    
+    // Handle Enter key in inputs
+    editItemName.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            editItemPrice.focus();
         }
     });
-
-    const numItems = getNumItems();
-    for (let item = 0; item < numItems; item++) {
-        setItemClickHandler(item);
-    }
+    
+    editItemPrice.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            handleSave();
+        }
+    });
+    
+    // Handle Escape key to cancel
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !editItemView.classList.contains('hidden')) {
+            handleCancel();
+        }
+    });
 });
