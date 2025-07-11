@@ -49,7 +49,6 @@ def add_person():
     action = request.form.get("action")
     name = request.form.get("name", "").strip()
 
-    # If name is provided, add the person
     if name:
         persons = get_current_persons(session)
         new_person = Person(name=name, items=[])
@@ -57,13 +56,9 @@ def add_person():
         save_persons_file(persons, session)
 
     if action == "done":
-        # Check if at least one person has been added
         persons = get_current_persons(session)
         if not persons:
-            # If no persons added, stay on persons page
             return redirect(url_for("persons.list_persons"))
-        # Redirect to items page when done and persons exist
         return redirect(url_for("items.list_items"))
     else:
-        # Continue adding more persons
         return redirect(url_for("persons.list_persons"))

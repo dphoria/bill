@@ -34,14 +34,11 @@ def get_current_persons(session: dict) -> list | None:
 
 @distribute_page.route("/distribute", methods=["GET"])
 def distribute_page_view():
-    # Get item index from query parameter
     item_index = request.args.get("item_index", type=int)
 
-    # Get current items and persons
     items = get_current_items(session)
     persons = get_current_persons(session)
 
-    # Get the specific item if index is provided
     item = None
     item_count = 0
     if items:
@@ -49,7 +46,6 @@ def distribute_page_view():
         if item_index is not None and 0 <= item_index < item_count:
             item = items.items[item_index]
         elif item_count > 0:
-            # If no valid index provided, default to first item
             item_index = 0
             item = items.items[0]
 
@@ -70,16 +66,13 @@ def get_item():
         if item_index is None:
             return jsonify({"error": "Missing item index"}), 400
 
-        # Get current items
         items = get_current_items(session)
         if not items:
             return jsonify({"error": "No items found"}), 404
 
-        # Validate item index
         if item_index < 0 or item_index >= len(items.items):
             return jsonify({"error": "Invalid item index"}), 400
 
-        # Get the item
         item = items.items[item_index]
 
         return jsonify({"name": item.name, "price": item.price}), 200
@@ -99,7 +92,6 @@ def distribute_item():
         if item_index is None or not person_ids:
             return jsonify({"error": "Missing required fields"}), 400
 
-        # Get current items and persons
         items = get_current_items(session)
         persons = get_current_persons(session)
 
@@ -109,28 +101,22 @@ def distribute_item():
         if not persons:
             return jsonify({"error": "No persons found"}), 404
 
-        # Validate item index
         if item_index < 0 or item_index >= len(items.items):
             return jsonify({"error": "Invalid item index"}), 400
 
-        # Validate person IDs
         valid_person_ids = [i for i in range(len(persons))]
         if not all(pid in valid_person_ids for pid in person_ids):
             return jsonify({"error": "Invalid person IDs"}), 400
 
-        # Get the item to distribute
         item = items.items[item_index]
         item_price = item.price
 
-        # Calculate distribution
         num_persons = len(person_ids)
         if num_persons == 0:
             return jsonify({"error": "No persons selected"}), 400
 
-        # Calculate equal share
         share_per_person = item_price / num_persons
 
-        # Create distribution result
         distribution = []
         for person_id in person_ids:
             person = persons[person_id]
@@ -142,7 +128,6 @@ def distribute_item():
                 }
             )
 
-        # Calculate total distributed and remainder
         total_distributed = share_per_person * num_persons
         remainder = item_price - total_distributed
 
@@ -176,29 +161,24 @@ def save_distribution():
         if item_index is None or not person_ids:
             return jsonify({"error": "Missing required fields"}), 400
 
-        # Get current persons using persons.py method
         from persons import get_current_persons, save_persons_file
 
         persons = get_current_persons(session)
         if not persons:
             return jsonify({"error": "No persons found"}), 404
 
-        # Validate person IDs
         valid_person_ids = [i for i in range(len(persons))]
         if not all(pid in valid_person_ids for pid in person_ids):
             return jsonify({"error": "Invalid person IDs"}), 400
 
-        # First, remove this item index from ALL persons' items lists
         for person in persons:
             if item_index in person.items:
                 person.items.remove(item_index)
 
-        # Then, add this item index to ONLY the selected persons' items lists
         for person_id in person_ids:
             person = persons[person_id]
             person.items.append(item_index)
 
-        # Save updated persons using persons.py method
         save_persons_file(persons, session)
 
         return jsonify({"success": True}), 200

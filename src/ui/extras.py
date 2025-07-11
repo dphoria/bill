@@ -39,7 +39,6 @@ def get_current_extras(session: dict) -> Items | None:
         if Path(extras_file).exists():
             return session_data.read_items_file(extras_file)
         else:
-            # Return default extras if no file exists
             return get_default_extras()
     except Exception as e:
         log.warning(f"current list of extras is empty: {e}")
@@ -51,7 +50,6 @@ def list_extras():
     extras = get_current_extras(session)
     save_extras_file(extras, session)
 
-    # Get the total of all items (not extras)
     items = get_current_items(session)
     items_total = items.get_sum() if items else 0.0
 
@@ -65,14 +63,11 @@ def add_extra():
         name = data.get("name")
         price = data.get("price")
 
-        # Get current extras
         extras = get_current_extras(session)
 
-        # Create new extra
         new_extra = Item(name=name, price=price)
         extras.items.append(new_extra)
 
-        # Save updated extras
         save_extras_file(extras, session)
 
         return jsonify({"success": True}), 200
@@ -93,18 +88,14 @@ def update_extra():
         if extra_index is None or name is None or price is None:
             return jsonify({"error": "Missing required fields"}), 400
 
-        # Get current extras
         extras = get_current_extras(session)
 
-        # Validate extra index
         if extra_index < 0 or extra_index >= len(extras.items):
             return jsonify({"error": "Invalid extra index"}), 400
 
-        # Update the extra
         extras.items[extra_index].name = name
         extras.items[extra_index].price = price
 
-        # Save updated extras
         save_extras_file(extras, session)
 
         return jsonify({"success": True}), 200

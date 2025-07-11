@@ -57,10 +57,8 @@ class Calculator:
         float
             The person's share of the item price (0.0 if person doesn't have this item)
         """
-        # Find the index of the item in the items list
         item_index = self.items.items.index(item)
 
-        # Check if the person has this item in their items list
         if item_index in person.items:
             split_count = self.get_split_count(item)
             return item.price / split_count

@@ -76,17 +76,13 @@ def add_item():
         name = data.get("name")
         price = data.get("price")
 
-        # Get current items
         items = get_current_items(session)
         if not items:
-            # Create new items list if none exists
             items = Items(items=[])
 
-        # Create new item
         new_item = Item(name=name, price=price)
         items.items.append(new_item)
 
-        # Save updated items
         save_items_file(items, session)
 
         return jsonify({"success": True}), 200
@@ -107,20 +103,16 @@ def update_item():
         if item_index is None or name is None or price is None:
             return jsonify({"error": "Missing required fields"}), 400
 
-        # Get current items
         items = get_current_items(session)
         if not items:
             return jsonify({"error": "No items found"}), 404
 
-        # Validate item index
         if item_index < 0 or item_index >= len(items.items):
             return jsonify({"error": "Invalid item index"}), 400
 
-        # Update the item
         items.items[item_index].name = name
         items.items[item_index].price = price
 
-        # Save updated items
         save_items_file(items, session)
 
         return jsonify({"success": True}), 200
@@ -139,29 +131,21 @@ def split_item():
         if item_index is None:
             return jsonify({"error": "Missing item index"}), 400
 
-        # Get current items
         items = get_current_items(session)
         if not items:
             return jsonify({"error": "No items found"}), 404
 
-        # Validate item index
         if item_index < 0 or item_index >= len(items.items):
             return jsonify({"error": "Invalid item index"}), 400
 
-        # Get the item to split
         original_item = items.items[item_index]
 
-        # Create two new items with half the price each
         item1 = Item(name=f"{original_item.name} (1/2)", price=original_item.price / 2)
         item2 = Item(name=f"{original_item.name} (2/2)", price=original_item.price / 2)
 
-        # Replace the original item with the first split item
         items.items[item_index] = item1
-
-        # Insert the second split item after the first
         items.items.insert(item_index + 1, item2)
 
-        # Save updated items
         save_items_file(items, session)
 
         return jsonify({"success": True}), 200
@@ -174,7 +158,6 @@ def split_item():
 @items_page.route("/prepare_split", methods=["POST"])
 def prepare_split():
     try:
-        # Get current items
         items = get_current_items(session)
         if not items:
             return jsonify({"error": "No items found"}), 404
@@ -183,23 +166,18 @@ def prepare_split():
         if item_count == 0:
             return jsonify({"error": "No items to distribute"}), 400
 
-        # Get current persons
         persons = get_current_persons(session)
         if not persons:
             return jsonify({"error": "No persons found"}), 404
 
-        # Check if ALL persons have empty items lists
         all_persons_empty = all(len(person.items) == 0 for person in persons)
 
         if all_persons_empty:
-            # Create array of all item indices [0, 1, 2, ...]
             all_item_indices = list(range(item_count))
 
-            # Update each person to have all items
             for person in persons:
                 person.items = all_item_indices
 
-            # Save updated persons
             save_persons_file(persons, session)
 
         return (
