@@ -13,7 +13,7 @@ def receipt_items() -> Items:
     return items
 
 
-def test_item_counts(receipt_items):
+def test_items_exist(receipt_items):
     assert any(receipt_items.items)
 
 

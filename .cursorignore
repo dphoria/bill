@@ -1,0 +1,45 @@
+# Environment files and secrets
+.env
+.env.*
+*.env
+bill.env
+
+# API tokens and secrets in scripts
+bin/export-tokens.sh
+
+# Jupyter notebooks with hardcoded tokens
+openai.ipynb
+load.ipynb
+google.ipynb
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Node modules
+node_modules/
+
+# Cache directories
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+__pycache__/
+
+# IDE settings
+.vscode/
+
+# Test data that might contain sensitive information
+test_items.json
+src/ui/test_items.json
+
+# Docker and deployment files that might contain secrets
+docker-compose.override.yml
+docker-compose.prod.yml
+
+# Log files
+*.log
+
+# Temporary files
+*.tmp
+*.temp 

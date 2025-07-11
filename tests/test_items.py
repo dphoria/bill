@@ -5,11 +5,10 @@ from .utils import EXPECTED_ITEMS
 
 @pytest.mark.parametrize(
     "name,split_item_price",
-    [("Bumble Bee Cooler", None), ("Tiffin box - chicken", 31.0)],
+    [("Bumble Bee Cooler", 7.0), ("Tiffin box - chicken", 46.5)],
 )
 def test_item_split(name: str, split_item_price: float | None):
     items = deepcopy(EXPECTED_ITEMS.items)
-    items[11].count = 3
     items[11].price = 93.0
 
     for item in items:
@@ -25,12 +24,12 @@ def test_item_split(name: str, split_item_price: float | None):
         assert False
 
 
-@pytest.mark.parametrize("index,split_item_price", [(0, None), (11, 31.0)])
+@pytest.mark.parametrize("index,split_item_price", [(0, 6.5), (11, 46.5)])
 def test_items_split(index: int, split_item_price: float | None):
     items = deepcopy(EXPECTED_ITEMS)
-    next_item = items.items[index + 1]
+    original_item = items.items[index]
     items.split(index)
-    assert split_item_price is None or items.items[index + 1].price == split_item_price
-
-    next_item_index = index + 1 if split_item_price is None else index + 2
-    assert items.items[next_item_index] == next_item
+    new_items = items.items[index : index + 2]
+    prices = sorted([item.price for item in new_items])
+    expected_prices = sorted([split_item_price, original_item.price - split_item_price])
+    assert prices == expected_prices

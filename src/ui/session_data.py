@@ -7,6 +7,8 @@ import json
 DATA_DIRECTORY = "data_directory"
 IMAGE_FILE = "image_file"
 ITEMS_FILE = "items_file"
+EXTRAS_FILE = "extras_file"
+PERSONS_FILE = "persons_file"
 SELECTIONS_FILE = "selections_file"
 PEOPLE = "people"
 CURRENT_PERSON = "current_person"
@@ -15,7 +17,7 @@ TIP_PERCENT = "tip_percent"
 
 
 def start_new_receipt(session: dict):
-    for file in (IMAGE_FILE, ITEMS_FILE, SELECTIONS_FILE):
+    for file in (IMAGE_FILE, ITEMS_FILE, EXTRAS_FILE, PERSONS_FILE, SELECTIONS_FILE):
         try:
             os.remove(session_item_path(session, file))
         except FileNotFoundError:
@@ -24,6 +26,8 @@ def start_new_receipt(session: dict):
     for key in (
         IMAGE_FILE,
         ITEMS_FILE,
+        EXTRAS_FILE,
+        PERSONS_FILE,
         SELECTIONS_FILE,
         PEOPLE,
         CURRENT_PERSON,

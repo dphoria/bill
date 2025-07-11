@@ -1,4 +1,3 @@
-from copy import deepcopy
 import os
 import base64
 from openai import OpenAI
@@ -13,25 +12,20 @@ INFERENCE_MODEL = "gpt-4o-mini"
 
 class Item(BaseModel):
     name: str
-    count: int
     price: float
 
     def __str__(self):
-        return f"{self.name} ({self.count}) : {self.price}"
+        return f"{self.name} : {self.price}"
 
     def __hash__(self):
         return str(self).lower().__hash__()
 
     def split(self):
-        if self.count < 2:
-            return [self]
+        split_price = round(self.price / 2, 2)
+        remaining_price = self.price - split_price
 
-        new_self = deepcopy(self)
-        new_self.count -= 1
-        new_self.price = round(new_self.price * new_self.count / self.count, 2)
-
-        split_price = self.price - new_self.price
-        split_item = Item(name=self.name, count=1, price=split_price)
+        split_item = Item(name=f"{self.name} (2/2)", price=split_price)
+        new_self = Item(name=f"{self.name} (1/2)", price=remaining_price)
 
         return [new_self, split_item]
 
@@ -49,9 +43,8 @@ class Items(BaseModel):
 
     def split(self, item: int):
         split_items = self.items[item].split()
-        self.items[item] = split_items.pop(0)
-        if any(split_items):
-            self.items.insert(item + 1, split_items[0])
+        self.items[item] = split_items[0]
+        self.items.insert(item + 1, split_items[1])
 
 
 def get_items(receipt_png_data: bytes) -> Items:
@@ -71,7 +64,7 @@ def get_items(receipt_png_data: bytes) -> Items:
             "content": [
                 {
                     "type": "text",
-                    "text": "Give me the list of item names, their counts and their prices.",
+                    "text": "Give me the list of item names and their prices.",
                 },
                 {
                     "type": "image_url",

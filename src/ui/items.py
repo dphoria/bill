@@ -4,10 +4,13 @@ from flask import (
     render_template,
     session,
     Blueprint,
+    request,
+    jsonify,
 )
-from bill.receipts import get_items, Items
+from bill.receipts import get_items, Items, Item
 from pathlib import Path
 from logging import getLogger
+from persons import get_current_persons, save_persons_file
 
 log = getLogger(__file__)
 
@@ -54,3 +57,81 @@ def list_items():
     save_items_file(items, session)
 
     return render_template("items.html", items=items.items)
+
+
+@items_page.route("/get_persons", methods=["GET"])
+def get_persons():
+    persons = get_current_persons(session)
+    return jsonify([person.model_dump() for person in persons]), 200
+
+
+@items_page.route("/add_item", methods=["POST"])
+def add_item():
+    data = request.get_json()
+    name = data.get("name")
+    price = data.get("price")
+
+    items = get_current_items(session)
+
+    new_item = Item(name=name, price=price)
+    items.items.append(new_item)
+
+    save_items_file(items, session)
+
+    return jsonify({"success": True}), 200
+
+
+@items_page.route("/update_item", methods=["POST"])
+def update_item():
+    data = request.get_json()
+    item_index = data.get("item_index")
+    name = data.get("name")
+    price = data.get("price")
+
+    items = get_current_items(session)
+    items.items[item_index].name = name
+    items.items[item_index].price = price
+
+    save_items_file(items, session)
+
+    return jsonify({"success": True}), 200
+
+
+@items_page.route("/split_item", methods=["POST"])
+def split_item():
+    data = request.get_json()
+    item_index = data.get("item_index")
+
+    items = get_current_items(session)
+    items.split(item_index)
+    save_items_file(items, session)
+
+    return jsonify({"success": True}), 200
+
+
+@items_page.route("/prepare_split", methods=["POST"])
+def prepare_split():
+    items = get_current_items(session)
+    item_count = len(items.items)
+    persons = get_current_persons(session)
+
+    persons_items = map(lambda person: set(person.items), persons)
+    all_shared_items = set.union(*persons_items)
+    unshared_items = set(range(item_count)) - all_shared_items
+
+    if unshared_items:
+        for person in persons:
+            person.items = sorted(set(person.items + list(unshared_items)))
+
+        save_persons_file(persons, session)
+
+    return (
+        jsonify(
+            {
+                "success": True,
+                "item_count": item_count,
+                "person_count": len(persons),
+            }
+        ),
+        200,
+    )

@@ -1,276 +1,271 @@
-function getReceiptTable(): HTMLTableElement {
-    return document.getElementById("receipt-table") as HTMLTableElement;
+// State management
+let currentEditIndex: number = -1;
+let isAddMode: boolean = false;
+let isSubmitting: boolean = false; // Prevent double submissions
+
+// DOM elements
+const itemsListView = document.getElementById(
+  "items-list-view",
+) as HTMLDivElement;
+const editItemView = document.getElementById(
+  "edit-item-view",
+) as HTMLDivElement;
+const editItemForm = document.getElementById(
+  "edit-item-form",
+) as HTMLFormElement;
+const editItemIndex = document.getElementById(
+  "edit-item-index",
+) as HTMLInputElement;
+const editItemName = document.getElementById(
+  "edit-item-name",
+) as HTMLInputElement;
+const editItemPrice = document.getElementById(
+  "edit-item-price",
+) as HTMLInputElement;
+const cancelButton = document.getElementById(
+  "cancel-button",
+) as HTMLButtonElement;
+const splitButton = document.getElementById(
+  "split-button",
+) as HTMLButtonElement;
+const saveButton = document.getElementById("save-button") as HTMLButtonElement;
+const addItemButton = document.getElementById(
+  "add-item-button",
+) as HTMLButtonElement;
+const personsButton = document.getElementById(
+  "persons-button",
+) as HTMLButtonElement;
+const splitButtonNav = document.getElementById(
+  "split-button-nav",
+) as HTMLButtonElement;
+const editTitle = document.getElementById("edit-title") as HTMLHeadingElement;
+const editSubtitle = document.getElementById(
+  "edit-subtitle",
+) as HTMLParagraphElement;
+
+// Show the items list view
+function showItemsList(): void {
+  itemsListView.classList.remove("hidden");
+  editItemView.classList.add("hidden");
+  currentEditIndex = -1;
+  isAddMode = false;
+  isSubmitting = false; // Reset submission state
 }
 
-function updateSubtotal(): void {
-    const table = getReceiptTable();
-    let subtotal = 0;
+// Show the edit item view for editing
+function showEditItem(index: number, name: string, price: number): void {
+  currentEditIndex = index;
+  isAddMode = false;
+  editItemIndex.value = index.toString();
+  editItemName.value = name;
+  editItemPrice.value = price.toFixed(2);
 
-    const itemPrices = table.querySelectorAll('td[id^="item-price-"]');
-    itemPrices.forEach((item) => {
-        const value = parseFloat(item.textContent || "0");
-        subtotal += value;
+  // Update UI for edit mode
+  editTitle.textContent = "Edit Item";
+  editSubtitle.textContent = "Modify item details";
+  splitButton.classList.remove("hidden");
+
+  itemsListView.classList.add("hidden");
+  editItemView.classList.remove("hidden");
+
+  // Focus on the name input
+  editItemName.focus();
+}
+
+// Show the edit item view for adding
+function showAddItem(): void {
+  currentEditIndex = -1;
+  isAddMode = true;
+  editItemIndex.value = "";
+  editItemName.value = "";
+  editItemPrice.value = "";
+
+  // Update UI for add mode
+  editTitle.textContent = "Add Item";
+  editSubtitle.textContent = "Create a new item";
+  splitButton.classList.add("hidden");
+
+  itemsListView.classList.add("hidden");
+  editItemView.classList.remove("hidden");
+
+  // Focus on the name input
+  editItemName.focus();
+}
+
+// Handle item click to enter edit mode
+function setupItemClickHandlers(): void {
+  const itemElements = document.querySelectorAll("[data-item-index]");
+  itemElements.forEach((element) => {
+    element.addEventListener("click", () => {
+      const index = parseInt(element.getAttribute("data-item-index") || "0");
+      const name = element.getAttribute("data-item-name") || "";
+      const price = parseFloat(element.getAttribute("data-item-price") || "0");
+      showEditItem(index, name, price);
+    });
+  });
+}
+
+// Cancel button - return to list view
+function handleCancel(): void {
+  showItemsList();
+}
+
+// Split button - split the current item
+async function handleSplit(): Promise<void> {
+  if (currentEditIndex === -1 || isAddMode) return;
+
+  try {
+    const response = await fetch("/split_item", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        item_index: currentEditIndex,
+      }),
     });
 
-    const subtotalCell = table.querySelector('td#subtotal') as HTMLTableCellElement;
-    subtotalCell.textContent = subtotal.toFixed(2);
-}
-
-function getExtraScaler(extra: string): number {
-    const table = getReceiptTable();
-    const extraPercentCell = table.querySelector(`td#${extra}-percent`) as HTMLTableCellElement;
-    const extraPercent = parseFloat(extraPercentCell.textContent || "0");
-    return extraPercent * 0.01;
-}
-
-function updateExtra(extra: string): void {
-    const table = getReceiptTable();
-    const subtotalCell = table.querySelector('td#subtotal') as HTMLTableCellElement;
-    const extraAmount = parseFloat(subtotalCell.textContent || "0") * getExtraScaler(extra);
-    const extraCell = table.querySelector(`td#${extra}`) as HTMLTableCellElement;
-    extraCell.textContent = extraAmount.toFixed(2);
-}
-
-function getNumPersosnForItem(item: number): number {
-    const table = getReceiptTable();
-    const row = table.rows[item + 1];
-    const checkboxes = row.querySelectorAll('input[type="checkbox"]');
-    const checkedCheckboxes = Array.from(checkboxes).filter(checkbox => (checkbox as HTMLInputElement).checked);
-    return checkedCheckboxes.length;
-}
-
-function updatePersonTotal(person: number): void {
-    const table = getReceiptTable();
-    let subtotal = 0;
-
-    const itemPrices = table.querySelectorAll('td[id^="item-price-"]');
-    itemPrices.forEach((itemPriceCell, itemIndex) => {
-        const checkbox = table.querySelector(`input#person-${person}-check-${itemIndex}`) as HTMLInputElement;
-        if (checkbox.checked) {
-            const itemPrice = parseFloat(itemPriceCell.textContent || "0");
-            subtotal += itemPrice / getNumPersosnForItem(itemIndex);
-        }
-    });
-
-    const subtotalCell = table.querySelector(`td#person-${person}-subtotal`) as HTMLTableCellElement;
-    subtotalCell.textContent = subtotal.toFixed(2);
-    let total = subtotal;
-
-    const extraTypes: string[] = ["tax", "tip"];
-    extraTypes.forEach((extraType) => {
-        const extraAmount = subtotal * getExtraScaler(extraType);
-        total += extraAmount;
-        const extraCell = table.querySelector(`td#person-${person}-${extraType}`) as HTMLTableCellElement;
-        extraCell.textContent = extraAmount.toFixed(2);
-    });
-
-    const totalCell = table.querySelector(`td#person-${person}-total`) as HTMLTableCellElement;
-    totalCell.textContent = total.toFixed(2);
-}
-
-function updateTotal(): void {
-    updateSubtotal();
-    updateExtra("tax");
-    updateExtra("tip");
-
-    const table = getReceiptTable();
-    const subtotalCell = table.querySelector('td#subtotal') as HTMLTableCellElement;
-    const taxCell = table.querySelector(`td#tax`) as HTMLTableCellElement;
-    const tipCell = table.querySelector(`td#tip`) as HTMLTableCellElement;
-    const total = parseFloat(subtotalCell.textContent || "0") + parseFloat(taxCell.textContent || "0") + parseFloat(tipCell.textContent || "0");
-
-    const totalCell = table.querySelector('td#total') as HTMLTableCellElement;
-    totalCell.textContent = total.toFixed(2);
-
-    const numPersons = getNumPersons();
-    for (let person = 0; person < numPersons; person++) {
-        updatePersonTotal(person);
+    if (response.ok) {
+      // Reload the page to show updated items
+      window.location.reload();
+    } else {
+      console.error("Failed to split item");
     }
+  } catch (error) {
+    console.error("Error splitting item:", error);
+  }
 }
 
-function getNumItems(): number {
-    const table = getReceiptTable();
-    const numItems = table.querySelectorAll('button[id^="item-name-"]').length;
-    return numItems;
-}
+// Save button - update the current item or add new item
+async function handleSave(): Promise<void> {
+  // Prevent double submissions
+  if (isSubmitting) {
+    console.log("Already submitting, ignoring duplicate request");
+    return;
+  }
 
-function getNumPersons(): number {
-    const table = getReceiptTable();
-    const headerRow = table.rows[0];
-    const numColumns = headerRow.querySelectorAll("td").length;
-    const numPersons = numColumns - 3;
-    return numPersons;
-}
+  const name = editItemName.value.trim();
+  const price = parseFloat(editItemPrice.value);
 
-function addCheckBox(person: number, item: number) {
-    const checkbox = document.createElement("input");
-    checkbox.id = `person-${person}-check-${item}`;
-    checkbox.type = "checkbox";
-    checkbox.classList.add("inline-block");
+  if (!name || isNaN(price) || price < 0) {
+    alert("Please enter a valid name and price");
+    return;
+  }
 
-    checkbox.addEventListener('change', updateTotal);
+  // Set submitting state and disable save button
+  isSubmitting = true;
+  saveButton.disabled = true;
+  saveButton.textContent = isAddMode ? "Adding..." : "Saving...";
 
-    const table = getReceiptTable();
-    const checkCell = table.rows[item + 1].cells[person + 3];
-    checkCell.classList.add("justify-center", "items-center", "text-center");
-    checkCell.appendChild(checkbox);
-}
+  try {
+    const endpoint = isAddMode ? "/add_item" : "/update_item";
+    const body = isAddMode
+      ? { name: name, price: price }
+      : { item_index: currentEditIndex, name: name, price: price };
 
-function setItemFromInput(index: number): void {
-    const nameInput = document.querySelector("input#item-name") as HTMLInputElement;
-    const countInput = document.querySelector("input#item-count") as HTMLInputElement;
-    const priceINput = document.querySelector("input#item-price") as HTMLInputElement;
+    console.log(`Submitting to ${endpoint}:`, body);
 
-    const table = getReceiptTable();
-    const row = table.rows[index + 1];
-
-    (row.querySelector(`#item-name-${index}`) as HTMLButtonElement).textContent = nameInput.value;
-    (row.querySelector(`#item-count-${index}`) as HTMLTableCellElement).textContent = countInput.value;
-    (row.querySelector(`#item-price-${index}`) as HTMLTableCellElement).textContent = parseFloat(priceINput.value).toFixed(2);
-}
-
-function setItemForInput(name: string | null, count: string | null, price: string | null): void {
-    (document.querySelector("input#item-name") as HTMLInputElement).value = name || "";
-    (document.querySelector("input#item-count") as HTMLInputElement).value = count || "1";
-    (document.querySelector("input#item-price") as HTMLInputElement).value = price || "0.00";
-}
-
-function setItemClickHandler(index: number): void {
-    const editItemButton = document.querySelector(`button#item-name-${index}`) as HTMLButtonElement;
-    editItemButton.addEventListener("click", () => {
-        const itemIndex = document.querySelector("input#item-index") as HTMLInputElement;
-        itemIndex.value = index.toString();
-
-        const table = getReceiptTable();
-        const row = table.rows[index + 1];
-    
-        const itemNameButton = row.querySelector(`#item-name-${index}`) as HTMLButtonElement;
-        const itemCountCell = row.querySelector(`#item-count-${index}`) as HTMLTableCellElement;
-        const itemPriceCell = row.querySelector(`#item-price-${index}`) as HTMLTableCellElement;
-        setItemForInput(itemNameButton.textContent, itemCountCell.textContent, itemPriceCell.textContent);
-
-        showModalWindow("item");
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
     });
+
+    console.log(`Response status: ${response.status}`);
+
+    if (response.ok) {
+      console.log("Success, reloading page...");
+      // Reload the page to show updated items
+      window.location.reload();
+    } else {
+      console.error(`Failed to ${isAddMode ? "add" : "update"} item`);
+      alert(
+        `Failed to ${isAddMode ? "add" : "update"} item. Please try again.`,
+      );
+    }
+  } catch (error) {
+    console.error(`Error ${isAddMode ? "adding" : "updating"} item:`, error);
+    alert(`Error ${isAddMode ? "adding" : "updating"} item. Please try again.`);
+  } finally {
+    // Reset submitting state
+    isSubmitting = false;
+    saveButton.disabled = false;
+    saveButton.textContent = "Save";
+  }
 }
 
-function addItem(name: string): void {
-    const table = getReceiptTable();
-    const numItems = getNumItems();
-    const newRowIndex = numItems + 1;
-
-    const newRow = table.insertRow(newRowIndex);
-    newRow.classList.add("py-1", "py-1", "border-y", "border-rust");
-
-    const nameCell = newRow.insertCell(0);
-    const countCell = newRow.insertCell(1);
-    const priceCell = newRow.insertCell(2);
-
-    nameCell.innerHTML = `<button id="item-name-${numItems}"></button>`;
-    nameCell.classList.add("sticky-column");
-    countCell.id = `item-count-${numItems}`;
-    countCell.classList.add("text-center");
-    priceCell.id = `item-price-${numItems}`;
-    priceCell.classList.add("text-right");
-
-    const numPersons = getNumPersons();
-    for (let person = 0; person < numPersons; person++) {
-        newRow.insertCell(-1);
-        addCheckBox(person, numItems);
-    }
-
-    setItemFromInput(numItems);
-    setItemClickHandler(numItems);
-    updateTotal();
+// Navigation functions
+async function navigateToPersons(): Promise<void> {
+  window.location.href = "/persons";
 }
 
-function addPerson(name: string): void {
-    const table = getReceiptTable();
-    const headerRow = table.rows[0];
-    const numItems = getNumItems();
-    const personIndex = getNumPersons();
-
-    const nameCell = headerRow.insertCell(-1);
-    nameCell.classList.add("text-center");
-    nameCell.textContent = name;
-
-    for (let index = 0; index < numItems; index++) {
-        const checkCell = table.rows[index + 1].insertCell(-1);
-        addCheckBox(personIndex, index);
-    }
-
-    const extraTypes: string[] = ["subtotal", "tax", "tip", "total"];
-    extraTypes.forEach((extraType, index) => {
-        const rowIndex = index + numItems + 1;
-        const extraCell = table.rows[rowIndex].insertCell(-1);
-        extraCell.classList.add("text-right", "px-1", "border-x");
-        extraCell.id = `person-${personIndex}-${extraType}`;
-        extraCell.textContent = "0.00";
+async function navigateToSplit(): Promise<void> {
+  try {
+    // Call backend to prepare split (set all persons to have all items)
+    const response = await fetch("/prepare_split", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
-}
 
-function showModalWindow(itemType: string): void {
-    const modalWindow = document.getElementById(`add-${itemType}-modal`) as HTMLDivElement;
-    modalWindow.classList.remove("hidden");
-    const nameInput = document.querySelector(`input#${itemType}-name`) as HTMLInputElement;
-    nameInput.focus();
-}
-
-function hideModalWindow(itemType: string): void {
-    const modalWindow = document.getElementById(`add-${itemType}-modal`) as HTMLDivElement;
-    modalWindow.classList.add("hidden");
-    const nameInput = document.querySelector(`input#${itemType}-name`) as HTMLInputElement;
-    nameInput.value = "";
-}
-
-function addToTable(itemType: string, doAdd: (name: string) => void): void {
-    const nameInput = document.getElementById(`${itemType}-name`) as HTMLInputElement;
-    const name = nameInput.value.trim();
-
-    if (name) {
-        doAdd(name);
+    if (response.ok) {
+      const result = await response.json();
+      console.log(
+        `Prepared split: ${result.person_count} persons, ${result.item_count} items`,
+      );
+      // Navigate to distribute page
+      window.location.href = "/distribute";
+    } else {
+      const error = await response.json();
+      alert(error.error || "Failed to prepare split");
     }
-
-    hideModalWindow(itemType);
+  } catch (error) {
+    console.error("Error preparing for split:", error);
+    alert("Error preparing for split. Please try again.");
+  }
 }
 
+// Initialize the page
 document.addEventListener("DOMContentLoaded", () => {
-    updateTotal();
+  // Setup event listeners
+  cancelButton.addEventListener("click", handleCancel);
+  splitButton.addEventListener("click", handleSplit);
+  saveButton.addEventListener("click", handleSave);
+  addItemButton.addEventListener("click", showAddItem);
+  personsButton.addEventListener("click", navigateToPersons);
+  splitButtonNav.addEventListener("click", navigateToSplit);
 
-    const addPersonButton = document.getElementById("add-person-button") as HTMLButtonElement;
-    const addPersonOkButton = document.getElementById("add-person-ok-button") as HTMLButtonElement;
+  // Setup item click handlers
+  setupItemClickHandlers();
 
-    const addItemButton = document.getElementById("add-item-button") as HTMLButtonElement;
-    const addItemOkButton = document.getElementById("add-item-ok-button") as HTMLButtonElement;
+  // Handle form submission (for the save button)
+  editItemForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    handleSave();
+  });
 
-    addPersonButton.addEventListener("click", () => {
-        showModalWindow("person");
-    });
-
-    addPersonOkButton.addEventListener("click", () => {
-        addToTable("person", addPerson);
-    });
-
-    addItemButton.addEventListener("click", () => {
-        const itemIndex = document.querySelector("input#item-index") as HTMLInputElement;
-        itemIndex.value = "-1";
-        setItemForInput(null, null, null);
-        showModalWindow("item");
-    });
-
-    addItemOkButton.addEventListener("click", () => {
-        const itemIndex = document.querySelector("input#item-index") as HTMLInputElement;
-        const isNewItem = itemIndex.value === "-1";
-        if (isNewItem) {
-            addToTable("item", addItem);
-        } else {
-            setItemFromInput(parseInt(itemIndex.value));
-            hideModalWindow("item");
-            updateTotal();
-        }
-    });
-
-    const numItems = getNumItems();
-    for (let item = 0; item < numItems; item++) {
-        setItemClickHandler(item);
+  // Handle Enter key in inputs
+  editItemName.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      editItemPrice.focus();
     }
+  });
+
+  editItemPrice.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSave();
+    }
+  });
+
+  // Handle Escape key to cancel
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !editItemView.classList.contains("hidden")) {
+      handleCancel();
+    }
+  });
 });
