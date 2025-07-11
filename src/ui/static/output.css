@@ -377,9 +377,9 @@
     --default-mono-font-variation-settings: var(
       --font-mono--font-variation-settings
     );
-    --color-charcoal: #2A3132;
+    --color-charcoal: #2a3132;
     --color-rust: #763626;
-    --color-sky: #90AFC5;
+    --color-sky: #90afc5;
   }
 }
 @layer base {

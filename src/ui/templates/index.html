@@ -1,56 +1,105 @@
 <!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <title>Split Bill</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='output.css') }}"
+    />
+  </head>
 
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>Split Bill</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='output.css') }}">
-</head>
-
-<body class="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-blue-600/20 flex flex-col items-center justify-center text-slate-100">
-  <div class="w-full max-w-xl mx-auto p-6">
-    <div class="mb-8">
-      <div class="bg-blue-600 rounded-lg p-2 mr-3 inline-block align-middle">
-        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2a2 2 0 012-2h2a2 2 0 012 2v2m-6 4h6a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v12a2 2 0 002 2z" />
-        </svg>
+  <body
+    class="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-blue-600/20 flex flex-col items-center justify-center text-slate-100"
+  >
+    <div class="w-full max-w-xl mx-auto p-6">
+      <div class="mb-8">
+        <div class="bg-blue-600 rounded-lg p-2 mr-3 inline-block align-middle">
+          <svg
+            class="w-8 h-8 text-white"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 17v-2a2 2 0 012-2h2a2 2 0 012 2v2m-6 4h6a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v12a2 2 0 002 2z"
+            />
+          </svg>
+        </div>
+        <div class="inline-block align-middle">
+          <h1 class="text-2xl font-bold">Split Bill</h1>
+        </div>
       </div>
-      <div class="inline-block align-middle">
-        <h1 class="text-2xl font-bold">Split Bill</h1>
+      <div
+        class="w-full max-w-md mx-auto bg-slate-900/80 rounded-xl shadow-lg p-8"
+      >
+        <form
+          method="post"
+          enctype="multipart/form-data"
+          class="w-full max-w-md flex flex-col gap-4 mx-auto"
+          style="display: flex; flex-direction: column !important"
+        >
+          <label
+            for="file"
+            class="file-upload-area w-full flex flex-col items-center justify-center border-2 border-dashed border-slate-700 rounded-xl py-12 cursor-pointer transition-colors hover:border-blue-500 hover:bg-slate-800/50"
+          >
+            <svg
+              class="w-12 h-12 text-blue-500 mb-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5-5m0 0l5 5m-5-5v12"
+              />
+            </svg>
+            <span class="font-semibold">Drop your receipt here</span>
+            <span class="text-blue-400 underline cursor-pointer"
+              >or browse files</span
+            >
+            <span class="text-xs text-slate-400 mt-2">Supports images</span>
+            <input type="file" name="file" id="file" class="hidden" />
+          </label>
+          <div id="file-indicator" class="text-green-400 text-sm mb-2"></div>
+          <button
+            type="submit"
+            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg shadow transition-colors"
+          >
+            <svg
+              class="w-5 h-5 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5-5m0 0l5 5m-5-5v12"
+              />
+            </svg>
+            Upload
+          </button>
+        </form>
+        {% with messages = get_flashed_messages() %} {% if messages %}
+        <ul class="w-full mx-auto mt-4">
+          {% for message in messages %}
+          <li class="text-red-400">{{ message }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %} {% endwith %}
       </div>
     </div>
-    <div class="w-full max-w-md mx-auto bg-slate-900/80 rounded-xl shadow-lg p-8">
-      <form method="post" enctype="multipart/form-data" class="w-full max-w-md flex flex-col gap-4 mx-auto" style="display: flex; flex-direction: column !important;">
-        <label for="file" class="file-upload-area w-full flex flex-col items-center justify-center border-2 border-dashed border-slate-700 rounded-xl py-12 cursor-pointer transition-colors hover:border-blue-500 hover:bg-slate-800/50">
-          <svg class="w-12 h-12 text-blue-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5-5m0 0l5 5m-5-5v12" />
-          </svg>
-          <span class="font-semibold">Drop your receipt here</span>
-          <span class="text-blue-400 underline cursor-pointer">or browse files</span>
-          <span class="text-xs text-slate-400 mt-2">Supports images</span>
-          <input type="file" name="file" id="file" class="hidden">
-        </label>
-        <div id="file-indicator" class="text-green-400 text-sm mb-2"></div>
-        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg shadow transition-colors">
-          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5-5m0 0l5 5m-5-5v12" />
-          </svg>
-          Upload
-        </button>
-      </form>
-      {% with messages = get_flashed_messages() %}
-      {% if messages %}
-      <ul class="w-full mx-auto mt-4">
-        {% for message in messages %}
-        <li class="text-red-400">{{ message }}</li>
-        {% endfor %}
-      </ul>
-      {% endif %}
-      {% endwith %}
-    </div>
-  </div>
-  <script src="{{ url_for('static', filename='index.js') }}"></script>
-</body>
-
+    <script src="{{ url_for('static', filename='index.js') }}"></script>
+  </body>
 </html>

@@ -1,131 +1,214 @@
 <!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta id="person-count" content="{{ person_count }}" />
+    <meta id="person-index" content="{{ person_index }}" />
+    <title>Bill</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='output.css') }}"
+    />
+  </head>
 
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta id="person-count" content="{{ person_count }}">
-  <meta id="person-index" content="{{ person_index }}">
-  <title>Bill</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='output.css') }}">
-</head>
-
-<body class="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-blue-600/20 flex flex-col items-center justify-center text-slate-100">
-  <div class="w-full max-w-xl mx-auto p-6">
-    <div class="mb-8">
-      <div class="bg-blue-600 rounded-lg p-2 mr-3 inline-block align-middle">
-        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-        </svg>
+  <body
+    class="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-blue-600/20 flex flex-col items-center justify-center text-slate-100"
+  >
+    <div class="w-full max-w-xl mx-auto p-6">
+      <div class="mb-8">
+        <div class="bg-blue-600 rounded-lg p-2 mr-3 inline-block align-middle">
+          <svg
+            class="w-8 h-8 text-white"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+            />
+          </svg>
+        </div>
+        <div class="inline-block align-middle">
+          <h1 class="text-2xl font-bold">Bill</h1>
+          <p class="text-sm text-slate-400">Bill breakdown</p>
+        </div>
       </div>
-      <div class="inline-block align-middle">
-        <h1 class="text-2xl font-bold">Bill</h1>
-        <p class="text-sm text-slate-400">Bill breakdown</p>
+
+      <!-- Top Navigation Buttons -->
+      <div class="w-full max-w-md mx-auto mb-6 flex gap-3">
+        <button
+          type="button"
+          id="extras-button"
+          class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg shadow transition-colors"
+        >
+          Extras
+        </button>
       </div>
-    </div>
 
-    <!-- Top Navigation Buttons -->
-    <div class="w-full max-w-md mx-auto mb-6 flex gap-3">
-      <button type="button" id="extras-button" 
-              class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg shadow transition-colors">
-        Extras
-      </button>
-    </div>
-
-    <!-- Navigation Arrows -->
-    <div class="w-full max-w-md mx-auto mb-4 flex justify-center gap-4">
-      <button id="prev-person-button" 
-              class="bg-slate-700 hover:bg-slate-600 text-white font-semibold p-3 rounded-lg shadow transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              {% if person_index == 0 %}disabled{% endif %}>
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-        </svg>
-      </button>
-      <button id="next-person-button" 
-              class="bg-slate-700 hover:bg-slate-600 text-white font-semibold p-3 rounded-lg shadow transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              {% if person_index == person_count - 1 %}disabled{% endif %}>
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-        </svg>
-      </button>
-    </div>
-
-    <!-- Person Display Box -->
-    <div class="w-full max-w-md mx-auto bg-slate-900/80 rounded-xl shadow-lg p-8 mb-6">
-      <div class="flex justify-between items-center p-4 bg-slate-800/50 rounded-lg border border-slate-700">
-        <span class="font-medium text-slate-100" id="person-name">{{ person.name if person else 'No person selected' }}</span>
-        <span class="text-blue-400 font-semibold" id="person-total">${{ "%.2f"|format(person_total) if person else '0.00' }}</span>
+      <!-- Navigation Arrows -->
+      <div class="w-full max-w-md mx-auto mb-4 flex justify-center gap-4">
+        <button
+          id="prev-person-button"
+          class="bg-slate-700 hover:bg-slate-600 text-white font-semibold p-3 rounded-lg shadow transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          {%
+          if
+          person_index=""
+          ="0"
+          %}disabled{%
+          endif
+          %}
+        >
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
+        </button>
+        <button
+          id="next-person-button"
+          class="bg-slate-700 hover:bg-slate-600 text-white font-semibold p-3 rounded-lg shadow transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          {%
+          if
+          person_index=""
+          ="person_count"
+          -
+          1
+          %}disabled{%
+          endif
+          %}
+        >
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 5l7 7-7 7"
+            />
+          </svg>
+        </button>
       </div>
-    </div>
 
-    <!-- Bill Breakdown -->
-    <div class="w-full max-w-md mx-auto bg-slate-900/80 rounded-xl shadow-lg p-8 mb-6">
-      <h3 class="text-lg font-semibold text-slate-200 mb-4">Items</h3>
-      
-      <div class="space-y-3 mb-6">
-        {% if person_items %}
-          {% for item in person_items %}
-          <div class="flex justify-between items-center p-3 bg-slate-800/50 rounded-lg border border-slate-700">
+      <!-- Person Display Box -->
+      <div
+        class="w-full max-w-md mx-auto bg-slate-900/80 rounded-xl shadow-lg p-8 mb-6"
+      >
+        <div
+          class="flex justify-between items-center p-4 bg-slate-800/50 rounded-lg border border-slate-700"
+        >
+          <span class="font-medium text-slate-100" id="person-name"
+            >{{ person.name if person else 'No person selected' }}</span
+          >
+          <span class="text-blue-400 font-semibold" id="person-total"
+            >${{ "%.2f"|format(person_total) if person else '0.00' }}</span
+          >
+        </div>
+      </div>
+
+      <!-- Bill Breakdown -->
+      <div
+        class="w-full max-w-md mx-auto bg-slate-900/80 rounded-xl shadow-lg p-8 mb-6"
+      >
+        <h3 class="text-lg font-semibold text-slate-200 mb-4">Items</h3>
+
+        <div class="space-y-3 mb-6">
+          {% if person_items %} {% for item in person_items %}
+          <div
+            class="flex justify-between items-center p-3 bg-slate-800/50 rounded-lg border border-slate-700"
+          >
             <span class="font-medium text-slate-100">{{ item.name }}</span>
             <div class="text-right">
-              <div class="text-blue-400 font-semibold">${{ "%.2f"|format(item.share) }}</div>
-              <div class="text-xs text-slate-400">/ ${{ "%.2f"|format(item.price) }}</div>
+              <div class="text-blue-400 font-semibold">
+                ${{ "%.2f"|format(item.share) }}
+              </div>
+              <div class="text-xs text-slate-400">
+                / ${{ "%.2f"|format(item.price) }}
+              </div>
             </div>
           </div>
-          {% endfor %}
-        {% else %}
+          {% endfor %} {% else %}
           <div class="text-center text-slate-400 py-4">
             <p>No items</p>
           </div>
-        {% endif %}
-      </div>
-
-      <!-- Items Subtotal -->
-      <div class="border-t border-slate-700 pt-4 mb-6">
-        <div class="flex justify-between items-center text-lg font-semibold">
-          <span>Subtotal:</span>
-          <div class="text-right">
-            <div class="text-green-400">${{ "%.2f"|format(person_subtotal) }}</div>
-            <div class="text-xs text-slate-400">/ ${{ "%.2f"|format(items_total) }}</div>
-          </div>
+          {% endif %}
         </div>
-      </div>
 
-      <!-- Extras Section -->
-      <h3 class="text-lg font-semibold text-slate-200 mb-4">Extras</h3>
-      
-      <div class="space-y-3 mb-6">
-        {% if person_extras %}
-          {% for extra in person_extras %}
-          <div class="flex justify-between items-center p-3 bg-slate-800/50 rounded-lg border border-slate-700">
-            <span class="font-medium text-slate-100">{{ extra.name }}</span>
+        <!-- Items Subtotal -->
+        <div class="border-t border-slate-700 pt-4 mb-6">
+          <div class="flex justify-between items-center text-lg font-semibold">
+            <span>Subtotal:</span>
             <div class="text-right">
-              <div class="text-blue-400 font-semibold">${{ "%.2f"|format(extra.share) }}</div>
-              <div class="text-xs text-slate-400">/ ${{ "%.2f"|format(extra.price) }}</div>
+              <div class="text-green-400">
+                ${{ "%.2f"|format(person_subtotal) }}
+              </div>
+              <div class="text-xs text-slate-400">
+                / ${{ "%.2f"|format(items_total) }}
+              </div>
             </div>
           </div>
-          {% endfor %}
-        {% else %}
+        </div>
+
+        <!-- Extras Section -->
+        <h3 class="text-lg font-semibold text-slate-200 mb-4">Extras</h3>
+
+        <div class="space-y-3 mb-6">
+          {% if person_extras %} {% for extra in person_extras %}
+          <div
+            class="flex justify-between items-center p-3 bg-slate-800/50 rounded-lg border border-slate-700"
+          >
+            <span class="font-medium text-slate-100">{{ extra.name }}</span>
+            <div class="text-right">
+              <div class="text-blue-400 font-semibold">
+                ${{ "%.2f"|format(extra.share) }}
+              </div>
+              <div class="text-xs text-slate-400">
+                / ${{ "%.2f"|format(extra.price) }}
+              </div>
+            </div>
+          </div>
+          {% endfor %} {% else %}
           <div class="text-center text-slate-400 py-4">
             <p>No extras</p>
           </div>
-        {% endif %}
-      </div>
+          {% endif %}
+        </div>
 
-      <!-- Total -->
-      <div class="border-t border-slate-700 pt-4">
-        <div class="flex justify-between items-center text-xl font-bold">
-          <span>Total:</span>
-          <div class="text-right">
-            <div class="text-green-400">${{ "%.2f"|format(person_total) }}</div>
-            <div class="text-xs text-slate-400">/ ${{ "%.2f"|format(overall_total) }}</div>
+        <!-- Total -->
+        <div class="border-t border-slate-700 pt-4">
+          <div class="flex justify-between items-center text-xl font-bold">
+            <span>Total:</span>
+            <div class="text-right">
+              <div class="text-green-400">
+                ${{ "%.2f"|format(person_total) }}
+              </div>
+              <div class="text-xs text-slate-400">
+                / ${{ "%.2f"|format(overall_total) }}
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <script src="{{ url_for('static', filename='payments.js') }}"></script>
-</body>
-
-</html> 
+    <script src="{{ url_for('static', filename='payments.js') }}"></script>
+  </body>
+</html>
