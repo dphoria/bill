@@ -151,7 +151,7 @@ async function navigateBack(): Promise<void> {
 }
 
 async function navigateDone(): Promise<void> {
-    window.location.href = '/distribute';
+    window.location.href = '/payments';
 }
 
 // Event listeners
