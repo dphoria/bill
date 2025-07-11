@@ -51,55 +51,39 @@ def list_extras():
     save_extras_file(extras, session)
 
     items = get_current_items(session)
-    items_total = items.get_sum() if items else 0.0
+    items_total = items.get_sum()
 
     return render_template("extras.html", extras=extras.items, items_total=items_total)
 
 
 @extras_page.route("/add_extra", methods=["POST"])
 def add_extra():
-    try:
-        data = request.get_json()
-        name = data.get("name")
-        price = data.get("price")
+    data = request.get_json()
+    name = data.get("name")
+    price = data.get("price")
 
-        extras = get_current_extras(session)
+    extras = get_current_extras(session)
 
-        new_extra = Item(name=name, price=price)
-        extras.items.append(new_extra)
+    new_extra = Item(name=name, price=price)
+    extras.items.append(new_extra)
 
-        save_extras_file(extras, session)
+    save_extras_file(extras, session)
 
-        return jsonify({"success": True}), 200
-
-    except Exception as e:
-        log.error(f"Error adding extra: {e}")
-        return jsonify({"error": "Internal server error"}), 500
+    return jsonify({"success": True}), 200
 
 
 @extras_page.route("/update_extra", methods=["POST"])
 def update_extra():
-    try:
-        data = request.get_json()
-        extra_index = data.get("extra_index")
-        name = data.get("name")
-        price = data.get("price")
+    data = request.get_json()
+    extra_index = data.get("extra_index")
+    name = data.get("name")
+    price = data.get("price")
 
-        if extra_index is None or name is None or price is None:
-            return jsonify({"error": "Missing required fields"}), 400
+    extras = get_current_extras(session)
 
-        extras = get_current_extras(session)
+    extras.items[extra_index].name = name
+    extras.items[extra_index].price = price
 
-        if extra_index < 0 or extra_index >= len(extras.items):
-            return jsonify({"error": "Invalid extra index"}), 400
+    save_extras_file(extras, session)
 
-        extras.items[extra_index].name = name
-        extras.items[extra_index].price = price
-
-        save_extras_file(extras, session)
-
-        return jsonify({"success": True}), 200
-
-    except Exception as e:
-        log.error(f"Error updating extra: {e}")
-        return jsonify({"error": "Internal server error"}), 500
+    return jsonify({"success": True}), 200

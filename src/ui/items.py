@@ -61,137 +61,77 @@ def list_items():
 
 @items_page.route("/get_persons", methods=["GET"])
 def get_persons():
-    try:
-        persons = get_current_persons(session)
-        return jsonify([person.model_dump() for person in persons]), 200
-    except Exception as e:
-        log.error(f"Error getting persons: {e}")
-        return jsonify({"error": "Internal server error"}), 500
+    persons = get_current_persons(session)
+    return jsonify([person.model_dump() for person in persons]), 200
 
 
 @items_page.route("/add_item", methods=["POST"])
 def add_item():
-    try:
-        data = request.get_json()
-        name = data.get("name")
-        price = data.get("price")
+    data = request.get_json()
+    name = data.get("name")
+    price = data.get("price")
 
-        items = get_current_items(session)
-        if not items:
-            items = Items(items=[])
+    items = get_current_items(session)
 
-        new_item = Item(name=name, price=price)
-        items.items.append(new_item)
+    new_item = Item(name=name, price=price)
+    items.items.append(new_item)
 
-        save_items_file(items, session)
+    save_items_file(items, session)
 
-        return jsonify({"success": True}), 200
-
-    except Exception as e:
-        log.error(f"Error adding item: {e}")
-        return jsonify({"error": "Internal server error"}), 500
+    return jsonify({"success": True}), 200
 
 
 @items_page.route("/update_item", methods=["POST"])
 def update_item():
-    try:
-        data = request.get_json()
-        item_index = data.get("item_index")
-        name = data.get("name")
-        price = data.get("price")
+    data = request.get_json()
+    item_index = data.get("item_index")
+    name = data.get("name")
+    price = data.get("price")
 
-        if item_index is None or name is None or price is None:
-            return jsonify({"error": "Missing required fields"}), 400
+    items = get_current_items(session)
+    items.items[item_index].name = name
+    items.items[item_index].price = price
 
-        items = get_current_items(session)
-        if not items:
-            return jsonify({"error": "No items found"}), 404
+    save_items_file(items, session)
 
-        if item_index < 0 or item_index >= len(items.items):
-            return jsonify({"error": "Invalid item index"}), 400
-
-        items.items[item_index].name = name
-        items.items[item_index].price = price
-
-        save_items_file(items, session)
-
-        return jsonify({"success": True}), 200
-
-    except Exception as e:
-        log.error(f"Error updating item: {e}")
-        return jsonify({"error": "Internal server error"}), 500
+    return jsonify({"success": True}), 200
 
 
 @items_page.route("/split_item", methods=["POST"])
 def split_item():
-    try:
-        data = request.get_json()
-        item_index = data.get("item_index")
+    data = request.get_json()
+    item_index = data.get("item_index")
 
-        if item_index is None:
-            return jsonify({"error": "Missing item index"}), 400
+    items = get_current_items(session)
+    items.split(item_index)
+    save_items_file(items, session)
 
-        items = get_current_items(session)
-        if not items:
-            return jsonify({"error": "No items found"}), 404
-
-        if item_index < 0 or item_index >= len(items.items):
-            return jsonify({"error": "Invalid item index"}), 400
-
-        original_item = items.items[item_index]
-
-        item1 = Item(name=f"{original_item.name} (1/2)", price=original_item.price / 2)
-        item2 = Item(name=f"{original_item.name} (2/2)", price=original_item.price / 2)
-
-        items.items[item_index] = item1
-        items.items.insert(item_index + 1, item2)
-
-        save_items_file(items, session)
-
-        return jsonify({"success": True}), 200
-
-    except Exception as e:
-        log.error(f"Error splitting item: {e}")
-        return jsonify({"error": "Internal server error"}), 500
+    return jsonify({"success": True}), 200
 
 
 @items_page.route("/prepare_split", methods=["POST"])
 def prepare_split():
-    try:
-        items = get_current_items(session)
-        if not items:
-            return jsonify({"error": "No items found"}), 404
+    items = get_current_items(session)
+    item_count = len(items.items)
+    persons = get_current_persons(session)
 
-        item_count = len(items.items)
-        if item_count == 0:
-            return jsonify({"error": "No items to distribute"}), 400
+    persons_items = map(lambda person: set(person.items), persons)
+    all_shared_items = set.union(*persons_items)
+    unshared_items = set(range(item_count)) - all_shared_items
 
-        persons = get_current_persons(session)
-        if not persons:
-            return jsonify({"error": "No persons found"}), 404
+    if unshared_items:
+        for person in persons:
+            person.items = sorted(set(person.items + list(unshared_items)))
 
-        all_persons_empty = all(len(person.items) == 0 for person in persons)
+        save_persons_file(persons, session)
 
-        if all_persons_empty:
-            all_item_indices = list(range(item_count))
-
-            for person in persons:
-                person.items = all_item_indices
-
-            save_persons_file(persons, session)
-
-        return (
-            jsonify(
-                {
-                    "success": True,
-                    "item_count": item_count,
-                    "person_count": len(persons),
-                    "all_persons_empty": all_persons_empty,
-                }
-            ),
-            200,
-        )
-
-    except Exception as e:
-        log.error(f"Error preparing for split: {e}")
-        return jsonify({"error": "Internal server error"}), 500
+    return (
+        jsonify(
+            {
+                "success": True,
+                "item_count": item_count,
+                "person_count": len(persons),
+            }
+        ),
+        200,
+    )
