@@ -17,6 +17,7 @@ const extraBackButton = document.getElementById('back-button') as HTMLButtonElem
 const extraDoneButton = document.getElementById('done-button') as HTMLButtonElement;
 const extraEditTitle = document.getElementById('edit-title') as HTMLHeadingElement;
 const extraEditSubtitle = document.getElementById('edit-subtitle') as HTMLParagraphElement;
+const extraRatio = document.getElementById('extra-ratio') as HTMLSpanElement;
 
 // Show the extras list view
 function showExtrasList(): void {
@@ -35,15 +36,11 @@ function showEditExtra(index: number, name: string, price: number): void {
     editExtraName.value = name;
     editExtraPrice.value = price.toFixed(2);
     
-    // Update UI for edit mode
-    extraEditTitle.textContent = 'Edit Extra';
-    extraEditSubtitle.textContent = 'Modify extra details';
-    
+    // Removed title/subtitle update
     extrasListView.classList.add('hidden');
     editExtraView.classList.remove('hidden');
-    
-    // Focus on the name input
     editExtraName.focus();
+    updateExtraRatio();
 }
 
 // Show the edit extra view for adding
@@ -54,15 +51,22 @@ function showAddExtra(): void {
     editExtraName.value = '';
     editExtraPrice.value = '';
     
-    // Update UI for add mode
-    extraEditTitle.textContent = 'Add Extra';
-    extraEditSubtitle.textContent = 'Create a new extra charge';
-    
+    // Removed title/subtitle update
     extrasListView.classList.add('hidden');
     editExtraView.classList.remove('hidden');
-    
-    // Focus on the name input
     editExtraName.focus();
+    updateExtraRatio();
+}
+
+function updateExtraRatio(): void {
+    const price = parseFloat(editExtraPrice.value);
+    const itemsTotal = parseFloat(editExtraView.getAttribute('data-items-total') || '0');
+    if (!isNaN(price) && itemsTotal > 0) {
+        const ratio = (price / itemsTotal) * 100;
+        extraRatio.textContent = `${ratio.toFixed(2)}%`;
+    } else {
+        extraRatio.textContent = '';
+    }
 }
 
 // Handle extra click to enter edit mode
@@ -179,4 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
             handleExtraSave();
         }
     });
+
+    // Add event listener for price input
+    editExtraPrice.addEventListener('input', updateExtraRatio);
 }); 

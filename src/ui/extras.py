@@ -10,6 +10,7 @@ from flask import (
 from bill.receipts import Items, Item
 from pathlib import Path
 from logging import getLogger
+from items import get_current_items
 
 log = getLogger(__file__)
 
@@ -50,7 +51,11 @@ def list_extras():
     extras = get_current_extras(session)
     save_extras_file(extras, session)
 
-    return render_template("extras.html", extras=extras.items)
+    # Get the total of all items (not extras)
+    items = get_current_items(session)
+    items_total = items.get_sum() if items else 0.0
+
+    return render_template("extras.html", extras=extras.items, items_total=items_total)
 
 
 @extras_page.route("/add_extra", methods=["POST"])
