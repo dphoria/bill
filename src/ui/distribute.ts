@@ -1,10 +1,8 @@
-// State management
 let selectedPersons: number[] = [];
 let currentItem: { name: string; price: number } | null = null;
 let currentItemIndex: number = 0;
 let totalItemCount: number = 0;
 
-// DOM elements
 const itemName = document.getElementById("item-name") as HTMLSpanElement;
 const itemPrice = document.getElementById("item-price") as HTMLSpanElement;
 const prevItemButton = document.getElementById(
@@ -22,21 +20,16 @@ const distributionResults = document.getElementById(
 ) as HTMLDivElement;
 const resultsList = document.getElementById("results-list") as HTMLDivElement;
 
-// Initialize the page
 document.addEventListener("DOMContentLoaded", async () => {
-  // Setup event listeners
   prevItemButton.addEventListener("click", handlePrevItem);
   nextItemButton.addEventListener("click", handleNextItem);
   backButton.addEventListener("click", handleBack);
   distributeButton.addEventListener("click", handleDone);
 
-  // Initialize item data from template (includes item data)
   initializeItemData();
 
-  // Setup person selection handlers (item data is now available)
   setupPersonSelectionHandlers();
 
-  // Handle Escape key to go back
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
       handleBack();
@@ -44,76 +37,58 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 });
 
-// Setup person selection handlers
 function setupPersonSelectionHandlers(): void {
-  // Clear any existing selections
+  const selectedPersonClasses = [
+    "bg-green-600/30",
+    "border-green-400",
+    "border-2",
+    "ring-4",
+    "ring-green-400/40",
+    "shadow-lg",
+  ] as const;
   selectedPersons = [];
 
   const personElements = document.querySelectorAll(".person-box");
-  personElements.forEach((element) => {
-    const personId = parseInt(element.getAttribute("data-person-id") || "0");
-    const isSelected = element.getAttribute("data-selected") === "true";
+  personElements.forEach((personBox) => {
+    const personId = parseInt(personBox.getAttribute("data-person-id") || "0");
 
-    // Initialize selectedPersons based on data-selected attribute
-    if (isSelected) {
+    let addPerson = () => {
+      console.log("Adding person", personId);
       selectedPersons.push(personId);
-      element.classList.add(
-        "bg-green-600/30",
-        "border-green-400",
-        "border-2",
-        "ring-4",
-        "ring-green-400/40",
-        "shadow-lg",
-      );
+      personBox.classList.add(...selectedPersonClasses);
+    };
+
+    let removePerson = () => {
+      console.log("Removing person", personId);
+      personBox.classList.remove(...selectedPersonClasses);
+    };
+
+    const wasPersonSelected =
+      personBox.getAttribute("data-selected") === "true";
+    if (wasPersonSelected) {
+      addPerson();
     }
 
-    // Add click event listener to the person box
-    element.addEventListener("click", (e) => {
-      console.log("Person box clicked:", personId); // Debug log
+    personBox.addEventListener("click", (e) => {
+      const isPersonDeselected = selectedPersons.includes(personId);
 
-      const isCurrentlySelected = selectedPersons.includes(personId);
-      console.log("Currently selected:", isCurrentlySelected); // Debug log
-
-      if (isCurrentlySelected) {
-        // Remove from selection
+      if (isPersonDeselected) {
         selectedPersons = selectedPersons.filter((id) => id !== personId);
-        element.classList.remove(
-          "bg-green-600/30",
-          "border-green-400",
-          "border-2",
-          "ring-4",
-          "ring-green-400/40",
-          "shadow-lg",
-        );
-        element.setAttribute("data-selected", "false");
-        console.log("Removed from selection"); // Debug log
+        removePerson();
+        personBox.setAttribute("data-selected", "false");
       } else {
-        // Add to selection
-        selectedPersons.push(personId);
-        element.classList.add(
-          "bg-green-600/30",
-          "border-green-400",
-          "border-2",
-          "ring-4",
-          "ring-green-400/40",
-          "shadow-lg",
-        );
-        element.setAttribute("data-selected", "true");
-        console.log("Added to selection"); // Debug log
+        addPerson();
+        personBox.setAttribute("data-selected", "true");
       }
 
-      console.log("Selected persons:", selectedPersons); // Debug log
       updateDistributeButton();
     });
   });
 
-  // Update the UI after initializing selectedPersons
   updateDistributeButton();
 }
 
-// Initialize item data from template variables
 function initializeItemData(): void {
-  // Get item count and current index from template variables
   const itemCountElement = document.getElementById(
     "item-count",
   ) as HTMLMetaElement;
@@ -127,35 +102,23 @@ function initializeItemData(): void {
     "item-price",
   ) as HTMLMetaElement;
 
-  if (itemCountElement) {
-    totalItemCount = parseInt(itemCountElement.content || "0");
-  }
+  totalItemCount = parseInt(itemCountElement.content || "0");
+  currentItemIndex = parseInt(itemIndexElement.content || "0");
 
-  if (itemIndexElement) {
-    currentItemIndex = parseInt(itemIndexElement.content || "0");
-  }
+  const itemName = itemNameElement.content || "";
+  const itemPrice = parseFloat(itemPriceElement.content || "0");
 
-  // Get current item data from template
-  if (itemNameElement && itemPriceElement) {
-    const itemName = itemNameElement.content || "";
-    const itemPrice = parseFloat(itemPriceElement.content || "0");
+  currentItem = {
+    name: itemName,
+    price: itemPrice,
+  };
+  console.log("Current item", currentItem);
 
-    if (itemName && itemPrice > 0) {
-      currentItem = {
-        name: itemName,
-        price: itemPrice,
-      };
-    }
-  }
-
-  // Update navigation buttons
   updateNavigationButtons();
 }
 
-// Get current item from URL parameters or session
 async function getCurrentItem(): Promise<void> {
-  const urlParams = new URLSearchParams(window.location.search);
-  const itemIndex = urlParams.get("item_index");
+  const itemIndex = getItemIndexFromUrl();
 
   if (itemIndex) {
     try {
@@ -171,7 +134,6 @@ async function getCurrentItem(): Promise<void> {
   }
 }
 
-// Update item display
 function updateItemDisplay(): void {
   if (currentItem) {
     itemName.textContent = currentItem.name;
@@ -179,34 +141,41 @@ function updateItemDisplay(): void {
   }
 }
 
-// Update distribute button state and calculate shares
-function updateDistributeButton(): void {
-  distributeButton.disabled = selectedPersons.length === 0;
-  if (selectedPersons.length === 0) {
-    distributeButton.classList.add("opacity-50", "cursor-not-allowed");
-    // Reset all person shares to $0.00
-    document.querySelectorAll(".person-share").forEach((element) => {
-      (element as HTMLSpanElement).textContent = "$0.00";
-    });
-  } else {
-    distributeButton.classList.remove("opacity-50", "cursor-not-allowed");
-    // Calculate and update shares
-    updatePersonShares();
-  }
+function getItemSharedCount(): number {
+  return selectedPersons.length;
 }
 
-// Calculate and update person shares
+function updateDistributeButton(): void {
+  const distributionClasses = ["opacity-50", "cursor-not-allowed"] as const;
+
+  let isNoOneSelected = getItemSharedCount() === 0;
+  distributeButton.disabled = isNoOneSelected;
+
+  if (isNoOneSelected) {
+    distributeButton.classList.add(...distributionClasses);
+  } else {
+    distributeButton.classList.remove(...distributionClasses);
+  }
+
+  updatePersonShares();
+}
+
 function updatePersonShares(): void {
-  if (!currentItem || selectedPersons.length === 0) return;
+  if (!currentItem) {
+    return;
+  }
 
-  const sharePerPerson = currentItem.price / selectedPersons.length;
-
-  // Reset all shares to $0.00 first
   document.querySelectorAll(".person-share").forEach((element) => {
     (element as HTMLSpanElement).textContent = "$0.00";
   });
 
-  // Update shares for selected persons
+  const itemSharedCount = getItemSharedCount();
+  if (itemSharedCount === 0) {
+    return;
+  }
+
+  const sharePerPerson = currentItem.price / itemSharedCount;
+
   selectedPersons.forEach((personId) => {
     const shareElement = document.querySelector(
       `.person-share[data-person-id="${personId}"]`,
@@ -217,49 +186,41 @@ function updatePersonShares(): void {
   });
 }
 
-// Handle previous item button
 async function handlePrevItem(): Promise<void> {
   if (currentItemIndex > 0) {
-    // Save current distribution before navigating
     await saveCurrentDistribution();
     window.location.href = `/distribute?item_index=${currentItemIndex - 1}`;
   }
 }
 
-// Handle next item button
 async function handleNextItem(): Promise<void> {
   if (currentItemIndex < totalItemCount - 1) {
-    // Save current distribution before navigating
     await saveCurrentDistribution();
     window.location.href = `/distribute?item_index=${currentItemIndex + 1}`;
   }
 }
 
-// Update navigation button states
 function updateNavigationButtons(): void {
-  if (prevItemButton) {
-    prevItemButton.disabled = currentItemIndex <= 0;
-    if (currentItemIndex <= 0) {
-      prevItemButton.classList.add("opacity-50", "cursor-not-allowed");
-    } else {
-      prevItemButton.classList.remove("opacity-50", "cursor-not-allowed");
-    }
+  const navigationClasses = ["opacity-50", "cursor-not-allowed"] as const;
+
+  prevItemButton.disabled = currentItemIndex <= 0;
+  if (currentItemIndex <= 0) {
+    prevItemButton.classList.add(...navigationClasses);
+  } else {
+    prevItemButton.classList.remove(...navigationClasses);
   }
 
-  if (nextItemButton) {
-    nextItemButton.disabled = currentItemIndex >= totalItemCount - 1;
-    if (currentItemIndex >= totalItemCount - 1) {
-      nextItemButton.classList.add("opacity-50", "cursor-not-allowed");
-    } else {
-      nextItemButton.classList.remove("opacity-50", "cursor-not-allowed");
-    }
+  nextItemButton.disabled = currentItemIndex >= totalItemCount - 1;
+  if (currentItemIndex >= totalItemCount - 1) {
+    nextItemButton.classList.add(...navigationClasses);
+  } else {
+    nextItemButton.classList.remove(...navigationClasses);
   }
 }
 
-// Save current distribution to session data
 async function saveCurrentDistribution(): Promise<void> {
   if (selectedPersons.length === 0 || !currentItem) {
-    return; // Nothing to save
+    return;
   }
 
   try {
@@ -284,57 +245,17 @@ async function saveCurrentDistribution(): Promise<void> {
   }
 }
 
-// Handle back button (Items)
 async function handleBack(): Promise<void> {
-  // Save current distribution before navigating
   await saveCurrentDistribution();
   window.location.href = "/items";
 }
 
-// Handle done button - navigate to extras page
 async function handleDone(): Promise<void> {
-  // Save current distribution before proceeding
   await saveCurrentDistribution();
   window.location.href = "/extras";
 }
 
-// Get item index from URL parameters
 function getItemIndexFromUrl(): number {
   const urlParams = new URLSearchParams(window.location.search);
   return parseInt(urlParams.get("item_index") || "0");
-}
-
-// Show distribution results
-function showDistributionResults(result: any): void {
-  resultsList.innerHTML = "";
-
-  if (result.distribution) {
-    result.distribution.forEach((personShare: any) => {
-      const resultElement = document.createElement("div");
-      resultElement.className =
-        "flex justify-between items-center p-3 bg-slate-800/50 rounded-lg border border-slate-700";
-      resultElement.innerHTML = `
-                <span class="font-medium text-slate-100">${personShare.person_name}</span>
-                <span class="text-green-400 font-semibold">$${personShare.share.toFixed(2)}</span>
-            `;
-      resultsList.appendChild(resultElement);
-    });
-
-    // Show total
-    const totalElement = document.createElement("div");
-    totalElement.className =
-      "flex justify-between items-center p-3 bg-slate-700/50 rounded-lg border border-slate-600 mt-2";
-    totalElement.innerHTML = `
-            <span class="font-semibold text-slate-200">Total Distributed:</span>
-            <span class="text-blue-400 font-semibold">$${result.total_distributed.toFixed(2)}</span>
-        `;
-    resultsList.appendChild(totalElement);
-
-
-  }
-
-  distributionResults.classList.remove("hidden");
-
-  // Scroll to results
-  distributionResults.scrollIntoView({ behavior: "smooth" });
 }
