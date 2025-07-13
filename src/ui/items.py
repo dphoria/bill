@@ -7,7 +7,7 @@ from flask import (
     request,
     jsonify,
 )
-from bill.receipts import get_items, Items, Item
+from bill.receipts import Receipt, Items, Item
 from pathlib import Path
 from logging import getLogger
 from persons import get_current_persons, save_persons_file
@@ -45,7 +45,8 @@ def get_current_items(session: dict) -> Items | None:
 def get_receipt_image_items(session: dict) -> Items:
     image_file_path = session_data.session_item_path(session, session_data.IMAGE_FILE)
     image_data = Path(image_file_path).read_bytes()
-    items = get_items(image_data)
+    receipt = Receipt(image_data)
+    items = receipt.get_items()
     return items
 
 
