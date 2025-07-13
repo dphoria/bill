@@ -64,7 +64,6 @@ def distribute_item():
     ]
 
     total_distributed = share_per_person * num_persons
-    remainder = item.price - total_distributed
 
     return (
         jsonify(
@@ -72,7 +71,6 @@ def distribute_item():
                 "success": True,
                 "distribution": distribution,
                 "total_distributed": total_distributed,
-                "remainder": remainder,
                 "item_name": item.name,
                 "item_price": item.price,
                 "num_persons": num_persons,

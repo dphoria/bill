@@ -330,17 +330,7 @@ function showDistributionResults(result: any): void {
         `;
     resultsList.appendChild(totalElement);
 
-    // Show remainder if any
-    if (result.remainder && result.remainder > 0) {
-      const remainderElement = document.createElement("div");
-      remainderElement.className =
-        "flex justify-between items-center p-3 bg-orange-900/30 rounded-lg border border-orange-700 mt-2";
-      remainderElement.innerHTML = `
-                <span class="font-medium text-orange-300">Remainder:</span>
-                <span class="text-orange-400 font-semibold">$${result.remainder.toFixed(2)}</span>
-            `;
-      resultsList.appendChild(remainderElement);
-    }
+
   }
 
   distributionResults.classList.remove("hidden");
