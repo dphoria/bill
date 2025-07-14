@@ -44,7 +44,7 @@ def get_receipt_items(session: dict) -> Items:
     return read_items_file(session_item_path(session, ITEMS_FILE))
 
 
-def save_persons_file(persons: list[Person], session):
+def save_persons_file(persons: list[Person], session: dict):
     with open(session_item_path(session, PERSONS_FILE), "w") as json_file:
         json.dump([person.model_dump() for person in persons], json_file, indent=4)
 
@@ -62,3 +62,17 @@ def get_current_persons(session: dict) -> list[Person]:
     except Exception as e:
         log.warning(f"Error reading persons file: {e}")
         return []
+
+
+def save_extras_file(extras: Items, session: dict):
+    with open(session_item_path(session, EXTRAS_FILE), "w") as json_file:
+        json.dump(extras.model_dump_json(indent=4), json_file)
+
+
+def get_current_extras(session: dict) -> Items | None:
+    try:
+        extras_file = session_item_path(session, EXTRAS_FILE)
+        return read_items_file(extras_file)
+    except Exception as e:
+        log.warning(f"current list of extras is empty: {e}")
+        return None

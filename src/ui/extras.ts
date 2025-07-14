@@ -45,16 +45,14 @@ const extraEditSubtitle = document.getElementById(
 ) as HTMLParagraphElement;
 const extraRatio = document.getElementById("extra-ratio") as HTMLSpanElement;
 
-// Show the extras list view
 function showExtrasList(): void {
   extrasListView.classList.remove("hidden");
   editExtraView.classList.add("hidden");
   currentExtraEditIndex = -1;
   isExtraAddMode = false;
-  isExtraSubmitting = false; // Reset submission state
+  isExtraSubmitting = false;
 }
 
-// Show the edit extra view for editing
 function showEditExtra(index: number, name: string, price: number): void {
   currentExtraEditIndex = index;
   isExtraAddMode = false;
@@ -62,14 +60,12 @@ function showEditExtra(index: number, name: string, price: number): void {
   editExtraName.value = name;
   editExtraPrice.value = price.toFixed(2);
 
-  // Removed title/subtitle update
   extrasListView.classList.add("hidden");
   editExtraView.classList.remove("hidden");
   editExtraName.focus();
   updateExtraRatio();
 }
 
-// Show the edit extra view for adding
 function showAddExtra(): void {
   currentExtraEditIndex = -1;
   isExtraAddMode = true;
@@ -77,7 +73,6 @@ function showAddExtra(): void {
   editExtraName.value = "";
   editExtraPrice.value = "";
 
-  // Removed title/subtitle update
   extrasListView.classList.add("hidden");
   editExtraView.classList.remove("hidden");
   editExtraName.focus();
@@ -97,27 +92,27 @@ function updateExtraRatio(): void {
   }
 }
 
-// Handle extra click to enter edit mode
 function setupExtraClickHandlers(): void {
   const extraElements = document.querySelectorAll("[data-extra-index]");
-  extraElements.forEach((element) => {
-    element.addEventListener("click", () => {
-      const index = parseInt(element.getAttribute("data-extra-index") || "0");
-      const name = element.getAttribute("data-extra-name") || "";
-      const price = parseFloat(element.getAttribute("data-extra-price") || "0");
+  extraElements.forEach((extraItemElement) => {
+    extraItemElement.addEventListener("click", () => {
+      const index = parseInt(
+        extraItemElement.getAttribute("data-extra-index") || "0",
+      );
+      const name = extraItemElement.getAttribute("data-extra-name") || "";
+      const price = parseFloat(
+        extraItemElement.getAttribute("data-extra-price") || "0",
+      );
       showEditExtra(index, name, price);
     });
   });
 }
 
-// Cancel button - return to list view
 function handleExtraCancel(): void {
   showExtrasList();
 }
 
-// Save button - update the current extra or add new extra
 async function handleExtraSave(): Promise<void> {
-  // Prevent double submissions
   if (isExtraSubmitting) {
     console.log("Already submitting, ignoring duplicate request");
     return;
@@ -131,7 +126,6 @@ async function handleExtraSave(): Promise<void> {
     return;
   }
 
-  // Set submitting state and disable save button
   isExtraSubmitting = true;
   extraSaveButton.disabled = true;
   extraSaveButton.textContent = isExtraAddMode ? "Adding..." : "Saving...";
@@ -156,7 +150,6 @@ async function handleExtraSave(): Promise<void> {
 
     if (response.ok) {
       console.log("Success, reloading page...");
-      // Reload the page to show updated extras
       window.location.reload();
     } else {
       console.error(`Failed to ${isExtraAddMode ? "add" : "update"} extra`);
@@ -173,14 +166,12 @@ async function handleExtraSave(): Promise<void> {
       `Error ${isExtraAddMode ? "adding" : "updating"} extra. Please try again.`,
     );
   } finally {
-    // Reset submitting state
     isExtraSubmitting = false;
     extraSaveButton.disabled = false;
     extraSaveButton.textContent = "Save";
   }
 }
 
-// Navigation functions
 async function navigateBack(): Promise<void> {
   window.location.href = "/distribute";
 }
@@ -189,24 +180,19 @@ async function navigateDone(): Promise<void> {
   window.location.href = "/payments";
 }
 
-// Event listeners
 document.addEventListener("DOMContentLoaded", () => {
-  // Setup click handlers for extras
   setupExtraClickHandlers();
 
-  // Navigation button handlers
   extraBackButton.addEventListener("click", navigateBack);
   extraDoneButton.addEventListener("click", navigateDone);
   addExtraButton.addEventListener("click", showAddExtra);
 
-  // Form handlers
   extraCancelButton.addEventListener("click", handleExtraCancel);
   editExtraForm.addEventListener("submit", (e) => {
     e.preventDefault();
     handleExtraSave();
   });
 
-  // Enter key handlers for form inputs
   editExtraName.addEventListener("keypress", (e) => {
     if (e.key === "Enter") {
       editExtraPrice.focus();
@@ -219,6 +205,5 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Add event listener for price input
   editExtraPrice.addEventListener("input", updateExtraRatio);
 });
