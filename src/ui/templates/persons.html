@@ -35,9 +35,9 @@
       {% if persons %}
       <div class="w-full mt-8">
         <h3 class="text-lg font-semibold text-slate-200 mb-4 text-center">Entered Persons:</h3>
-        <div class="space-y-2 max-h-48 overflow-y-auto">
+        <div id="persons-list" class="space-y-2 max-h-48 overflow-y-auto">
           {% for person in persons %}
-          <div class="flex items-center justify-between p-3 bg-slate-800/50 rounded-lg border border-slate-700">
+          <div id="person-{{ loop.index }}" class="person-item flex items-center justify-between p-3 bg-slate-800/50 rounded-lg border border-slate-700">
             <span class="font-medium text-slate-100">{{ person.name }}</span>
             <span class="text-xs text-slate-400">#{{ loop.index }}</span>
           </div>

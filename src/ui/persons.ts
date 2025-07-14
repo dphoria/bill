@@ -8,16 +8,13 @@ let persons: Person[] = [];
 document.addEventListener("DOMContentLoaded", function (): void {
   const nameInput = document.getElementById("name") as HTMLInputElement;
   const doneBtn = document.getElementById("done-btn") as HTMLButtonElement;
-  const personsList = document.querySelector(".space-y-2") as HTMLElement;
+  const personsList = document.getElementById("persons-list") as HTMLElement;
 
-  // Initialize persons array from the DOM
   initializePersonsFromDOM();
 
   function initializePersonsFromDOM(): void {
     if (personsList) {
-      const personElements = personsList.querySelectorAll(
-        ".flex.items-center.justify-between",
-      );
+      const personElements = personsList.querySelectorAll("[id^='person-']");
       persons = Array.from(personElements).map((element, index) => ({
         name:
           (element.querySelector(".font-medium") as HTMLElement)?.textContent ||
@@ -38,9 +35,7 @@ document.addEventListener("DOMContentLoaded", function (): void {
     }
   }
 
-  // Check on page load
   updateDoneButton();
 
-  // Check when input changes
   nameInput.addEventListener("input", updateDoneButton);
 });
