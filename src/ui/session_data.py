@@ -44,6 +44,11 @@ def get_receipt_items(session: dict) -> Items:
     return read_items_file(session_item_path(session, ITEMS_FILE))
 
 
+def save_items_file(items: Items, session: dict):
+    with open(session_item_path(session, ITEMS_FILE), "w") as json_file:
+        json.dump(items.model_dump_json(indent=4), json_file)
+
+
 def save_persons_file(persons: list[Person], session: dict):
     with open(session_item_path(session, PERSONS_FILE), "w") as json_file:
         json.dump([person.model_dump() for person in persons], json_file, indent=4)

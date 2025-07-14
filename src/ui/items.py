@@ -1,4 +1,3 @@
-import json
 import session_data
 from flask import (
     render_template,
@@ -15,13 +14,6 @@ from persons import get_current_persons, save_persons_file
 log = getLogger(__file__)
 
 items_page = Blueprint("items", __name__)
-
-
-def save_items_file(items: Items, session):
-    with open(
-        session_data.session_item_path(session, session_data.ITEMS_FILE), "w"
-    ) as json_file:
-        json.dump(items.model_dump_json(indent=4), json_file)
 
 
 def get_test_items() -> Items | None:
@@ -55,7 +47,7 @@ def list_items():
     items = get_current_items(session)
     items = items or get_test_items()
     items = items or get_receipt_image_items(session)
-    save_items_file(items, session)
+    session_data.save_items_file(items, session)
 
     return render_template("items.html", items=items.items)
 
@@ -77,7 +69,7 @@ def add_item():
     new_item = Item(name=name, price=price)
     items.items.append(new_item)
 
-    save_items_file(items, session)
+    session_data.save_items_file(items, session)
 
     return jsonify({"success": True}), 200
 
@@ -93,7 +85,7 @@ def update_item():
     items.items[item_index].name = name
     items.items[item_index].price = price
 
-    save_items_file(items, session)
+    session_data.save_items_file(items, session)
 
     return jsonify({"success": True}), 200
 
@@ -105,7 +97,7 @@ def split_item():
 
     items = get_current_items(session)
     items.split(item_index)
-    save_items_file(items, session)
+    session_data.save_items_file(items, session)
 
     return jsonify({"success": True}), 200
 

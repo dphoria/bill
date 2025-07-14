@@ -1,9 +1,7 @@
-// State management
 let currentEditIndex: number = -1;
 let isAddMode: boolean = false;
-let isSubmitting: boolean = false; // Prevent double submissions
+let isSubmitting: boolean = false;
 
-// DOM elements
 const itemsListView = document.getElementById(
   "items-list-view",
 ) as HTMLDivElement;
@@ -43,16 +41,14 @@ const editSubtitle = document.getElementById(
   "edit-subtitle",
 ) as HTMLParagraphElement;
 
-// Show the items list view
 function showItemsList(): void {
   itemsListView.classList.remove("hidden");
   editItemView.classList.add("hidden");
   currentEditIndex = -1;
   isAddMode = false;
-  isSubmitting = false; // Reset submission state
+  isSubmitting = false;
 }
 
-// Show the edit item view for editing
 function showEditItem(index: number, name: string, price: number): void {
   currentEditIndex = index;
   isAddMode = false;
@@ -60,7 +56,6 @@ function showEditItem(index: number, name: string, price: number): void {
   editItemName.value = name;
   editItemPrice.value = price.toFixed(2);
 
-  // Update UI for edit mode
   editTitle.textContent = "Edit Item";
   editSubtitle.textContent = "Modify item details";
   splitButton.classList.remove("hidden");
@@ -68,11 +63,9 @@ function showEditItem(index: number, name: string, price: number): void {
   itemsListView.classList.add("hidden");
   editItemView.classList.remove("hidden");
 
-  // Focus on the name input
   editItemName.focus();
 }
 
-// Show the edit item view for adding
 function showAddItem(): void {
   currentEditIndex = -1;
   isAddMode = true;
@@ -80,7 +73,6 @@ function showAddItem(): void {
   editItemName.value = "";
   editItemPrice.value = "";
 
-  // Update UI for add mode
   editTitle.textContent = "Add Item";
   editSubtitle.textContent = "Create a new item";
   splitButton.classList.add("hidden");
@@ -88,31 +80,33 @@ function showAddItem(): void {
   itemsListView.classList.add("hidden");
   editItemView.classList.remove("hidden");
 
-  // Focus on the name input
   editItemName.focus();
 }
 
-// Handle item click to enter edit mode
 function setupItemClickHandlers(): void {
   const itemElements = document.querySelectorAll("[data-item-index]");
-  itemElements.forEach((element) => {
-    element.addEventListener("click", () => {
-      const index = parseInt(element.getAttribute("data-item-index") || "0");
-      const name = element.getAttribute("data-item-name") || "";
-      const price = parseFloat(element.getAttribute("data-item-price") || "0");
+  itemElements.forEach((itemElement) => {
+    itemElement.addEventListener("click", () => {
+      const index = parseInt(
+        itemElement.getAttribute("data-item-index") || "0",
+      );
+      const name = itemElement.getAttribute("data-item-name") || "";
+      const price = parseFloat(
+        itemElement.getAttribute("data-item-price") || "0",
+      );
       showEditItem(index, name, price);
     });
   });
 }
 
-// Cancel button - return to list view
 function handleCancel(): void {
   showItemsList();
 }
 
-// Split button - split the current item
 async function handleSplit(): Promise<void> {
-  if (currentEditIndex === -1 || isAddMode) return;
+  if (currentEditIndex === -1 || isAddMode) {
+    return;
+  }
 
   try {
     const response = await fetch("/split_item", {
@@ -126,7 +120,6 @@ async function handleSplit(): Promise<void> {
     });
 
     if (response.ok) {
-      // Reload the page to show updated items
       window.location.reload();
     } else {
       console.error("Failed to split item");
@@ -136,9 +129,7 @@ async function handleSplit(): Promise<void> {
   }
 }
 
-// Save button - update the current item or add new item
 async function handleSave(): Promise<void> {
-  // Prevent double submissions
   if (isSubmitting) {
     console.log("Already submitting, ignoring duplicate request");
     return;
@@ -152,7 +143,6 @@ async function handleSave(): Promise<void> {
     return;
   }
 
-  // Set submitting state and disable save button
   isSubmitting = true;
   saveButton.disabled = true;
   saveButton.textContent = isAddMode ? "Adding..." : "Saving...";
@@ -177,7 +167,6 @@ async function handleSave(): Promise<void> {
 
     if (response.ok) {
       console.log("Success, reloading page...");
-      // Reload the page to show updated items
       window.location.reload();
     } else {
       console.error(`Failed to ${isAddMode ? "add" : "update"} item`);
@@ -189,21 +178,18 @@ async function handleSave(): Promise<void> {
     console.error(`Error ${isAddMode ? "adding" : "updating"} item:`, error);
     alert(`Error ${isAddMode ? "adding" : "updating"} item. Please try again.`);
   } finally {
-    // Reset submitting state
     isSubmitting = false;
     saveButton.disabled = false;
     saveButton.textContent = "Save";
   }
 }
 
-// Navigation functions
 async function navigateToPersons(): Promise<void> {
   window.location.href = "/persons";
 }
 
 async function navigateToSplit(): Promise<void> {
   try {
-    // Call backend to prepare split (set all persons to have all items)
     const response = await fetch("/prepare_split", {
       method: "POST",
       headers: {
@@ -216,7 +202,6 @@ async function navigateToSplit(): Promise<void> {
       console.log(
         `Prepared split: ${result.person_count} persons, ${result.item_count} items`,
       );
-      // Navigate to distribute page
       window.location.href = "/distribute";
     } else {
       const error = await response.json();
@@ -228,9 +213,7 @@ async function navigateToSplit(): Promise<void> {
   }
 }
 
-// Initialize the page
 document.addEventListener("DOMContentLoaded", () => {
-  // Setup event listeners
   cancelButton.addEventListener("click", handleCancel);
   splitButton.addEventListener("click", handleSplit);
   saveButton.addEventListener("click", handleSave);
@@ -238,16 +221,13 @@ document.addEventListener("DOMContentLoaded", () => {
   personsButton.addEventListener("click", navigateToPersons);
   splitButtonNav.addEventListener("click", navigateToSplit);
 
-  // Setup item click handlers
   setupItemClickHandlers();
 
-  // Handle form submission (for the save button)
   editItemForm.addEventListener("submit", (e) => {
     e.preventDefault();
     handleSave();
   });
 
-  // Handle Enter key in inputs
   editItemName.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -262,7 +242,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Handle Escape key to cancel
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && !editItemView.classList.contains("hidden")) {
       handleCancel();
