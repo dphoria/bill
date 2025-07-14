@@ -178,3 +178,176 @@ class Receipt:
         developer_prompt = "You extract service charge, tip, or gratuity amounts from restaurant receipt images. Look for any line items labeled as tip, gratuity, or service charge on the receipt and return it as an item with name 'Service charge' and the amount as the price. If no such item is found, return an item with name 'Service charge' and price 0.0."
         user_prompt = "Give me the service charge, tip, or gratuity amount from this receipt. If none is found, return 0."
         return self.run_image_inference(developer_prompt, user_prompt, Item)
+
+    def start_analysis(self) -> list:
+        """
+        Start analysis of the receipt image and return conversation messages.
+
+        Returns
+        -------
+        list
+            List of messages for continued conversation with the AI.
+        """
+        messages = [
+            {
+                "role": "system",
+                "content": "You are an assistant that analyzes restaurant receipts. You can see the receipt image and will answer questions about it.",
+            },
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": "Please read this receipt image. I'll ask you questions about it.",
+                    },
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": self.image_url,
+                        },
+                    },
+                ],
+            },
+        ]
+
+        response = self.client.chat.completions.create(
+            model=INFERENCE_MODEL, messages=messages
+        )
+
+        messages.append(
+            {"role": "assistant", "content": response.choices[0].message.content}
+        )
+
+        return messages
+
+    def get_subtotal_with_chat(self, messages: list) -> tuple[Item, list]:
+        """
+        Extract subtotal using chat conversation with image uploaded once.
+
+        Parameters
+        ----------
+        messages : list
+            List of messages for continued conversation with the agent.
+
+        Returns
+        -------
+        tuple[Item, list]
+            A tuple containing the subtotal Item and updated messages list.
+        """
+        messages.append({"role": "user", "content": "What is the subtotal amount?"})
+
+        response = self.client.beta.chat.completions.parse(
+            model=INFERENCE_MODEL,
+            messages=messages,
+            response_format=Item,
+        )
+
+        subtotal = response.choices[0].message.parsed
+
+        messages.append({"role": "assistant", "content": f"Subtotal: {subtotal.price}"})
+
+        return subtotal, messages
+
+    def get_items_with_chat(self, subtotal: Item, messages: list) -> tuple[Items, list]:
+        """
+        Extract items using chat conversation with image uploaded once.
+
+        Parameters
+        ----------
+        subtotal : Item
+            The subtotal Item containing the amount that the sum of item prices should equal.
+        messages : list
+            List of messages for continued conversation with the agent.
+
+        Returns
+        -------
+        tuple[Items, list]
+            A tuple containing the Items collection and updated messages list.
+        """
+        messages.append(
+            {
+                "role": "user",
+                "content": f"What are the individual items and their prices? The sum of the item prices should equal the subtotal amount of ${subtotal.price:.2f}. Give me the list of item names and their prices.",
+            }
+        )
+
+        response = self.client.beta.chat.completions.parse(
+            model=INFERENCE_MODEL,
+            messages=messages,
+            response_format=Items,
+        )
+
+        items = response.choices[0].message.parsed
+
+        messages.append(
+            {
+                "role": "assistant",
+                "content": f"Found {len(items.items)} items with total: {items.get_sum()}",
+            }
+        )
+
+        return items, messages
+
+    def get_service_charge_with_chat(self, messages: list) -> tuple[Item, list]:
+        """
+        Extract service charge using chat conversation with image uploaded once.
+
+        Parameters
+        ----------
+        messages : list
+            List of messages for continued conversation with the agent.
+
+        Returns
+        -------
+        tuple[Item, list]
+            A tuple containing the service charge Item and updated messages list.
+        """
+        messages.append(
+            {
+                "role": "user",
+                "content": "What is the service charge, tip, or gratuity amount? If none is found, return 0.",
+            }
+        )
+
+        response = self.client.beta.chat.completions.parse(
+            model=INFERENCE_MODEL,
+            messages=messages,
+            response_format=Item,
+        )
+
+        service_charge = response.choices[0].message.parsed
+        service_charge.name = "Service charge"
+
+        messages.append(
+            {"role": "assistant", "content": f"Service charge: {service_charge.price}"}
+        )
+
+        return service_charge, messages
+
+    def get_tax_with_chat(self, messages: list) -> tuple[Item, list]:
+        """
+        Extract tax using chat conversation with image uploaded once.
+
+        Parameters
+        ----------
+        messages : list
+            List of messages for continued conversation with the agent.
+
+        Returns
+        -------
+        tuple[Item, list]
+            A tuple containing the tax Item and updated messages list.
+        """
+        messages.append({"role": "user", "content": "What is the tax amount?"})
+
+        response = self.client.beta.chat.completions.parse(
+            model=INFERENCE_MODEL,
+            messages=messages,
+            response_format=Item,
+        )
+
+        tax = response.choices[0].message.parsed
+
+        messages.append({"role": "assistant", "content": f"Tax: {tax.price}"})
+
+        return tax, messages
