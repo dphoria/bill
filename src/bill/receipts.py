@@ -267,7 +267,7 @@ class Receipt:
         messages.append(
             {
                 "role": "user",
-                "content": f"What are the individual items and their prices? The sum of the item prices should equal the subtotal amount of ${subtotal.price:.2f}. Give me the list of item names and their prices.",
+                "content": f"What are the individual items and their prices? The sum of the item prices should be close to the subtotal amount of ${subtotal.price:.2f}. Give me the list of item names and their prices.",
             }
         )
 
