@@ -6,7 +6,8 @@ from flask import (
     request,
     jsonify,
 )
-from bill.receipts import Items, Item
+from bill.receipts import Items, Item, Receipt
+from pathlib import Path
 from logging import getLogger
 from items import get_current_items
 
@@ -15,8 +16,24 @@ log = getLogger(__file__)
 extras_page = Blueprint("extras", __name__)
 
 
+def get_receipt_extras(session: dict) -> Items:
+    try:
+        image_file_path = session_data.session_item_path(
+            session, session_data.IMAGE_FILE
+        )
+        image_data = Path(image_file_path).read_bytes()
+        receipt = Receipt(image_data)
+
+        service_charge = receipt.get_service_charge()
+        tax = receipt.get_tax()
+
+        return Items(items=[service_charge, tax])
+    except Exception as e:
+        log.warning(f"Error extracting service charge and tax from receipt image: {e}")
+        return None
+
+
 def get_default_extras() -> Items:
-    """Return default extras: Service charge and Tax"""
     default_extras = [
         Item(name="Service charge", price=0.0),
         Item(name="Tax", price=0.0),
@@ -26,7 +43,9 @@ def get_default_extras() -> Items:
 
 def get_current_extras(session: dict) -> Items:
     extras = session_data.get_current_extras(session)
-    return extras or get_default_extras()
+    extras = extras or get_receipt_extras(session)
+    extras = extras or get_default_extras()
+    return extras
 
 
 @extras_page.route("/extras", methods=["GET"])
