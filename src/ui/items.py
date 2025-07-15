@@ -40,8 +40,7 @@ def get_receipt_image_items(session: dict) -> Items:
     receipt = Receipt(image_data)
 
     chat_messages = receipt.start_analysis()
-    subtotal, chat_messages = receipt.get_subtotal_with_chat(chat_messages)
-    items, chat_messages = receipt.get_items_with_chat(subtotal, chat_messages)
+    items, chat_messages = receipt.get_items_with_chat(chat_messages)
     session_data.save_chat_messages(chat_messages, session)
     return items
 

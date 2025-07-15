@@ -248,14 +248,12 @@ class Receipt:
 
         return subtotal, messages
 
-    def get_items_with_chat(self, subtotal: Item, messages: list) -> tuple[Items, list]:
+    def get_items_with_chat(self, messages: list) -> tuple[Items, list]:
         """
         Extract items using chat conversation with image uploaded once.
 
         Parameters
         ----------
-        subtotal : Item
-            The subtotal Item containing the amount that the sum of item prices should equal.
         messages : list
             List of messages for continued conversation with the agent.
 
@@ -267,7 +265,7 @@ class Receipt:
         messages.append(
             {
                 "role": "user",
-                "content": f"What are the individual items and their prices? The sum of the item prices should be close to the subtotal amount of ${subtotal.price:.2f}. Give me the list of item names and their prices.",
+                "content": "What are the individual items and their prices? Give me the list of item names and their prices.",
             }
         )
 
