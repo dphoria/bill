@@ -2,7 +2,6 @@ from pathlib import Path
 from bill.receipts import Items
 from bill.person import Person
 from logging import getLogger
-from typing import Iterable
 import os
 import json
 
@@ -86,15 +85,16 @@ def get_current_extras(session: dict) -> Items | None:
         return None
 
 
-def get_chat_messages(session: dict) -> Iterable[str]:
+def get_chat_messages(session: dict) -> list[dict]:
     try:
         chat_file = session_item_path(session, CHAT_FILE)
-        yield from iter(Path(chat_file).read_text().splitlines())
+        with open(chat_file, "r") as f:
+            return json.load(f)
     except Exception as e:
         log.debug(f"chat file not yet initialized: {e}")
+        return []
 
 
-def save_chat_messages(messages: Iterable[str], session: dict):
+def save_chat_messages(messages: list[dict], session: dict):
     with open(session_item_path(session, CHAT_FILE), "w") as chat_file:
-        for message in messages:
-            chat_file.write(f"{message.strip()}\n")
+        json.dump(messages, chat_file, indent=4)
