@@ -166,6 +166,8 @@ cython_debug/
 *.png
 bill.env
 bin/export-tokens.sh
+bin/docker-up.sh
+bin/run.sh
 **/node_modules/
 src/ui/test_items.json
 src/ui/static/*.js
