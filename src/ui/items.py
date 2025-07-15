@@ -16,16 +16,6 @@ log = getLogger(__file__)
 items_page = Blueprint("items", __name__)
 
 
-def get_test_items() -> Items | None:
-    try:
-        json_file = Path(__file__).parent / "test_items.json"
-        items = session_data.read_items_file(json_file)
-        return items if any(items.items) else None
-    except Exception as e:
-        log.debug(f"Error while reading {json_file}: {e}")
-        return None
-
-
 def get_current_items(session: dict) -> Items | None:
     try:
         return session_data.get_receipt_items(session)
@@ -48,7 +38,6 @@ def get_receipt_image_items(session: dict) -> Items:
 @items_page.route("/items", methods=["GET"])
 def list_items():
     items = get_current_items(session)
-    items = items or get_test_items()
     items = items or get_receipt_image_items(session)
     session_data.save_items_file(items, session)
 
