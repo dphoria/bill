@@ -38,7 +38,11 @@ def get_receipt_image_items(session: dict) -> Items:
     image_file_path = session_data.session_item_path(session, session_data.IMAGE_FILE)
     image_data = Path(image_file_path).read_bytes()
     receipt = Receipt(image_data)
-    items = receipt.get_items()
+
+    chat_messages = receipt.start_analysis()
+    subtotal, chat_messages = receipt.get_subtotal_with_chat(chat_messages)
+    items, chat_messages = receipt.get_items_with_chat(subtotal, chat_messages)
+    session_data.save_chat_messages(chat_messages, session)
     return items
 
 

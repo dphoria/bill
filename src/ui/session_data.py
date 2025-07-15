@@ -2,6 +2,7 @@ from pathlib import Path
 from bill.receipts import Items
 from bill.person import Person
 from logging import getLogger
+from typing import Iterable
 import os
 import json
 
@@ -12,10 +13,11 @@ IMAGE_FILE = "image_file"
 ITEMS_FILE = "items_file"
 EXTRAS_FILE = "extras_file"
 PERSONS_FILE = "persons_file"
+CHAT_FILE = "chat_file"
 
 
 def start_new_receipt(session: dict):
-    for file in (IMAGE_FILE, ITEMS_FILE, EXTRAS_FILE, PERSONS_FILE):
+    for file in (IMAGE_FILE, ITEMS_FILE, EXTRAS_FILE, PERSONS_FILE, CHAT_FILE):
         try:
             os.remove(session_item_path(session, file))
         except FileNotFoundError:
@@ -26,6 +28,7 @@ def start_new_receipt(session: dict):
         ITEMS_FILE,
         EXTRAS_FILE,
         PERSONS_FILE,
+        CHAT_FILE,
     ]
 
     for key in keys_to_clear:
@@ -81,3 +84,17 @@ def get_current_extras(session: dict) -> Items | None:
     except Exception as e:
         log.warning(f"current list of extras is empty: {e}")
         return None
+
+
+def get_chat_messages(session: dict) -> Iterable[str]:
+    try:
+        chat_file = session_item_path(session, CHAT_FILE)
+        yield from iter(Path(chat_file).read_text().splitlines())
+    except Exception as e:
+        log.debug(f"chat file not yet initialized: {e}")
+
+
+def save_chat_messages(messages: Iterable[str], session: dict):
+    with open(session_item_path(session, CHAT_FILE), "w") as chat_file:
+        for message in messages:
+            chat_file.write(f"{message.strip()}\n")

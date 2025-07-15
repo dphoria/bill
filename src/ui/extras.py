@@ -24,8 +24,13 @@ def get_receipt_extras(session: dict) -> Items:
         image_data = Path(image_file_path).read_bytes()
         receipt = Receipt(image_data)
 
-        service_charge = receipt.get_service_charge()
-        tax = receipt.get_tax()
+        chat_messages = list(session_data.get_chat_messages(session))
+        service_charge, chat_messages = receipt.get_service_charge_with_chat(
+            chat_messages
+        )
+        tax, chat_messages = receipt.get_tax_with_chat(chat_messages)
+
+        session_data.save_chat_messages(chat_messages, session)
 
         return Items(items=[service_charge, tax])
     except Exception as e:
