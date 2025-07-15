@@ -10,11 +10,7 @@ def test_receipt_analysis_with_chat():
 
     messages = receipt.start_analysis()
 
-    subtotal, messages = receipt.get_subtotal_with_chat(messages)
-    assert subtotal.name == "Subtotal"
-    assert 250 < subtotal.price < 400
-
-    items, messages = receipt.get_items_with_chat(subtotal, messages)
+    items, messages = receipt.get_items_with_chat(messages)
     assert any(items.items)
 
     tax, messages = receipt.get_tax_with_chat(messages)
