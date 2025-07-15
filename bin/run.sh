@@ -11,4 +11,4 @@ fi
 npx tsc
 pushd /home/deux/Workspace/bill/src/ui/
 PYTHONPATH="/home/deux/Workspace/bill/src:$PYTHONPATH" /home/deux/miniconda3/envs/bill/bin/python main.py $1
-popd 
+popd

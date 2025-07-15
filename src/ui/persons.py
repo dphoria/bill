@@ -1,5 +1,4 @@
-import json
-import session_data
+from session_data import get_current_persons, save_persons_file
 from flask import (
     render_template,
     session,
@@ -14,28 +13,6 @@ from logging import getLogger
 log = getLogger(__file__)
 
 persons_page = Blueprint("persons", __name__)
-
-
-def save_persons_file(persons: list[Person], session):
-    with open(
-        session_data.session_item_path(session, session_data.PERSONS_FILE), "w"
-    ) as json_file:
-        json.dump([person.model_dump() for person in persons], json_file, indent=4)
-
-
-def get_current_persons(session: dict) -> list[Person]:
-    try:
-        persons_file = session_data.session_item_path(
-            session, session_data.PERSONS_FILE
-        )
-        if persons_file.exists():
-            with open(persons_file, "r") as json_file:
-                data = json.load(json_file)
-                return [Person(**person_data) for person_data in data]
-        return []
-    except Exception as e:
-        log.warning(f"Error reading persons file: {e}")
-        return []
 
 
 @persons_page.route("/persons", methods=["GET"])
