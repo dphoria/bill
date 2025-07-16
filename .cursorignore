@@ -29,10 +29,6 @@ __pycache__/
 # IDE settings
 .vscode/
 
-# Test data that might contain sensitive information
-test_items.json
-src/ui/test_items.json
-
 # Docker and deployment files that might contain secrets
 docker-compose.override.yml
 docker-compose.prod.yml
