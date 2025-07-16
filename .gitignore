@@ -167,5 +167,4 @@ cython_debug/
 bill.env
 bin/export-tokens.sh
 **/node_modules/
-src/ui/test_items.json
 src/ui/static/*.js
