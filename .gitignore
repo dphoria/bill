@@ -170,3 +170,6 @@ bin/docker-up.sh
 bin/run.sh
 **/node_modules/
 src/ui/static/*.js
+
+# Generated CSS
+src/ui/static/output.css
