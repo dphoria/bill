@@ -19,6 +19,7 @@ const distributionResults = document.getElementById(
   "distribution-results",
 ) as HTMLDivElement;
 const resultsList = document.getElementById("results-list") as HTMLDivElement;
+const loadingOverlay = document.getElementById("loading-overlay") as HTMLElement;
 
 document.addEventListener("DOMContentLoaded", async () => {
   prevItemButton.addEventListener("click", handlePrevItem);
@@ -252,6 +253,7 @@ async function handleBack(): Promise<void> {
 
 async function handleDone(): Promise<void> {
   await saveCurrentDistribution();
+  loadingOverlay.classList.remove("hidden");
   window.location.href = "/extras";
 }
 

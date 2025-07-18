@@ -51,6 +51,11 @@
     </div>
   </div>
 
+  <!-- Loading Overlay -->
+  <div id="loading-overlay" class="fixed inset-0 bg-slate-900/80 flex items-center justify-center z-50 hidden">
+    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+  </div>
+
   <script src="{{ url_for('static', filename='persons.js') }}"></script>
 </body>
 
