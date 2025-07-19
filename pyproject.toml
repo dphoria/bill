@@ -6,8 +6,8 @@ distribution = false
 
 [project]
 name = "bill"
-version = "0.1.0"
-description = "Default template for PDM package"
+version = "1.0.0"
+description = "Split Bill Web Site"
 authors = [
     {name = "Sung Cho", email = "sung.w.cho@protonmail.com"},
 ]
