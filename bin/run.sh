@@ -9,6 +9,6 @@ else
 fi
 
 npx tsc
-pushd /home/deux/Workspace/bill/src/ui/
-PYTHONPATH="/home/deux/Workspace/bill/src:$PYTHONPATH" /home/deux/miniconda3/envs/bill/bin/python main.py $1
-popd 
+pushd src/ui/
+PYTHONPATH="../:$PYTHONPATH" python main.py $1
+popd
