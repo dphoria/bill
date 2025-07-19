@@ -9,6 +9,8 @@ document.addEventListener("DOMContentLoaded", function (): void {
   const nameInput = document.getElementById("name") as HTMLInputElement;
   const doneBtn = document.getElementById("done-btn") as HTMLButtonElement;
   const personsList = document.getElementById("persons-list") as HTMLElement;
+  const loadingOverlay = document.getElementById("loading-overlay") as HTMLElement;
+  const form = document.querySelector("form") as HTMLFormElement;
 
   initializePersonsFromDOM();
 
@@ -35,7 +37,19 @@ document.addEventListener("DOMContentLoaded", function (): void {
     }
   }
 
+  function showLoadingOverlay(): void {
+    loadingOverlay.classList.remove("hidden");
+  }
+
   updateDoneButton();
 
   nameInput.addEventListener("input", updateDoneButton);
+
+  form.addEventListener("submit", function(e: Event): void {
+    const submitter = (e as any).submitter as HTMLButtonElement;
+    const action = submitter?.value;
+    if (action === "done") {
+      showLoadingOverlay();
+    }
+  });
 });

@@ -1,6 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
   const fileInput = document.getElementById("file") as HTMLInputElement | null;
   const indicator = document.getElementById("file-indicator");
+  const form = document.querySelector("form") as HTMLFormElement;
+  const loadingOverlay = document.getElementById("loading-overlay") as HTMLElement;
 
   if (fileInput && indicator) {
     fileInput.addEventListener("change", () => {
@@ -9,6 +11,12 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         indicator.textContent = "";
       }
+    });
+  }
+
+  if (form && loadingOverlay) {
+    form.addEventListener("submit", () => {
+      loadingOverlay.classList.remove("hidden");
     });
   }
 });
