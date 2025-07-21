@@ -6,7 +6,7 @@ distribution = false
 
 [project]
 name = "bill"
-version = "1.0.0"
+version = "1.1.0"
 description = "Split Bill Web Site"
 authors = [
     {name = "Sung Cho", email = "sung.w.cho@protonmail.com"},

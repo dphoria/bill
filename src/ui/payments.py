@@ -3,12 +3,14 @@ from flask import (
     session,
     Blueprint,
     request,
+    Response,
 )
 from bill.calculator import Calculator
 from logging import getLogger
 from items import get_current_items
 from extras import get_current_extras
 from persons import get_current_persons
+from datetime import datetime
 
 log = getLogger(__file__)
 
@@ -65,4 +67,24 @@ def payments_page_view():
         items_total=items_total,
         extras_total=extras_total,
         overall_total=overall_total,
+    )
+
+
+@payments_page.route("/payments/download", methods=["GET"])
+def download_csv():
+    items = get_current_items(session)
+    extras = get_current_extras(session)
+    persons = get_current_persons(session)
+
+    calculator = Calculator(persons=persons, items=items, extras=extras)
+
+    timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    filename = f"{timestamp}.csv"
+
+    csv_content = calculator.get_shares_csv()
+
+    return Response(
+        csv_content,
+        mimetype="text/csv",
+        headers={"Content-Disposition": f"attachment; filename={filename}"},
     )

@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.4
 ARG PYTHON_BASE=3.12-slim-bullseye
-ARG NODE_BASE=18-slim
+ARG NODE_BASE=22-slim
 
 FROM node:$NODE_BASE AS frontend-builder
 
