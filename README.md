@@ -33,3 +33,8 @@ npx tsc
 cd src/ui/
 PYTHONPATH="../:$PYTHONPATH" python main.py
 ```
+
+## Development
+
+The [`release`](https://github.com/dphoria/bill/tree/release) branch should be preferred for production run.
+This (`master`) branch is used for development, e.g. `.env` file is copied to the container in [Docker compose](./compose.yaml).
