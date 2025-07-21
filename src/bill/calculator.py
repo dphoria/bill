@@ -1,3 +1,5 @@
+import csv
+from io import StringIO
 from bill.person import Person
 from bill.receipts import Items, Item
 
@@ -121,3 +123,56 @@ class Calculator:
             lambda extra: self.get_person_extra(extra, person), self.extras.items
         )
         return person_subtotal + sum(person_extras)
+
+    def get_shares_csv(self):
+        """
+        Get a CSV string of shares for each person.
+        """
+
+        def get_person_shares(get_share):
+            return [get_share(person) for person in self.persons]
+
+        fieldnames = (
+            ["Item", "Receipt"] + [person.name for person in self.persons] + ["Check"]
+        )
+
+        output = StringIO()
+        writer = csv.DictWriter(output, fieldnames=fieldnames)
+        writer.writeheader()
+
+        for item in self.items.items:
+            row = {"Item": item.name, "Receipt": f"{item.price:.2f}"}
+            for person in self.persons:
+                share = self.get_person_share(item, person)
+                row[person.name] = f"{share:.2f}" if share else ""
+            row["Check"] = ""
+            writer.writerow(row)
+
+        subtotal = self.items.get_sum()
+        person_subtotals = get_person_shares(self.get_person_subtotal)
+        subtotal_row = {"Item": "Subtotal", "Receipt": f"{subtotal:.2f}"}
+        for person, share in zip(self.persons, person_subtotals):
+            subtotal_row[person.name] = f"{share:.2f}"
+        subtotal_row["Check"] = f"{sum(person_subtotals):.2f}"
+        writer.writerow(subtotal_row)
+
+        for extra in self.extras.items:
+            extra_shares = get_person_shares(
+                lambda person: self.get_person_extra(extra, person)
+            )
+            extra_row = {"Item": extra.name, "Receipt": f"{extra.price:.2f}"}
+            for person, share in zip(self.persons, extra_shares):
+                extra_row[person.name] = f"{share:.2f}" if share else ""
+            extra_row["Check"] = f"{sum(extra_shares):.2f}"
+            writer.writerow(extra_row)
+
+        total = subtotal + sum(extra.price for extra in self.extras.items)
+        person_totals = get_person_shares(self.get_person_total)
+        total_row = {"Item": "Total", "Receipt": f"{total:.2f}"}
+        for person, share in zip(self.persons, person_totals):
+            total_row[person.name] = f"{share:.2f}"
+        total_row["Check"] = f"{sum(person_totals):.2f}"
+        writer.writerow(total_row)
+
+        output.seek(0)
+        return output.getvalue()

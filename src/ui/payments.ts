@@ -12,11 +12,15 @@ const nextPersonButton = document.getElementById(
 const extrasButton = document.getElementById(
   "extras-button",
 ) as HTMLButtonElement;
+const downloadButton = document.getElementById(
+  "download-button",
+) as HTMLButtonElement;
 
 document.addEventListener("DOMContentLoaded", () => {
   prevPersonButton.addEventListener("click", handlePrevPerson);
   nextPersonButton.addEventListener("click", handleNextPerson);
   extrasButton.addEventListener("click", handleExtras);
+  downloadButton.addEventListener("click", handleDownload);
 
   initializePersonData();
 
@@ -61,4 +65,8 @@ function navigateToPerson(personIndex: number): void {
 
 function handleExtras(): void {
   window.location.href = "/extras";
+}
+
+function handleDownload(): void {
+  window.location.href = "/payments/download";
 }

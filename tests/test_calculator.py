@@ -15,8 +15,8 @@ def sample_persons():
     """
     Create 3 people (A, B, C) with diverse item selections for testing.
 
-    Person A: Items 0, 2, 4, 6, 8, 10, 12, 14, 15 (wine, chilli gobhi, herbed kulcha, kala tikka murg, bengali kathi roll, anjeer kofta, amritsari lamb chops, mango kulfi, jus d manguir)
-    Person B: Items 1, 3, 5, 7, 9, 11, 13, 15 (bumble bee cooler, makai bhel tart, cheese kulcha, kasundi jhinga, malwani fish, tiffin box, shahi tukda, jus d manguir)
+    Person A: Items 0, 2, 4, 6, 8, 10, 12, 14, 15 (wine, chilli gobhi, herbed kulcha, kala tikka murg, bengali kathi roll, anjeer kofta, amritsari lamb chops, shahi tukda, jus d manguir)
+    Person B: Items 1, 3, 5, 7, 9, 11, 13, 14 (bumble bee cooler, makai bhel tart, cheese kulcha, kasundi jhinga, malwani fish, tiffin box, mango kulfi, shahi tukda)
     Person C: Items 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 (all items except item 15)
 
     This creates scenarios where:
@@ -36,9 +36,14 @@ def sample_persons():
     - Item 13 (Mango kulfi) is shared by Person B and Person C
     - Item 14 (Shahi tukda) is shared by ALL THREE people (A, B, C)
     - Item 15 (Jus d Manguir) is paid entirely by Person A only
+
+    This creates different subtotals:
+    - Person A: $76.50 (item 15 now shared with B)
+    - Person B: $85.50 (now includes item 15 shared with A)
+    - Person C: $81.00 (same as before)
     """
     person_a = Person(name="A", items=[0, 2, 4, 6, 8, 10, 12, 14, 15])
-    person_b = Person(name="B", items=[1, 3, 5, 7, 9, 11, 13, 14])
+    person_b = Person(name="B", items=[1, 3, 5, 7, 9, 11, 13, 14, 15])
     person_c = Person(
         name="C", items=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
     )
@@ -72,7 +77,7 @@ def calculator(sample_persons):
         (14, "A", 5.0, "Item shared by all 3 people"),
         (0, "A", 6.5, "Item shared by 2 people"),
         (0, "B", 0.0, "Person doesn't have the item"),
-        (15, "A", 9.0, "Item paid entirely by one person"),
+        (15, "A", 4.5, "Item shared by 2 people"),
     ],
 )
 def test_person_share(
@@ -95,8 +100,8 @@ def test_person_share(
 @pytest.mark.parametrize(
     "extra_name,expected_share,description",
     [
-        (SERVICE_CHARGE, 16.2, "Service charge proportional to person's subtotal"),
-        (TAX, 8.3835, "Tax proportional to person's subtotal"),
+        (SERVICE_CHARGE, 15.3, "Service charge proportional to person's subtotal"),
+        (TAX, 7.91775, "Tax proportional to person's subtotal"),
     ],
 )
 def test_person_extra(
@@ -135,12 +140,57 @@ def test_person_total(calculator, sample_persons):
     person_a = sample_persons[0]
 
     # Calculate expected total manually
-    # Person A's subtotal: $81.00 (from previous calculation)
-    # Service charge: $16.2 (from test results)
-    # Tax: $8.3835 (from test results)
-    expected_total = 81.00 + 16.2 + 8.3835
+    # Person A's subtotal: $76.50 (from updated calculation)
+    # Service charge: $15.3 (20% of $76.50)
+    # Tax: $7.91775 (10.35% of $76.50)
+    expected_total = 76.50 + 15.3 + 7.91775
 
     actual_total = calculator.get_person_total(person_a)
     assert actual_total == pytest.approx(
         expected_total, abs=0.01
     ), f"Expected total {expected_total}, got {actual_total}"
+
+
+def test_csv(calculator, sample_persons):
+    csv_output = calculator.get_shares_csv()
+
+    header = csv_output.splitlines()[0]
+    expected_header = "Item,Receipt,A,B,C,Check"
+    assert header == expected_header
+
+    assert "GL-Domaine Amido Cotes Du Rhone,13.00,6.50,,6.50," in csv_output
+    assert "Bumble Bee Cooler,14.00,,7.00,7.00," in csv_output
+    assert "Chilli Gobhi,12.00,6.00,,6.00," in csv_output
+    assert "Makai bhel tart,12.00,,6.00,6.00," in csv_output
+    assert "Herbed kulcha,6.00,3.00,,3.00," in csv_output
+    assert "Cheese kulcha,7.00,,3.50,3.50," in csv_output
+    assert "Kala tikka murg,23.00,11.50,,11.50," in csv_output
+    assert "Kasundi jhinga,25.00,,12.50,12.50," in csv_output
+    assert "Bengali kathi roll,18.00,9.00,,9.00," in csv_output
+    assert "Malwani fish,28.00,,14.00,14.00," in csv_output
+    assert "Anjeer kofta,24.00,12.00,,12.00," in csv_output
+    assert "Tiffin box - chicken,62.00,,31.00,31.00," in csv_output
+    assert "Amritsari lamb chops,38.00,19.00,,19.00," in csv_output
+    assert "Mango kulfi,15.00,,7.50,7.50," in csv_output
+    assert "Shahi tukda,15.00,5.00,5.00,5.00," in csv_output
+    assert "Jus d Manguir,9.00,4.50,4.50,," in csv_output
+
+    subtotal = EXPECTED_ITEMS.get_sum()
+    expected_subtotal_line = (
+        f"Subtotal,{subtotal:.2f},76.50,91.00,153.50,{subtotal:.2f}"
+    )
+    assert (
+        expected_subtotal_line in csv_output
+    ), f"Expected '{expected_subtotal_line}' in CSV output"
+
+    service_charge = subtotal * SERVICE_CHARGE_RATIO
+    assert (
+        f"Service Charge,{service_charge:.2f},15.30,18.20,30.70,{service_charge:.2f}"
+        in csv_output
+    )
+
+    tax = subtotal * TAX_RATIO
+    assert f"Tax,{tax:.2f},7.92,9.42,15.89,{tax:.2f}" in csv_output
+
+    total = subtotal + service_charge + tax
+    assert f"Total,{total:.2f},99.72,118.62,200.09,{total:.2f}" in csv_output
