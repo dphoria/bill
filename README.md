@@ -23,7 +23,7 @@ npm install
 
 ### [Large Language Model](https://platform.openai.com/docs/models)
 
-[gpt-4o-mini](./src/bill/receipts.py#L10) = Used for reading bill images
+[o4-mini](./src/bill/receipts.py#L10) = Used for reading bill images
 
 ## Run
 

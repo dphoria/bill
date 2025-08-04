@@ -7,7 +7,7 @@ from logging import getLogger
 log = getLogger(__file__)
 
 INFERENCE_API_TOKEN = os.environ["INFERENCE_API_TOKEN"]
-INFERENCE_MODEL = "gpt-4o-mini"
+INFERENCE_MODEL = "o4-mini"
 
 
 class Item(BaseModel):

@@ -173,3 +173,6 @@ src/ui/static/*.js
 
 # Generated CSS
 src/ui/static/output.css
+
+# Docker Compose override files (local development settings)
+docker-compose.override.yml

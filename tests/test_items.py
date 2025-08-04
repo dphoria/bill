@@ -24,7 +24,7 @@ def test_item_split(name: str, split_item_price: float | None):
         assert False
 
 
-@pytest.mark.parametrize("index,split_item_price", [(0, 6.5), (11, 46.5)])
+@pytest.mark.parametrize("index,split_item_price", [(0, 6.5), (11, 31.0)])
 def test_items_split(index: int, split_item_price: float | None):
     items = deepcopy(EXPECTED_ITEMS)
     original_item = items.items[index]

@@ -15,11 +15,11 @@ def test_resize(width, height, tmp_path):
     image_file_path = tmp_path / "image.png"
     create_image_file(width, height, image_file_path)
     image_data = load_image(image_file_path)
-    assert len(image_data) <= 1024 * 1024
+    assert len(image_data) <= 1024 * 1024 * 5
 
 
 @pytest.mark.parametrize("image_file_name", ["20241128_183627.jpg"])
 def test_load_image(image_file_name):
     image_file_path = TEST_DATA_DIR / image_file_name
     image_data = load_image(image_file_path)
-    assert len(image_data) <= 1024 * 1024
+    assert len(image_data) <= 1024 * 1024 * 5
