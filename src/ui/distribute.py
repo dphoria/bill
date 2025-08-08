@@ -22,16 +22,17 @@ def distribute_page_view():
     persons = get_current_persons(session)
     person = persons[person_index] if persons and 0 <= person_index < len(persons) else None
 
-    # Calculate per-item share for this person
-    item_shares = []
-    for idx, item in enumerate(items.items):
+    # Calculate per-item share for this person using map and list comprehension
+    def share_for_item(args):
+        idx, item = args
         count = sum(1 for p in persons if idx in p.items)
         share = item.price / count if person and idx in person.items and count > 0 else 0.0
-        item_shares.append({
+        return {
             "name": item.name,
             "price": item.price,
             "share": share,
-        })
+        }
+    item_shares = list(map(share_for_item, enumerate(items.items)))
 
     return render_template(
         "distribute.html",
