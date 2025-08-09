@@ -7,6 +7,7 @@ from flask import (
     jsonify,
 )
 from bill.calculator import Calculator
+from bill.receipts import Items
 from logging import getLogger
 from items import get_current_items
 from extras import get_current_extras
@@ -78,6 +79,7 @@ def distribute_item():
     items = get_current_items(session)
     persons = get_current_persons(session)
     item = items.items[item_index]
+    calculator = Calculator(persons=persons, items=items, extras=Items(items=[]))
 
     num_persons = len(person_ids)
     share_per_person = item.price / num_persons
