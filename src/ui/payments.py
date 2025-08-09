@@ -4,6 +4,7 @@ from flask import (
     Blueprint,
     request,
     Response,
+    jsonify,
 )
 from bill.calculator import Calculator
 from logging import getLogger
@@ -66,6 +67,44 @@ def payments_page_view():
         items_total=items_total,
         extras_total=extras_total,
         overall_total=overall_total,
+    )
+
+
+def distribute_item():
+    data = request.get_json()
+    item_index = data.get("item_index")
+    person_ids = data.get("person_ids", [])
+
+    items = get_current_items(session)
+    persons = get_current_persons(session)
+    item = items.items[item_index]
+
+    num_persons = len(person_ids)
+    share_per_person = item.price / num_persons
+
+    distribution = [
+        {
+            "person_id": person_id,
+            "person_name": persons[person_id].name,
+            "share": share_per_person,
+        }
+        for person_id in person_ids
+    ]
+
+    total_distributed = share_per_person * num_persons
+
+    return (
+        jsonify(
+            {
+                "success": True,
+                "distribution": distribution,
+                "total_distributed": total_distributed,
+                "item_name": item.name,
+                "item_price": item.price,
+                "num_persons": num_persons,
+            }
+        ),
+        200,
     )
 
 
