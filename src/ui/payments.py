@@ -38,8 +38,7 @@ def payments_page_view():
             "price": item.price,
             "share": calculator.get_person_share(item, person),
         }
-        for item_index, item in enumerate(items.items)
-        if item_index in person.items
+        for item in items.items
     ]
 
     person_extras = [
