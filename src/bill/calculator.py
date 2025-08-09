@@ -124,6 +124,22 @@ class Calculator:
         )
         return person_subtotal + sum(person_extras)
 
+    def get_person_shares(self, person: Person) -> list[float]:
+        """
+        Get the list of a person's shares across all items.
+
+        Parameters
+        ----------
+        person: Person
+            The person to calculate shares for
+
+        Returns
+        -------
+        list[float]
+            A list of shares corresponding to each item in self.items.items.
+        """
+        return [self.get_person_share(item, person) for item in self.items.items]
+
     def get_shares_csv(self):
         """
         Get a CSV string of shares for each person.
