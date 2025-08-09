@@ -91,14 +91,11 @@ def distribute_item():
         for person_id in person_ids
     ]
 
-    total_distributed = share_per_person * num_persons
-
     return (
         jsonify(
             {
                 "success": True,
                 "distribution": distribution,
-                "total_distributed": total_distributed,
                 "item_name": item.name,
                 "item_price": item.price,
                 "num_persons": num_persons,
