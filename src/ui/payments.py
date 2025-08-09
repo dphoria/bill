@@ -72,49 +72,6 @@ def payments_page_view():
     )
 
 
-def distribute_item():
-    data = request.get_json()
-    item_index = data.get("item_index")
-    person_ids = data.get("person_ids", [])
-
-    items = get_current_items(session)
-    persons = get_current_persons(session)
-    item = items.items[item_index]
-
-    # Build a temporary persons list where only selected person_ids include this item
-    temp_persons: list[Person] = []
-    selected_set = set(person_ids)
-    for idx, p in enumerate(persons):
-        updated_items = set(p.items)
-        if idx in selected_set:
-            updated_items.add(item_index)
-        else:
-            updated_items.discard(item_index)
-        temp_persons.append(Person(name=p.name, items=sorted(updated_items)))
-
-    calculator = Calculator(persons=temp_persons, items=items, extras=Items(items=[]))
-
-    distribution = [
-        {
-            "person_id": person_id,
-            "person_name": persons[person_id].name,
-            "share": calculator.get_person_share(item, temp_persons[person_id]),
-        }
-        for person_id in person_ids
-    ]
-
-    return (
-        jsonify(
-            {
-                "success": True,
-                "distribution": distribution,
-                "item_name": item.name,
-                "item_price": item.price,
-                "num_persons": len(person_ids),
-            }
-        ),
-        200,
-    )
 
 
 @payments_page.route("/payments/download", methods=["GET"])
