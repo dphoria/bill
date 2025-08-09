@@ -8,6 +8,7 @@ from flask import (
 )
 from bill.calculator import Calculator
 from bill.receipts import Items
+from bill.person import Person
 from logging import getLogger
 from items import get_current_items
 from extras import get_current_extras
@@ -79,16 +80,25 @@ def distribute_item():
     items = get_current_items(session)
     persons = get_current_persons(session)
     item = items.items[item_index]
-    calculator = Calculator(persons=persons, items=items, extras=Items(items=[]))
 
-    num_persons = len(person_ids)
-    share_per_person = item.price / num_persons
+    # Build a temporary persons list where only selected person_ids include this item
+    temp_persons: list[Person] = []
+    selected_set = set(person_ids)
+    for idx, p in enumerate(persons):
+        updated_items = set(p.items)
+        if idx in selected_set:
+            updated_items.add(item_index)
+        else:
+            updated_items.discard(item_index)
+        temp_persons.append(Person(name=p.name, items=sorted(updated_items)))
+
+    calculator = Calculator(persons=temp_persons, items=items, extras=Items(items=[]))
 
     distribution = [
         {
             "person_id": person_id,
             "person_name": persons[person_id].name,
-            "share": share_per_person,
+            "share": calculator.get_person_share(item, temp_persons[person_id]),
         }
         for person_id in person_ids
     ]
@@ -100,7 +110,7 @@ def distribute_item():
                 "distribution": distribution,
                 "item_name": item.name,
                 "item_price": item.price,
-                "num_persons": num_persons,
+                "num_persons": len(person_ids),
             }
         ),
         200,
