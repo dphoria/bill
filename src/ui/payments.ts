@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
   downloadButton.addEventListener("click", handleDownload);
 
   initializePersonData();
-  setupItemClickHandlers();
+  setupItemClickedHandlers();
 
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
@@ -72,7 +72,7 @@ function handleDownload(): void {
   window.location.href = "/payments/download";
 }
 
-function setupPaymentItemClickHandlers(): void {
+function setupItemClickedHandlers(): void {
   const itemElements = document.querySelectorAll(".item-box");
   itemElements.forEach((itemElement) => {
     itemElement.addEventListener("click", handleItemClick);
@@ -97,14 +97,14 @@ async function handleItemClick(e: Event): Promise<void> {
 
     if (response.ok) {
       const result = await response.json();
-      updateItemDisplay(itemElement, result);
+      updateItemInfoDisplay(itemElement, result);
     }
   } catch (error) {
     console.error("Error sharing item:", error);
   }
 }
 
-function updateItemDisplay(itemElement: HTMLElement, data: any): void {
+function updateItemInfoDisplay(itemElement: HTMLElement, data: any): void {
   const shareElement = itemElement.querySelector(".text-blue-400.font-semibold") as HTMLElement;
   const priceElement = itemElement.querySelector(".text-xs.text-slate-400") as HTMLElement;
   
