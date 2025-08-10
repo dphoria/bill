@@ -16,35 +16,18 @@ distribute_page = Blueprint("distribute", __name__)
 
 @distribute_page.route("/distribute", methods=["GET"])
 def distribute_page_view():
-    person_index = request.args.get("person_index", type=int) or 0
+    item_index = request.args.get("item_index", type=int) or 0
 
     items = get_current_items(session)
     persons = get_current_persons(session)
-    person = (
-        persons[person_index] if persons and 0 <= person_index < len(persons) else None
-    )
-
-    # Calculate per-item share for this person using map and list comprehension
-    def share_for_item(args):
-        idx, item = args
-        count = sum(1 for p in persons if idx in p.items)
-        share = (
-            item.price / count if person and idx in person.items and count > 0 else 0.0
-        )
-        return {
-            "name": item.name,
-            "price": item.price,
-            "share": share,
-        }
-
-    item_shares = list(map(share_for_item, enumerate(items.items)))
+    item = items.items[item_index]
 
     return render_template(
         "distribute.html",
-        items=item_shares,
-        person=person,
-        person_index=person_index,
-        person_count=len(persons),
+        item=item,
+        persons=persons or [],
+        item_index=item_index or 0,
+        item_count=len(items.items),
     )
 
 
@@ -97,34 +80,20 @@ def distribute_item():
     )
 
 
-@distribute_page.route("/get_persons", methods=["GET"])
-def get_persons_api():
-    persons = get_current_persons(session)
-    return jsonify([p.model_dump() for p in persons]), 200
-
-
-@distribute_page.route("/get_items", methods=["GET"])
-def get_items_api():
-    items = get_current_items(session)
-    return jsonify([{"name": i.name, "price": i.price} for i in items.items]), 200
-
-
 @distribute_page.route("/save_distribution", methods=["POST"])
 def save_distribution():
     data = request.get_json()
-    person_index = data.get("person_index")
     item_index = data.get("item_index")
-    add = data.get("add", True)
+    person_ids = data.get("person_ids", [])
 
     persons = get_current_persons(session)
-    if 0 <= person_index < len(persons):
-        person = persons[person_index]
-        if add:
-            if item_index not in person.items:
-                person.items.append(item_index)
-                person.items.sort()
-        else:
-            if item_index in person.items:
-                person.items.remove(item_index)
-        save_persons_file(persons, session)
+
+    for person_id, person in enumerate(persons):
+        if person_id in person_ids:
+            person.items = sorted(set(person.items + [item_index]))
+        elif item_index in person.items:
+            person.items.remove(item_index)
+
+    save_persons_file(persons, session)
+
     return jsonify({"success": True}), 200

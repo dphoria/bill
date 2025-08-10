@@ -3,12 +3,6 @@ let currentItem: { name: string; price: number } | null = null;
 let currentItemIndex: number = 0;
 let totalItemCount: number = 0;
 
-// Person-based distribution logic
-let currentPersonIndex: number = 0;
-let totalPersonCount: number = 0;
-let persons: any[] = [];
-let items: any[] = [];
-
 const itemName = document.getElementById("item-name") as HTMLSpanElement;
 const itemPrice = document.getElementById("item-price") as HTMLSpanElement;
 const prevItemButton = document.getElementById(
@@ -27,19 +21,6 @@ const distributionResults = document.getElementById(
 const resultsList = document.getElementById("results-list") as HTMLDivElement;
 const loadingOverlay = document.getElementById("loading-overlay") as HTMLElement;
 
-const prevPersonButton = document.getElementById("prev-person-button") as HTMLButtonElement;
-const nextPersonButton = document.getElementById("next-person-button") as HTMLButtonElement;
-const personName = document.getElementById("person-name") as HTMLSpanElement;
-
-const itemNameElement = document.getElementById(
-  "item-name",
-) as HTMLMetaElement;
-const itemPriceElement = document.getElementById(
-  "item-price",
-) as HTMLMetaElement;
-
-const personElements = document.querySelectorAll(".person-box");
-
 document.addEventListener("DOMContentLoaded", async () => {
   prevItemButton.addEventListener("click", handlePrevItem);
   nextItemButton.addEventListener("click", handleNextItem);
@@ -47,18 +28,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   distributeButton.addEventListener("click", handleDone);
 
   initializeItemData();
-  initializePersonData();
-  await fetchDistributeData();
-  renderItemsForPerson();
-  updateNavigationButtons();
-
-  prevPersonButton.addEventListener("click", handlePrevPerson);
-  nextPersonButton.addEventListener("click", handleNextPerson);
-
-  // Attach click handlers to item boxes
-  document.querySelectorAll(".item-box").forEach((itemBox) => {
-    itemBox.addEventListener("click", handleItemBoxClick);
-  });
 
   setupPersonSelectionHandlers();
 
@@ -80,6 +49,7 @@ function setupPersonSelectionHandlers(): void {
   ] as const;
   selectedPersons = [];
 
+  const personElements = document.querySelectorAll(".person-box");
   personElements.forEach((personBox) => {
     const personId = parseInt(personBox.getAttribute("data-person-id") || "0");
 
@@ -126,6 +96,16 @@ function initializeItemData(): void {
   const itemIndexElement = document.getElementById(
     "item-index",
   ) as HTMLMetaElement;
+  const itemNameElement = document.getElementById(
+    "item-name",
+  ) as HTMLMetaElement;
+  const itemPriceElement = document.getElementById(
+    "item-price",
+  ) as HTMLMetaElement;
+
+  totalItemCount = parseInt(itemCountElement.content || "0");
+  currentItemIndex = parseInt(itemIndexElement.content || "0");
+
   const itemName = itemNameElement.content || "";
   const itemPrice = parseFloat(itemPriceElement.content || "0");
 
@@ -280,98 +260,4 @@ async function handleDone(): Promise<void> {
 function getItemIndexFromUrl(): number {
   const urlParams = new URLSearchParams(window.location.search);
   return parseInt(urlParams.get("item_index") || "0");
-}
-
-// Helper to fetch initial data from meta tags or window context
-function initializePersonData(): void {
-  const personCountElement = document.getElementById("person-count") as HTMLMetaElement;
-  const personIndexElement = document.getElementById("person-index") as HTMLMetaElement;
-  totalPersonCount = parseInt(personCountElement.content || "0");
-  currentPersonIndex = parseInt(personIndexElement.content || "0");
-}
-
-// Fetch all persons and items from backend
-async function fetchDistributeData() {
-  const [personsRes, itemsRes] = await Promise.all([
-    fetch("/get_persons"),
-    fetch("/get_items"),
-  ]);
-  persons = await personsRes.json();
-  items = await itemsRes.json();
-}
-
-// Render all items for the current person
-function renderItemsForPerson() {
-  const person = persons[currentPersonIndex];
-  personName.textContent = person.name;
-  const itemsList = document.querySelectorAll(".item-box");
-  itemsList.forEach((itemBox, idx) => {
-    const itemIndex = parseInt((itemBox as HTMLElement).getAttribute("data-item-index") || "0");
-    if (person.items.includes(itemIndex)) {
-      itemBox.classList.add("ring-4", "ring-green-400/40", "border-green-400");
-    } else {
-      itemBox.classList.remove("ring-4", "ring-green-400/40", "border-green-400");
-    }
-    // Update amount for this item for this person
-    const amountDiv = itemBox.querySelector(".text-blue-400.font-semibold") as HTMLElement;
-    const share = getPersonItemShare(itemIndex, person);
-    amountDiv.textContent = `$${share.toFixed(2)}`;
-  });
-}
-
-// Calculate share for a person for an item
-function getPersonItemShare(itemIndex: number, person: any): number {
-  const item = items[itemIndex];
-  // Count how many persons have this item
-  const count = persons.filter(p => p.items.includes(itemIndex)).length;
-  if (person.items.includes(itemIndex) && count > 0) {
-    return item.price / count;
-  }
-  return 0;
-}
-
-// Toggle item for current person
-async function handleItemBoxClick(e: Event) {
-  const itemBox = e.currentTarget as HTMLElement;
-  const itemIndex = parseInt(itemBox.getAttribute("data-item-index") || "0");
-  const person = persons[currentPersonIndex];
-  const hasItem = person.items.includes(itemIndex);
-  // Update backend
-  await fetch("/save_distribution", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      person_index: currentPersonIndex,
-      item_index: itemIndex,
-      add: !hasItem
-    })
-  });
-  // Update local state
-  if (hasItem) {
-    person.items = person.items.filter((idx: number) => idx !== itemIndex);
-  } else {
-    person.items.push(itemIndex);
-  }
-  renderItemsForPerson();
-}
-
-// Navigation
-function updateNavigationButtons() {
-  prevPersonButton.disabled = currentPersonIndex <= 0;
-  nextPersonButton.disabled = currentPersonIndex >= totalPersonCount - 1;
-}
-
-async function handlePrevPerson() {
-  if (currentPersonIndex > 0) {
-    currentPersonIndex--;
-    renderItemsForPerson();
-    updateNavigationButtons();
-  }
-}
-async function handleNextPerson() {
-  if (currentPersonIndex < totalPersonCount - 1) {
-    currentPersonIndex++;
-    renderItemsForPerson();
-    updateNavigationButtons();
-  }
 }
