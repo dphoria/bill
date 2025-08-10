@@ -203,25 +203,20 @@ def test_person_update_item():
     """
     person = Person(name="Test", items=[1, 3, 5])
 
-    # Test adding an item that doesn't exist (should call insert_item)
     person.update_item(7)
     assert person.items == [1, 3, 5, 7], "Item 7 should be added and list should be sorted"
 
-    # Test adding an item that already exists (should call insert_item but no change)
     person.update_item(3)
     assert person.items == [1, 3, 5, 7], "Item 3 should remain unchanged"
 
-    # Test removing an item that exists (should call remove_item)
     person.update_item(5)
     assert person.items == [1, 3, 7], "Item 5 should be removed"
 
-    # Test removing an item that doesn't exist (should call remove_item but no change)
     person.update_item(9)
     assert person.items == [1, 3, 7], "Item 9 should not affect the list"
 
-    # Test toggling back and forth
-    person.update_item(5)  # Add 5 back
+    person.update_item(5)
     assert person.items == [1, 3, 5, 7], "Item 5 should be added back"
 
-    person.update_item(5)  # Remove 5 again
+    person.update_item(5)
     assert person.items == [1, 3, 7], "Item 5 should be removed again"
