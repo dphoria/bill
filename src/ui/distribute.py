@@ -20,18 +20,23 @@ def distribute_page_view():
 
     items = get_current_items(session)
     persons = get_current_persons(session)
-    person = persons[person_index] if persons and 0 <= person_index < len(persons) else None
+    person = (
+        persons[person_index] if persons and 0 <= person_index < len(persons) else None
+    )
 
     # Calculate per-item share for this person using map and list comprehension
     def share_for_item(args):
         idx, item = args
         count = sum(1 for p in persons if idx in p.items)
-        share = item.price / count if person and idx in person.items and count > 0 else 0.0
+        share = (
+            item.price / count if person and idx in person.items and count > 0 else 0.0
+        )
         return {
             "name": item.name,
             "price": item.price,
             "share": share,
         }
+
     item_shares = list(map(share_for_item, enumerate(items.items)))
 
     return render_template(
@@ -97,10 +102,12 @@ def get_persons_api():
     persons = get_current_persons(session)
     return jsonify([p.model_dump() for p in persons]), 200
 
+
 @distribute_page.route("/get_items", methods=["GET"])
 def get_items_api():
     items = get_current_items(session)
     return jsonify([{"name": i.name, "price": i.price} for i in items.items]), 200
+
 
 @distribute_page.route("/save_distribution", methods=["POST"])
 def save_distribution():
