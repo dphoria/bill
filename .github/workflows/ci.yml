@@ -35,6 +35,12 @@ jobs:
     - name: Run Black check
       run: pdm run black --check .
 
+    - name: Run tests (excluding OpenAI API test)
+      run: |
+        INFERENCE_API_TOKEN=dummy_token pdm run pytest -k "not test_receipt_analysis_with_chat"
+      env:
+        INFERENCE_API_TOKEN: dummy_token
+
   # Comprehensive testing and quality checks
   test:
     if: github.event_name == 'workflow_dispatch'
