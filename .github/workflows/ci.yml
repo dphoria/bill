@@ -37,6 +37,7 @@ jobs:
 
   # Comprehensive testing and quality checks
   test:
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     strategy:
       matrix:

@@ -65,6 +65,6 @@ The project uses a streamlined CI/CD workflow (`ci.yml`) with two main jobs:
 - **Testing**: Comprehensive test suite with coverage reporting
 
 The workflow uses conditional job execution to optimize performance:
-- Pull requests get quick feedback with essential checks
-- Main branch pushes run the full test suite
+- Pull requests get quick feedback with essential checks (Ruff + Black)
+- Manual triggers run the full test suite with coverage reporting
 - All jobs use PDM for dependency management and run on Python 3.12
