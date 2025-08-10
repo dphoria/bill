@@ -83,10 +83,6 @@ async function handleItemClick(e: Event): Promise<void> {
   const itemElement = e.currentTarget as HTMLElement;
   const itemIndex = parseInt(itemElement.getAttribute("data-item-index") || "0");
   
-  const shareElement = itemElement.querySelector(".text-blue-400.font-semibold") as HTMLElement;
-  const currentShare = parseFloat(shareElement.textContent?.replace("$", "") || "0");
-  const isCurrentlySharing = currentShare > 0;
-  
   try {
     const response = await fetch("/share_item", {
       method: "POST",
@@ -96,7 +92,6 @@ async function handleItemClick(e: Event): Promise<void> {
       body: JSON.stringify({
         item_index: itemIndex,
         person_index: currentPersonIndex,
-        is_sharing: !isCurrentlySharing,
       }),
     });
 
