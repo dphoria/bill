@@ -102,11 +102,7 @@ def share_item():
 
     persons = get_current_persons(session)
     person = persons[person_index]
-    if item_index not in person.items:
-        person.items.append(item_index)
-        person.items.sort()
-    else:
-        person.items.remove(item_index)
+    person.update_item(item_index)
     save_persons_file(persons, session)
     
     items = get_current_items(session)
