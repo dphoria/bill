@@ -7,8 +7,6 @@ from flask import (
     jsonify,
 )
 from bill.calculator import Calculator
-from bill.receipts import Items
-from bill.person import Person
 from logging import getLogger
 from items import get_current_items
 from extras import get_current_extras
@@ -72,8 +70,6 @@ def payments_page_view():
     )
 
 
-
-
 @payments_page.route("/payments/download", methods=["GET"])
 def download_csv():
     items = get_current_items(session)
@@ -104,21 +100,26 @@ def share_item():
     person = persons[person_index]
     person.update_item(item_index)
     save_persons_file(persons, session)
-    
+
     items = get_current_items(session)
     extras = get_current_extras(session)
     calculator = Calculator(persons=persons, items=items, extras=extras)
     item = items.items[item_index]
     share = calculator.get_person_share(item, person)
-    
+
     person_subtotal = calculator.get_person_subtotal(person)
     person_total = calculator.get_person_total(person)
-    
-    return jsonify({
-        "success": True,
-        "share": share,
-        "item_name": item.name,
-        "item_price": item.price,
-        "person_subtotal": person_subtotal,
-        "person_total": person_total
-    }), 200
+
+    return (
+        jsonify(
+            {
+                "success": True,
+                "share": share,
+                "item_name": item.name,
+                "item_price": item.price,
+                "person_subtotal": person_subtotal,
+                "person_total": person_total,
+            }
+        ),
+        200,
+    )

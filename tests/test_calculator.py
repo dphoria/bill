@@ -204,7 +204,12 @@ def test_person_update_item():
     person = Person(name="Test", items=[1, 3, 5])
 
     person.update_item(7)
-    assert person.items == [1, 3, 5, 7], "Item 7 should be added and list should be sorted"
+    assert person.items == [
+        1,
+        3,
+        5,
+        7,
+    ], "Item 7 should be added and list should be sorted"
 
     person.update_item(3)
     assert person.items == [1, 3, 5, 7], "Item 3 should remain unchanged"

@@ -139,7 +139,9 @@ class Calculator:
         Iterable[tuple[Item, float]]
             A lazy iterable yielding (Item, share) tuples for each item in self.items.items.
         """
-        return map(lambda item: (item, self.get_person_share(item, person)), self.items.items)
+        return map(
+            lambda item: (item, self.get_person_share(item, person)), self.items.items
+        )
 
     def get_shares_csv(self):
         """
