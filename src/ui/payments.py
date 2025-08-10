@@ -92,3 +92,25 @@ def download_csv():
         mimetype="text/csv",
         headers={"Content-Disposition": f"attachment; filename={filename}"},
     )
+
+
+@payments_page.route("/share_item", methods=["POST"])
+def share_item():
+    data = request.get_json()
+    item_index = data.get("item_index")
+    person_index = data.get("person_index")
+    is_sharing = data.get("is_sharing")
+
+    persons = get_current_persons(session)
+    if 0 <= person_index < len(persons):
+        person = persons[person_index]
+        if is_sharing:
+            if item_index not in person.items:
+                person.items.append(item_index)
+                person.items.sort()
+        else:
+            if item_index in person.items:
+                person.items.remove(item_index)
+        save_persons_file(persons, session)
+    
+    return jsonify({"success": True}), 200
