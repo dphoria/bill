@@ -1,5 +1,6 @@
 import csv
 from io import StringIO
+from typing import Iterable
 from bill.person import Person
 from bill.receipts import Items, Item
 
