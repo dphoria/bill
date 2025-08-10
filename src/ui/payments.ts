@@ -83,7 +83,6 @@ async function handleItemClick(e: Event): Promise<void> {
   const itemElement = e.currentTarget as HTMLElement;
   const itemIndex = parseInt(itemElement.getAttribute("data-item-index") || "0");
   
-  // Get current sharing state from the displayed amount
   const shareElement = itemElement.querySelector(".text-blue-400.font-semibold") as HTMLElement;
   const currentShare = parseFloat(shareElement.textContent?.replace("$", "") || "0");
   const isCurrentlySharing = currentShare > 0;
@@ -111,7 +110,6 @@ async function handleItemClick(e: Event): Promise<void> {
 }
 
 function updateItemDisplay(itemElement: HTMLElement, data: any): void {
-  // Update the share amount display
   const shareElement = itemElement.querySelector(".text-blue-400.font-semibold") as HTMLElement;
   const priceElement = itemElement.querySelector(".text-xs.text-slate-400") as HTMLElement;
   
@@ -119,7 +117,6 @@ function updateItemDisplay(itemElement: HTMLElement, data: any): void {
     shareElement.textContent = `$${data.share.toFixed(2)}`;
   }
   
-  // Update visual state based on whether item is being shared
   if (data.share > 0) {
     itemElement.classList.add("ring-4", "ring-green-400/40", "border-green-400");
   } else {

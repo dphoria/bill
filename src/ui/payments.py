@@ -112,7 +112,6 @@ def share_item():
             person.items.remove(item_index)
     save_persons_file(persons, session)
     
-    # Calculate the updated share for this item and person
     items = get_current_items(session)
     calculator = Calculator(persons=persons, items=items, extras=Items(items=[]))
     item = items.items[item_index]
