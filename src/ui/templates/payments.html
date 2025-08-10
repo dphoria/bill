@@ -68,7 +68,7 @@
       
       <div class="space-y-3 mb-6">
         {% for item in person_items %}
-        <div class="flex justify-between items-center p-3 bg-slate-800/50 rounded-lg border border-slate-700">
+        <div class="flex justify-between items-center p-3 bg-slate-800/50 rounded-lg border border-slate-700 cursor-pointer hover:bg-slate-800/70 transition-colors item-box" data-item-index="{{ loop.index0 }}">
           <span class="font-medium text-slate-100">{{ item.name }}</span>
           <div class="text-right">
             <div class="text-blue-400 font-semibold">${{ "%.2f"|format(item.share) }}</div>

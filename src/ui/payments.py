@@ -112,4 +112,15 @@ def share_item():
             person.items.remove(item_index)
     save_persons_file(persons, session)
     
-    return jsonify({"success": True}), 200
+    # Calculate the updated share for this item and person
+    items = get_current_items(session)
+    calculator = Calculator(persons=persons, items=items, extras=Items(items=[]))
+    item = items.items[item_index]
+    share = calculator.get_person_share(item, person)
+    
+    return jsonify({
+        "success": True,
+        "share": share,
+        "item_name": item.name,
+        "item_price": item.price
+    }), 200
