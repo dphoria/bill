@@ -1,5 +1,6 @@
 import csv
 from io import StringIO
+from typing import Iterable
 from bill.person import Person
 from bill.receipts import Items, Item
 
@@ -123,6 +124,24 @@ class Calculator:
             lambda extra: self.get_person_extra(extra, person), self.extras.items
         )
         return person_subtotal + sum(person_extras)
+
+    def get_person_shares(self, person: Person) -> "Iterable[tuple[Item, float]]":
+        """
+        Lazily compute a person's shares across all items, paired with items.
+
+        Parameters
+        ----------
+        person: Person
+            The person to calculate shares for
+
+        Returns
+        -------
+        Iterable[tuple[Item, float]]
+            A lazy iterable yielding (Item, share) tuples for each item in self.items.items.
+        """
+        return map(
+            lambda item: (item, self.get_person_share(item, person)), self.items.items
+        )
 
     def get_shares_csv(self):
         """
