@@ -164,6 +164,7 @@ cython_debug/
 **/*.ipynb
 *.jpg
 *.png
+!bin/*.jpg
 bill.env
 bin/export-tokens.sh
 bin/docker-up.sh
