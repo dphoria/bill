@@ -45,7 +45,6 @@ The project uses several tools to maintain code quality. These checks are automa
 Install development dependencies:
 ```shell
 pdm install --group dev
-pdm install --group security
 ```
 
 Run code quality checks:
@@ -56,22 +55,16 @@ pdm run black --check .
 
 # Testing
 INFERENCE_API_TOKEN=dummy_token pdm run pytest
-
-# Security checks
-pdm run bandit -r src/
-pdm run safety check
 ```
 
 #### GitHub Actions
 
-The project uses a single comprehensive CI/CD workflow (`ci.yml`) that handles all quality checks:
+The project uses a streamlined CI/CD workflow (`ci.yml`) with two main jobs:
 
 - **Quick Checks**: Fast linting and formatting checks for pull requests
 - **Testing**: Comprehensive test suite with coverage reporting
-- **Code Quality**: Advanced linting and import sorting checks
-- **Security**: Vulnerability scanning with Bandit and Safety
 
 The workflow uses conditional job execution to optimize performance:
 - Pull requests get quick feedback with essential checks
-- Main branch pushes run the full suite including security scans
+- Main branch pushes run the full test suite
 - All jobs use PDM for dependency management and run on Python 3.12
