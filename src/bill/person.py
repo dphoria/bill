@@ -20,9 +20,9 @@ class Person(BaseModel):
         None
             The items list is modified in place.
         """
-        if item_index not in self.items:
-            self.items.append(item_index)
-            self.items.sort()
+        items_set = set(self.items)
+        items_set.add(item_index)
+        self.items = sorted(list(items_set))
 
     def remove_item(self, item_index: int) -> None:
         """
@@ -38,8 +38,10 @@ class Person(BaseModel):
         None
             The items list is modified in place.
         """
-        if item_index in self.items:
+        try:
             self.items.remove(item_index)
+        except ValueError:
+            pass
 
     def update_item(self, item_index: int) -> None:
         """
