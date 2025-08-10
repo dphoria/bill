@@ -64,10 +64,14 @@ pdm run safety check
 
 #### GitHub Actions
 
-The following workflows are configured:
+The project uses a single comprehensive CI/CD workflow (`ci.yml`) that handles all quality checks:
 
-- **CI** (`ci.yml`): Runs tests, linting, and security checks
-- **Pull Request Checks** (`pull-request.yml`): Basic quality checks for PRs
-- **Security** (`security.yml`): Security scanning and dependency checks
+- **Quick Checks**: Fast linting and formatting checks for pull requests
+- **Testing**: Comprehensive test suite with coverage reporting
+- **Code Quality**: Advanced linting and import sorting checks
+- **Security**: Vulnerability scanning with Bandit and Safety
 
-All workflows use PDM for dependency management and run on Python 3.12.
+The workflow uses conditional job execution to optimize performance:
+- Pull requests get quick feedback with essential checks
+- Main branch pushes run the full suite including security scans
+- All jobs use PDM for dependency management and run on Python 3.12
