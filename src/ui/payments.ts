@@ -117,4 +117,18 @@ function updateItemDisplay(itemElement: HTMLElement, data: any): void {
   } else {
     itemElement.classList.remove("ring-4", "ring-green-400/40", "border-green-400");
   }
+  
+  if (data.person_subtotal !== undefined) {
+    const subtotalElement = document.querySelector(".text-green-400") as HTMLElement;
+    if (subtotalElement) {
+      subtotalElement.textContent = `$${data.person_subtotal.toFixed(2)}`;
+    }
+  }
+  
+  if (data.person_total !== undefined) {
+    const totalElement = document.getElementById("person-total") as HTMLElement;
+    if (totalElement) {
+      totalElement.textContent = `$${data.person_total.toFixed(2)}`;
+    }
+  }
 }

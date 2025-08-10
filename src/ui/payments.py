@@ -110,13 +110,19 @@ def share_item():
     save_persons_file(persons, session)
     
     items = get_current_items(session)
-    calculator = Calculator(persons=persons, items=items, extras=Items(items=[]))
+    extras = get_current_extras(session)
+    calculator = Calculator(persons=persons, items=items, extras=extras)
     item = items.items[item_index]
     share = calculator.get_person_share(item, person)
+    
+    person_subtotal = calculator.get_person_subtotal(person)
+    person_total = calculator.get_person_total(person)
     
     return jsonify({
         "success": True,
         "share": share,
         "item_name": item.name,
-        "item_price": item.price
+        "item_price": item.price,
+        "person_subtotal": person_subtotal,
+        "person_total": person_total
     }), 200
