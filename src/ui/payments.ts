@@ -72,7 +72,7 @@ function handleDownload(): void {
   window.location.href = "/payments/download";
 }
 
-function setupItemClickHandlers(): void {
+function setupPaymentItemClickHandlers(): void {
   const itemElements = document.querySelectorAll(".item-box");
   itemElements.forEach((itemElement) => {
     itemElement.addEventListener("click", handleItemClick);
