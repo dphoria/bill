@@ -39,9 +39,9 @@ def payments_page_view():
         {
             "name": item.name,
             "price": item.price,
-            "share": calculator.get_person_share(item, person),
+            "share": share,
         }
-        for item in items.items
+        for item, share in calculator.get_person_shares(person)
     ]
 
     person_extras = [
