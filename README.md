@@ -33,38 +33,3 @@ npx tsc
 cd src/ui/
 PYTHONPATH="../:$PYTHONPATH" python main.py
 ```
-
-## Development
-
-### Code Quality Checks
-
-The project uses several tools to maintain code quality. These checks are automatically run on pull requests via GitHub Actions.
-
-#### Local Development
-
-Install development dependencies:
-```shell
-pdm install --group dev
-```
-
-Run code quality checks:
-```shell
-# Linting and formatting
-pdm run ruff check
-pdm run black --check .
-
-# Testing
-INFERENCE_API_TOKEN=dummy_token pdm run pytest
-```
-
-#### GitHub Actions
-
-The project uses a streamlined CI/CD workflow (`ci.yml`) with two main jobs:
-
-- **Quick Checks**: Fast linting and formatting checks for pull requests
-- **Testing**: Comprehensive test suite with coverage reporting
-
-The workflow uses conditional job execution to optimize performance:
-- Pull requests get quick feedback with essential checks (Ruff + Black)
-- Manual triggers run the full test suite with coverage reporting
-- All jobs use PDM for dependency management and run on Python 3.12
