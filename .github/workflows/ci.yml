@@ -27,7 +27,9 @@ jobs:
         python-version: "3.12"
 
     - name: Install dependencies
-      run: pdm sync
+      run: |
+        pdm sync --group dev
+        pdm list
 
     - name: Run Ruff check
       run: pdm run ruff check
@@ -74,7 +76,9 @@ jobs:
           ${{ runner.os }}-pdm-
 
     - name: Install dependencies
-      run: pdm sync
+      run: |
+        pdm sync --group dev
+        pdm list
 
     - name: Run tests with coverage
       run: |
