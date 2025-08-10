@@ -33,3 +33,41 @@ npx tsc
 cd src/ui/
 PYTHONPATH="../:$PYTHONPATH" python main.py
 ```
+
+## Development
+
+### Code Quality Checks
+
+The project uses several tools to maintain code quality. These checks are automatically run on pull requests via GitHub Actions.
+
+#### Local Development
+
+Install development dependencies:
+```shell
+pdm install --group dev
+pdm install --group security
+```
+
+Run code quality checks:
+```shell
+# Linting and formatting
+pdm run ruff check
+pdm run black --check .
+
+# Testing
+INFERENCE_API_TOKEN=dummy_token pdm run pytest
+
+# Security checks
+pdm run bandit -r src/
+pdm run safety check
+```
+
+#### GitHub Actions
+
+The following workflows are configured:
+
+- **CI** (`ci.yml`): Runs tests, linting, and security checks
+- **Pull Request Checks** (`pull-request.yml`): Basic quality checks for PRs
+- **Security** (`security.yml`): Security scanning and dependency checks
+
+All workflows use PDM for dependency management and run on Python 3.12.

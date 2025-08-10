@@ -26,4 +26,10 @@ dev = [
     "pytest-dotenv",
     "types-flask",
     "types-pillow",
+    "pytest-cov",
+    "coverage",
+]
+security = [
+    "bandit",
+    "safety",
 ]

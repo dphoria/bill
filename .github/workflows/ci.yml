@@ -1,0 +1,129 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [ main, master ]
+  push:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.12"]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install PDM
+      uses: pdm-project/setup-pdm@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Cache PDM dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          .pdm.toml
+          .venv
+        key: ${{ runner.os }}-pdm-${{ hashFiles('**/pdm.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-pdm-
+
+    - name: Install dependencies
+      run: pdm install
+
+    - name: Run Ruff check
+      run: pdm run ruff check
+
+    - name: Run Black check
+      run: pdm run black --check .
+
+    - name: Run tests with coverage
+      run: |
+        INFERENCE_API_TOKEN=dummy_token pdm run pytest --cov=src --cov-report=xml --cov-report=term-missing
+      env:
+        INFERENCE_API_TOKEN: dummy_token
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        fail_ci_if_error: false
+      continue-on-error: true
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.12"
+
+    - name: Install PDM
+      uses: pdm-project/setup-pdm@v3
+      with:
+        python-version: "3.12"
+
+    - name: Install dependencies
+      run: pdm install
+
+    - name: Run Ruff format check
+      run: pdm run ruff format --check .
+
+    - name: Run isort check
+      run: |
+        if command -v isort &> /dev/null; then
+          pdm run isort --check-only --diff .
+        else
+          echo "isort not configured, skipping import sorting check"
+        fi
+      continue-on-error: true
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.12"
+
+    - name: Install PDM
+      uses: pdm-project/setup-pdm@v3
+      with:
+        python-version: "3.12"
+
+    - name: Install dependencies
+      run: pdm install
+
+    - name: Run Bandit security scan
+      run: |
+        pdm add --group security bandit || true
+        pdm run bandit -r src/ -f json -o bandit-report.json || true
+      continue-on-error: true
+
+    - name: Run Safety dependency check
+      run: |
+        pdm add --group security safety || true
+        pdm run safety check || true
+      continue-on-error: true
+
+    - name: Upload Bandit results
+      uses: actions/upload-artifact@v3
+      with:
+        name: bandit-report
+        path: bandit-report.json
+      continue-on-error: true
