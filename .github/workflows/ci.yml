@@ -1,0 +1,94 @@
+name: CI/CD Pipeline
+
+on:
+  pull_request:
+    branches: [ main, master ]
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  # Quick checks for PRs - runs first and fast
+  quick-checks:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.12"
+
+    - name: Install PDM
+      uses: pdm-project/setup-pdm@v3
+      with:
+        python-version: "3.12"
+
+    - name: Install dependencies
+      run: |
+        pdm sync --group dev
+        pdm list
+
+    - name: Run Ruff check
+      run: pdm run ruff check
+
+    - name: Run Black check
+      run: pdm run black --check .
+
+    - name: Run tests (excluding OpenAI API test)
+      run: |
+        INFERENCE_API_TOKEN=dummy_token pdm run pytest -k "not test_receipt_analysis_with_chat"
+      env:
+        INFERENCE_API_TOKEN: dummy_token
+
+  # Comprehensive testing and quality checks
+  test:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.12"]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install PDM
+      uses: pdm-project/setup-pdm@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Cache PDM dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          .pdm.toml
+          .venv
+        key: ${{ runner.os }}-pdm-${{ hashFiles('**/pdm.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-pdm-
+
+    - name: Install dependencies
+      run: |
+        pdm sync --group dev
+        pdm list
+
+    - name: Run tests with coverage
+      run: |
+        INFERENCE_API_TOKEN=dummy_token pdm run pytest --cov=src --cov-report=xml --cov-report=term-missing
+      env:
+        INFERENCE_API_TOKEN: dummy_token
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        fail_ci_if_error: false
+      continue-on-error: true

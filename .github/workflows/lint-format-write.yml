@@ -1,0 +1,75 @@
+name: Lint and Format (Write Mode)
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit_message:
+        description: 'Commit message for formatting changes'
+        required: false
+        default: 'style: apply automatic formatting and linting fixes'
+        type: string
+
+jobs:
+  lint-format-write:
+    if: github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/main' && github.ref != 'refs/heads/master'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.12"
+
+    - name: Install PDM
+      uses: pdm-project/setup-pdm@v3
+      with:
+        python-version: "3.12"
+
+    - name: Install dependencies
+      run: |
+        pdm sync --group dev
+        pdm list
+
+    - name: Configure Git
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+
+    - name: Run Ruff check and fix
+      run: pdm run ruff check --fix
+
+    - name: Run Black formatting
+      run: pdm run black .
+
+    - name: Check for changes
+      id: check_changes
+      run: |
+        if [ -n "$(git status --porcelain)" ]; then
+          echo "changes=true" >> $GITHUB_OUTPUT
+          echo "Files were modified by linting/formatting"
+        else
+          echo "changes=false" >> $GITHUB_OUTPUT
+          echo "No files were modified"
+        fi
+
+    - name: Commit and push changes
+      if: steps.check_changes.outputs.changes == 'true'
+      run: |
+        git add -A
+        git commit -m "${{ github.event.inputs.commit_message }}"
+        git push origin ${{ github.ref }} || {
+          echo "Failed to push changes. This might be due to:"
+          echo "1. Insufficient permissions on the token"
+          echo "2. Branch protection rules"
+          echo "3. Repository settings"
+          exit 1
+        }

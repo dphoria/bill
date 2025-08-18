@@ -67,21 +67,15 @@
       <h3 class="text-lg font-semibold text-slate-200 mb-4">Items</h3>
       
       <div class="space-y-3 mb-6">
-        {% if person_items %}
-          {% for item in person_items %}
-          <div class="flex justify-between items-center p-3 bg-slate-800/50 rounded-lg border border-slate-700">
-            <span class="font-medium text-slate-100">{{ item.name }}</span>
-            <div class="text-right">
-              <div class="text-blue-400 font-semibold">${{ "%.2f"|format(item.share) }}</div>
-              <div class="text-xs text-slate-400">/ ${{ "%.2f"|format(item.price) }}</div>
-            </div>
+        {% for item in person_items %}
+        <div class="flex justify-between items-center p-3 bg-slate-800/50 rounded-lg border border-slate-700 cursor-pointer hover:bg-slate-800/70 transition-colors item-box" data-item-index="{{ loop.index0 }}">
+          <span class="font-medium text-slate-100">{{ item.name }}</span>
+          <div class="text-right">
+            <div class="text-blue-400 font-semibold">${{ "%.2f"|format(item.share) }}</div>
+            <div class="text-xs text-slate-400">/ ${{ "%.2f"|format(item.price) }}</div>
           </div>
-          {% endfor %}
-        {% else %}
-          <div class="text-center text-slate-400 py-4">
-            <p>No items</p>
-          </div>
-        {% endif %}
+        </div>
+        {% endfor %}
       </div>
 
       <!-- Items Subtotal -->

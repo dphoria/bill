@@ -4,12 +4,13 @@ from flask import (
     Blueprint,
     request,
     Response,
+    jsonify,
 )
 from bill.calculator import Calculator
 from logging import getLogger
 from items import get_current_items
 from extras import get_current_extras
-from persons import get_current_persons
+from persons import get_current_persons, save_persons_file
 from datetime import datetime
 
 log = getLogger(__file__)
@@ -36,10 +37,9 @@ def payments_page_view():
         {
             "name": item.name,
             "price": item.price,
-            "share": calculator.get_person_share(item, person),
+            "share": share,
         }
-        for item_index, item in enumerate(items.items)
-        if item_index in person.items
+        for item, share in calculator.get_person_shares(person)
     ]
 
     person_extras = [
@@ -87,4 +87,39 @@ def download_csv():
         csv_content,
         mimetype="text/csv",
         headers={"Content-Disposition": f"attachment; filename={filename}"},
+    )
+
+
+@payments_page.route("/share_item", methods=["POST"])
+def share_item():
+    data = request.get_json()
+    item_index = data.get("item_index")
+    person_index = data.get("person_index")
+
+    persons = get_current_persons(session)
+    person = persons[person_index]
+    person.update_item(item_index)
+    save_persons_file(persons, session)
+
+    items = get_current_items(session)
+    extras = get_current_extras(session)
+    calculator = Calculator(persons=persons, items=items, extras=extras)
+    item = items.items[item_index]
+    share = calculator.get_person_share(item, person)
+
+    person_subtotal = calculator.get_person_subtotal(person)
+    person_total = calculator.get_person_total(person)
+
+    return (
+        jsonify(
+            {
+                "success": True,
+                "share": share,
+                "item_name": item.name,
+                "item_price": item.price,
+                "person_subtotal": person_subtotal,
+                "person_total": person_total,
+            }
+        ),
+        200,
     )
