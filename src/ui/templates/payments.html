@@ -83,7 +83,7 @@
         <div class="flex justify-between items-center text-lg font-semibold">
           <span>Subtotal:</span>
           <div class="text-right">
-            <div class="text-green-400">${{ "%.2f"|format(person_subtotal) }}</div>
+            <div class="text-green-400" id="person-subtotal">${{ "%.2f"|format(person_subtotal) }}</div>
             <div class="text-xs text-slate-400">/ ${{ "%.2f"|format(items_total) }}</div>
           </div>
         </div>
@@ -115,7 +115,7 @@
         <div class="flex justify-between items-center text-xl font-bold">
           <span>Total:</span>
           <div class="text-right">
-            <div class="text-green-400">${{ "%.2f"|format(person_total) }}</div>
+            <div class="text-green-400" id="person-total-bottom">${{ "%.2f"|format(person_total) }}</div>
             <div class="text-xs text-slate-400">/ ${{ "%.2f"|format(overall_total) }}</div>
           </div>
         </div>

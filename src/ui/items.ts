@@ -40,6 +40,9 @@ const editTitle = document.getElementById("edit-title") as HTMLHeadingElement;
 const editSubtitle = document.getElementById(
   "edit-subtitle",
 ) as HTMLParagraphElement;
+const loadingOverlay = document.getElementById(
+  "loading-overlay",
+) as HTMLElement;
 
 function showItemsList(): void {
   itemsListView.classList.remove("hidden");
@@ -81,6 +84,14 @@ function showAddItem(): void {
   editItemView.classList.remove("hidden");
 
   editItemName.focus();
+}
+
+function showLoadingOverlay(): void {
+  loadingOverlay.classList.remove("hidden");
+}
+
+function hideLoadingOverlay(): void {
+  loadingOverlay.classList.add("hidden");
 }
 
 function setupItemClickHandlers(): void {
@@ -189,6 +200,8 @@ async function navigateToPersons(): Promise<void> {
 }
 
 async function navigateToSplit(): Promise<void> {
+  showLoadingOverlay();
+  
   try {
     const response = await fetch("/prepare_split", {
       method: "POST",
@@ -202,18 +215,22 @@ async function navigateToSplit(): Promise<void> {
       console.log(
         `Prepared split: ${result.person_count} persons, ${result.item_count} items`,
       );
-      window.location.href = "/distribute";
+      window.location.href = "/extras";
     } else {
       const error = await response.json();
+      hideLoadingOverlay();
       alert(error.error || "Failed to prepare split");
     }
   } catch (error) {
     console.error("Error preparing for split:", error);
+    hideLoadingOverlay();
     alert("Error preparing for split. Please try again.");
   }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  hideLoadingOverlay();
+  
   cancelButton.addEventListener("click", handleCancel);
   splitButton.addEventListener("click", handleSplit);
   saveButton.addEventListener("click", handleSave);

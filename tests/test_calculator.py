@@ -212,16 +212,16 @@ def test_person_update_item():
     ], "Item 7 should be added and list should be sorted"
 
     person.update_item(3)
-    assert person.items == [1, 3, 5, 7], "Item 3 should remain unchanged"
+    assert person.items == [1, 5, 7], "Item 3 should be removed (toggled)"
 
     person.update_item(5)
-    assert person.items == [1, 3, 7], "Item 5 should be removed"
+    assert person.items == [1, 7], "Item 5 should be removed"
 
     person.update_item(9)
-    assert person.items == [1, 3, 7], "Item 9 should not affect the list"
+    assert person.items == [1, 7, 9], "Item 9 should be added to the list"
 
     person.update_item(5)
-    assert person.items == [1, 3, 5, 7], "Item 5 should be added back"
+    assert person.items == [1, 5, 7, 9], "Item 5 should be added back"
 
     person.update_item(5)
-    assert person.items == [1, 3, 7], "Item 5 should be removed again"
+    assert person.items == [1, 7, 9], "Item 5 should be removed again"

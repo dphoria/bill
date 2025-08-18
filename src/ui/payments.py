@@ -10,7 +10,8 @@ from bill.calculator import Calculator
 from logging import getLogger
 from items import get_current_items
 from extras import get_current_extras
-from persons import get_current_persons, save_persons_file
+from persons import get_current_persons
+from session_data import save_persons_file
 from datetime import datetime
 
 log = getLogger(__file__)

@@ -24,6 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   initializePersonData();
   setupItemClickedHandlers();
+  initializeItemHighlighting();
 
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
@@ -79,6 +80,25 @@ function setupItemClickedHandlers(): void {
   });
 }
 
+function initializeItemHighlighting(): void {
+  const itemElements = document.querySelectorAll(".item-box");
+  itemElements.forEach((itemElement) => {
+    const shareElement = itemElement.querySelector(".text-blue-400.font-semibold") as HTMLElement;
+    if (shareElement) {
+      const shareText = shareElement.textContent;
+      if (shareText) {
+        const shareMatch = shareText.match(/\$(\d+\.\d+)/);
+        if (shareMatch) {
+          const share = parseFloat(shareMatch[1]);
+          if (share > 0) {
+            itemElement.classList.add("ring-4", "ring-green-400/40", "border-green-400");
+          }
+        }
+      }
+    }
+  });
+}
+
 async function handleItemClick(e: Event): Promise<void> {
   const itemElement = e.currentTarget as HTMLElement;
   const itemIndex = parseInt(itemElement.getAttribute("data-item-index") || "0");
@@ -119,16 +139,21 @@ function updateItemInfoDisplay(itemElement: HTMLElement, data: any): void {
   }
   
   if (data.person_subtotal !== undefined) {
-    const subtotalElement = document.querySelector(".text-green-400") as HTMLElement;
+    const subtotalElement = document.getElementById("person-subtotal") as HTMLElement;
     if (subtotalElement) {
       subtotalElement.textContent = `$${data.person_subtotal.toFixed(2)}`;
     }
   }
   
   if (data.person_total !== undefined) {
-    const totalElement = document.getElementById("person-total") as HTMLElement;
+    const totalElement = document.getElementById("person-total-bottom") as HTMLElement;
     if (totalElement) {
       totalElement.textContent = `$${data.person_total.toFixed(2)}`;
+    }
+    
+    const personTotalElement = document.getElementById("person-total") as HTMLElement;
+    if (personTotalElement) {
+      personTotalElement.textContent = `$${data.person_total.toFixed(2)}`;
     }
   }
 }
