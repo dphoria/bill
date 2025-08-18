@@ -173,7 +173,7 @@ async function handleExtraSave(): Promise<void> {
 }
 
 async function navigateBack(): Promise<void> {
-  window.location.href = "/distribute";
+  window.location.href = "/items";
 }
 
 async function navigateDone(): Promise<void> {
