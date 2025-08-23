@@ -23,7 +23,7 @@ ignore = [
 
 [project]
 name = "bill"
-version = "1.1.0"
+version = "1.2.0"
 description = "Split Bill Web Site"
 authors = [
     {name = "Sung Cho", email = "sung.w.cho@protonmail.com"},
