@@ -214,9 +214,15 @@ class Calculator:
 
         for item in self.items.items:
             row_data = [item.name, item.price]
+            split_count = self.get_split_count(item)
+            item_index = self.items.items.index(item)
+
             for person in self.persons:
-                share = self.get_person_share(item, person)
-                row_data.append(share if share else None)
+                if item_index in person.items:
+                    formula = f"=$B{current_row}/{split_count}"
+                    row_data.append(formula)
+                else:
+                    row_data.append(None)
             row_data.append(None)
             worksheet.append(row_data)
             current_row += 1
