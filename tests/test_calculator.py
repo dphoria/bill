@@ -267,7 +267,7 @@ def test_spreadsheet(calculator, sample_persons):
     assert worksheet[f"F{subtotal_row}"].value == "=SUM(C18:E18)"
 
     service_charge_row = 19
-    assert worksheet[f"A{service_charge_row}"].value == SERVICE_CHARGE
+    assert worksheet[f"A{service_charge_row}"].value == "Service Charge (20%)"
     service_charge = subtotal * SERVICE_CHARGE_RATIO
     assert worksheet[f"B{service_charge_row}"].value == service_charge
 
@@ -289,7 +289,7 @@ def test_spreadsheet(calculator, sample_persons):
     )
 
     tax_row = 20
-    assert worksheet[f"A{tax_row}"].value == TAX
+    assert worksheet[f"A{tax_row}"].value == "Tax (10.35%)"
     tax = subtotal * TAX_RATIO
     assert worksheet[f"B{tax_row}"].value == tax
 
