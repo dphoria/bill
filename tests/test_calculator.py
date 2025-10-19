@@ -3,6 +3,7 @@ from bill.calculator import Calculator
 from bill.person import Person
 from bill.receipts import Item, Items
 from tests.utils import EXPECTED_ITEMS
+from openpyxl import load_workbook
 
 SERVICE_CHARGE = "Service Charge"
 TAX = "Tax"
@@ -225,3 +226,91 @@ def test_person_update_item():
 
     person.update_item(5)
     assert person.items == [1, 7, 9], "Item 5 should be removed again"
+
+
+def test_spreadsheet(calculator, sample_persons):
+    spreadsheet_bytes = calculator.get_shares_spreadsheet()
+
+    workbook = load_workbook(spreadsheet_bytes)
+    worksheet = workbook.active
+
+    header = [cell.value for cell in worksheet[1]]
+    expected_header = ["Item", "Receipt", "A", "B", "C", "Check"]
+    assert header == expected_header
+
+    assert worksheet["A2"].value == "GL-Domaine Amido Cotes Du Rhone"
+    assert worksheet["B2"].value == 13.00
+    assert worksheet["C2"].value == 6.50
+    assert worksheet["D2"].value is None
+    assert worksheet["E2"].value == 6.50
+
+    assert worksheet["A16"].value == "Shahi tukda"
+    assert worksheet["B16"].value == 15.00
+    assert worksheet["C16"].value == 5.00
+    assert worksheet["D16"].value == 5.00
+    assert worksheet["E16"].value == 5.00
+
+    assert worksheet["A17"].value == "Jus d Manguir"
+    assert worksheet["B17"].value == 9.00
+    assert worksheet["C17"].value == 4.50
+    assert worksheet["D17"].value == 4.50
+    assert worksheet["E17"].value is None
+
+    subtotal_row = 18
+    assert worksheet[f"A{subtotal_row}"].value == "Subtotal"
+    subtotal = EXPECTED_ITEMS.get_sum()
+    assert worksheet[f"B{subtotal_row}"].value == subtotal
+
+    assert worksheet[f"C{subtotal_row}"].value == "=SUM(C2:C17)"
+    assert worksheet[f"D{subtotal_row}"].value == "=SUM(D2:D17)"
+    assert worksheet[f"E{subtotal_row}"].value == "=SUM(E2:E17)"
+    assert worksheet[f"F{subtotal_row}"].value == "=SUM(C18:E18)"
+
+    service_charge_row = 19
+    assert worksheet[f"A{service_charge_row}"].value == SERVICE_CHARGE
+    service_charge = subtotal * SERVICE_CHARGE_RATIO
+    assert worksheet[f"B{service_charge_row}"].value == service_charge
+
+    assert (
+        worksheet[f"C{service_charge_row}"].value
+        == f"=(C{subtotal_row}/$B${subtotal_row})*$B{service_charge_row}"
+    )
+    assert (
+        worksheet[f"D{service_charge_row}"].value
+        == f"=(D{subtotal_row}/$B${subtotal_row})*$B{service_charge_row}"
+    )
+    assert (
+        worksheet[f"E{service_charge_row}"].value
+        == f"=(E{subtotal_row}/$B${subtotal_row})*$B{service_charge_row}"
+    )
+    assert (
+        worksheet[f"F{service_charge_row}"].value
+        == f"=SUM(C{service_charge_row}:E{service_charge_row})"
+    )
+
+    tax_row = 20
+    assert worksheet[f"A{tax_row}"].value == TAX
+    tax = subtotal * TAX_RATIO
+    assert worksheet[f"B{tax_row}"].value == tax
+
+    assert (
+        worksheet[f"C{tax_row}"].value
+        == f"=(C{subtotal_row}/$B${subtotal_row})*$B{tax_row}"
+    )
+    assert (
+        worksheet[f"D{tax_row}"].value
+        == f"=(D{subtotal_row}/$B${subtotal_row})*$B{tax_row}"
+    )
+    assert (
+        worksheet[f"E{tax_row}"].value
+        == f"=(E{subtotal_row}/$B${subtotal_row})*$B{tax_row}"
+    )
+    assert worksheet[f"F{tax_row}"].value == f"=SUM(C{tax_row}:E{tax_row})"
+
+    total_row = 21
+    assert worksheet[f"A{total_row}"].value == "Total"
+    assert worksheet[f"B{total_row}"].value == f"=SUM(B{subtotal_row}:B{tax_row})"
+    assert worksheet[f"C{total_row}"].value == f"=SUM(C{subtotal_row}:C{tax_row})"
+    assert worksheet[f"D{total_row}"].value == f"=SUM(D{subtotal_row}:D{tax_row})"
+    assert worksheet[f"E{total_row}"].value == f"=SUM(E{subtotal_row}:E{tax_row})"
+    assert worksheet[f"F{total_row}"].value == f"=SUM(C{total_row}:E{total_row})"

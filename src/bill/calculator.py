@@ -1,8 +1,9 @@
 import csv
-from io import StringIO
+from io import StringIO, BytesIO
 from typing import Iterable
 from bill.person import Person
 from bill.receipts import Items, Item
+from openpyxl import Workbook
 
 
 class Calculator:
@@ -195,3 +196,68 @@ class Calculator:
 
         output.seek(0)
         return output.getvalue()
+
+    def get_shares_spreadsheet(self):
+        """
+        Get an Excel spreadsheet (BytesIO) with formulas for calculating shares.
+        """
+        workbook = Workbook()
+        worksheet = workbook.active
+        worksheet.title = "Bill Split"
+
+        fieldnames = (
+            ["Item", "Receipt"] + [person.name for person in self.persons] + ["Check"]
+        )
+
+        worksheet.append(fieldnames)
+        current_row = 2
+
+        for item in self.items.items:
+            row_data = [item.name, item.price]
+            for person in self.persons:
+                share = self.get_person_share(item, person)
+                row_data.append(share if share else None)
+            row_data.append(None)
+            worksheet.append(row_data)
+            current_row += 1
+
+        subtotal_row = current_row
+        subtotal = self.items.get_sum()
+        person_count = len(self.persons)
+        last_person_col = chr(ord("C") + person_count - 1)
+
+        row_data = ["Subtotal", subtotal]
+        for col_idx in range(person_count):
+            col_letter = chr(ord("C") + col_idx)
+            formula = f"=SUM({col_letter}2:{col_letter}{current_row - 1})"
+            row_data.append(formula)
+        row_data.append(f"=SUM(C{current_row}:{last_person_col}{current_row})")
+        worksheet.append(row_data)
+        current_row += 1
+
+        for extra in self.extras.items:
+            row_data = [extra.name, extra.price]
+            for col_idx in range(person_count):
+                col_letter = chr(ord("C") + col_idx)
+                formula = (
+                    f"=({col_letter}{subtotal_row}/$B${subtotal_row})*$B{current_row}"
+                )
+                row_data.append(formula)
+            row_data.append(f"=SUM(C{current_row}:{last_person_col}{current_row})")
+            worksheet.append(row_data)
+            current_row += 1
+
+        total_row = current_row
+        row_data = ["Total"]
+        row_data.append(f"=SUM(B{subtotal_row}:B{current_row - 1})")
+        for col_idx in range(person_count):
+            col_letter = chr(ord("C") + col_idx)
+            formula = f"=SUM({col_letter}{subtotal_row}:{col_letter}{current_row - 1})"
+            row_data.append(formula)
+        row_data.append(f"=SUM(C{total_row}:{last_person_col}{total_row})")
+        worksheet.append(row_data)
+
+        output = BytesIO()
+        workbook.save(output)
+        output.seek(0)
+        return output

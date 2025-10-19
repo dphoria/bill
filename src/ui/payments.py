@@ -72,7 +72,7 @@ def payments_page_view():
 
 
 @payments_page.route("/payments/download", methods=["GET"])
-def download_csv():
+def download_spreadsheet():
     items = get_current_items(session)
     extras = get_current_extras(session)
     persons = get_current_persons(session)
@@ -80,13 +80,13 @@ def download_csv():
     calculator = Calculator(persons=persons, items=items, extras=extras)
 
     timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-    filename = f"{timestamp}.csv"
+    filename = f"{timestamp}.xlsx"
 
-    csv_content = calculator.get_shares_csv()
+    spreadsheet_bytes = calculator.get_shares_spreadsheet()
 
     return Response(
-        csv_content,
-        mimetype="text/csv",
+        spreadsheet_bytes.getvalue(),
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         headers={"Content-Disposition": f"attachment; filename={filename}"},
     )
 
