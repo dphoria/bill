@@ -240,20 +240,20 @@ def test_spreadsheet(calculator, sample_persons):
 
     assert worksheet["A2"].value == "GL-Domaine Amido Cotes Du Rhone"
     assert worksheet["B2"].value == 13.00
-    assert worksheet["C2"].value == 6.50
+    assert worksheet["C2"].value == "=$B2/2"
     assert worksheet["D2"].value is None
-    assert worksheet["E2"].value == 6.50
+    assert worksheet["E2"].value == "=$B2/2"
 
     assert worksheet["A16"].value == "Shahi tukda"
     assert worksheet["B16"].value == 15.00
-    assert worksheet["C16"].value == 5.00
-    assert worksheet["D16"].value == 5.00
-    assert worksheet["E16"].value == 5.00
+    assert worksheet["C16"].value == "=$B16/3"
+    assert worksheet["D16"].value == "=$B16/3"
+    assert worksheet["E16"].value == "=$B16/3"
 
     assert worksheet["A17"].value == "Jus d Manguir"
     assert worksheet["B17"].value == 9.00
-    assert worksheet["C17"].value == 4.50
-    assert worksheet["D17"].value == 4.50
+    assert worksheet["C17"].value == "=$B17/2"
+    assert worksheet["D17"].value == "=$B17/2"
     assert worksheet["E17"].value is None
 
     subtotal_row = 18
