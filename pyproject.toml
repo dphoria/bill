@@ -28,7 +28,7 @@ description = "Split Bill Web Site"
 authors = [
     {name = "Sung Cho", email = "sung.w.cho@protonmail.com"},
 ]
-dependencies = ["flask", "pillow", "openai", "pydantic", "click"]
+dependencies = ["flask", "pillow", "openai", "pydantic", "click", "openpyxl"]
 requires-python = "==3.12.*"
 readme = "README.md"
 license = {text = "MIT"}
