@@ -242,7 +242,14 @@ class Calculator:
         current_row += 1
 
         for extra in self.extras.items:
-            row_data = [extra.name, extra.price]
+            percentage = (extra.price / subtotal) * 100
+            if percentage == int(percentage):
+                formatted_percentage = f"{int(percentage)}%"
+            else:
+                formatted_percentage = f"{percentage:.2f}%"
+            extra_name_with_percentage = f"{extra.name} ({formatted_percentage})"
+
+            row_data = [extra_name_with_percentage, extra.price]
             for col_idx in range(person_count):
                 col_letter = chr(ord("C") + col_idx)
                 formula = (
