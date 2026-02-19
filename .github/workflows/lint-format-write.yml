@@ -29,15 +29,15 @@ jobs:
       with:
         python-version: "3.12"
 
-    - name: Install PDM
-      uses: pdm-project/setup-pdm@v3
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
       with:
         python-version: "3.12"
 
     - name: Install dependencies
       run: |
-        pdm sync --group dev
-        pdm list
+        uv sync
+        uv pip list
 
     - name: Configure Git
       run: |
@@ -45,10 +45,10 @@ jobs:
         git config --local user.name "GitHub Action"
 
     - name: Run Ruff check and fix
-      run: pdm run ruff check --fix
+      run: uv run ruff check --fix
 
     - name: Run Black formatting
-      run: pdm run black .
+      run: uv run black .
 
     - name: Check for changes
       id: check_changes

@@ -18,12 +18,11 @@ RUN npx @tailwindcss/cli -i ./src/ui/static/input.css -o ./src/ui/static/output.
 
 FROM python:$PYTHON_BASE AS builder
 
-RUN pip install -U pdm
-ENV PDM_CHECK_UPDATE=false
-COPY pyproject.toml pdm.lock /bill/
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+COPY pyproject.toml uv.lock /bill/
 
 WORKDIR /bill
-RUN pdm install --check --prod --no-editable
+RUN uv sync --no-dev --no-editable
 
 FROM python:$PYTHON_BASE
 
