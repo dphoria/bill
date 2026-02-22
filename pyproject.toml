@@ -1,9 +1,6 @@
 [tool.pytest.ini_options]
 pythonpath = "src"
 
-[tool.pdm]
-distribution = false
-
 [tool.ruff]
 target-version = "py312"
 line-length = 88
@@ -33,7 +30,7 @@ requires-python = "==3.12.*"
 readme = "README.md"
 license = {text = "MIT"}
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
     "ipykernel",
     "ruff",

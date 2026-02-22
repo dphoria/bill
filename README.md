@@ -9,7 +9,7 @@ It was developed as a personal learning project.
 Adjust accordingly.
 
 ```shell
-pdm sync
+uv sync
 nvm use # nvm use 22.13
 npm install
 ```
